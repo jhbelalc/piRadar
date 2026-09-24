@@ -12,7 +12,7 @@ App personal de finanzas para Android e iPhone: registrar gastos e ingresos (man
 - MudBlazor (UI y gráficos con `MudChart`)
 - SQLite cifrado: `sqlite-net-base` + `SQLitePCLRaw.bundle_e_sqlite3mc` en modo compatible SQLCipher
 - OCR local en el dispositivo: ML Kit (Android) y Apple Vision (iOS) detrás de `IOcrService`
-- Tests: xUnit
+- Tests: xunit.v3 sobre Microsoft.Testing.Platform (activado en `global.json`; no agregar `Microsoft.NET.Test.Sdk` ni `xunit.runner.visualstudio`)
 
 ## Restricciones del entorno (no cambiar)
 - Mac Intel con Xcode 26.3; simulador iOS x64.
@@ -28,7 +28,8 @@ App personal de finanzas para Android e iPhone: registrar gastos e ingresos (man
 ```sh
 dotnet build src/PiRadar.App -f net10.0-android              # compilar Android
 dotnet build src/PiRadar.App -f net10.0-ios26.0 -t:Run -p:_DeviceName=:v2:udid=<UDID>   # simulador iOS 18.1 (xcrun simctl list devices)
-dotnet test                                                  # tests (net10.0 puro, sin MAUI)
+dotnet test                                                  # todos los tests (net10.0 puro, sin MAUI)
+dotnet test --project tests/PiRadar.Data.Tests              # un proyecto de tests
 ```
 
 Simuladores/emuladores probados en este Mac Intel:
@@ -115,6 +116,8 @@ Versión de esquema en `PRAGMA user_version`.
 - **Dinero**: nunca `double`/`float`. Montos como `long` en unidades menores (`AmountMinor`): COP escala 0, USD escala 2. Usar el tipo `Money` de Core. Formato `es-CO` (`$ 1.234.567`, `US$ 12,50`).
 - **Fechas**: `CreatedAt`/`UpdatedAt` siempre en UTC (`DateTime.UtcNow`; al leer, tratarlas como `DateTimeKind.Utc`). `OccurredAt` en hora local del dispositivo y es la base de las agregaciones. La semana inicia el lunes (ISO).
 - **Seguridad**: nunca loguear la clave de la BD, la contraseña del respaldo, texto OCR ni montos. Las imágenes de recibos se guardan como BLOB dentro de la BD cifrada, nunca como archivos sueltos.
-- **Migraciones**: manuales con `PRAGMA user_version`, una clase por versión en `PiRadar.Data/Migrations`.
+- **Migraciones**: manuales con `PRAGMA user_version`, una clase `MigrationNNN_*` por versión en `PiRadar.Data/Migrations`, registrada al final de `Migrator.All`. Usar SQL explícito (tipos de columna iguales a los de sqlite-net: `integer`, `bigint`, `varchar`, `varchar(36)` para Guid, `blob`), nunca `CreateTable<T>` ni inserts con records, para que una migración vieja no dependa de la forma actual de las clases. Nunca editar una migración ya publicada.
+- **Records vs dominio**: `PiRadar.Data/Records` tiene las clases tabla de sqlite-net (`internal`); el dominio de Core no depende de sqlite-net. `RecordMapping` convierte y restaura `DateTimeKind` (sqlite-net guarda ticks sin Kind).
+- **Enums**: se guardan como entero con valores explícitos: no reordenar ni reutilizar números. `Currency` se guarda como texto ISO (`COP`/`USD`) y se lee con `CurrencyExtensions.ParseCode` (no `Enum.TryParse`, que acepta "1").
 - **UI responsive**: `MudGrid` y breakpoints de MudBlazor; verificar en teléfono y tablet, vertical y horizontal.
 - El OCR solo **propone** valores; el usuario siempre confirma antes de guardar.

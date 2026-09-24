@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PiRadar.App/PiRadar.App.csproj" />
+    <Project Path="src/PiRadar.Core/PiRadar.Core.csproj" />
+    <Project Path="src/PiRadar.Data/PiRadar.Data.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PiRadar.Core.Tests/PiRadar.Core.Tests.csproj" />
+    <Project Path="tests/PiRadar.Data.Tests/PiRadar.Data.Tests.csproj" />
+  </Folder>
+</Solution>
