@@ -153,3 +153,22 @@ public class PiRadarDatabaseTests
         };
     }
 }
+
+public class DatabaseInfoTests
+{
+    [Fact]
+    public async Task GetInfo_ReportsSqlCipherSchemeAndSeeds()
+    {
+        using var temp = new TempDatabase();
+        await using var db = await temp.OpenAsync();
+
+        var info = await db.GetInfoAsync();
+
+        Assert.Equal("sqlcipher", info.Cipher);
+        Assert.Equal(Migrations.Migrator.LatestVersion, info.SchemaVersion);
+        Assert.True(info.ForeignKeysEnabled);
+        Assert.Equal(Seed.DefaultData.Categories.Count, info.CategoryCount);
+        Assert.Equal(Seed.DefaultData.PaymentMethods.Count, info.PaymentMethodCount);
+        Assert.Equal(0, info.TransactionCount);
+    }
+}

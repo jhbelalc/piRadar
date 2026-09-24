@@ -35,6 +35,9 @@ dotnet test --project tests/PiRadar.Data.Tests              # un proyecto de tes
 Simuladores/emuladores probados en este Mac Intel:
 - iOS: usar el runtime **iOS 18.1** (p. ej. iPhone 16). El simulador iOS 26.3 no arranca de forma fiable en Intel. La app compilada para `net10.0-ios26.0` corre en 18.1 (mínimo iOS 15).
 - Android: AVD `piRadar_API35` (android-35, google_apis, x86_64). Instalar/lanzar: `dotnet build src/PiRadar.App -f net10.0-android -t:Run`.
+  - Arrancar con `emulator -avd piRadar_API35 -gpu swiftshader_indirect -no-audio`: con la GPU del host, `adb exec-out screencap` da capturas negras.
+  - El emulador en este Mac es inestable: el stack de Bluetooth se cae en bucle y aparece "System UI isn't responding", que se come los toques de `adb shell input tap`. `uiautomator dump` no funciona. Para verificar, que la app escriba un archivo en `AppDataDirectory` y leerlo con `run-as`.
+  - Los logs de `ILogger` (proveedor Debug) no aparecen en logcat.
 ```sh
 # leer archivos de la app (build Debug)
 adb shell run-as com.jhbelalc.piradar ls files
@@ -74,8 +77,9 @@ piRadar/
       preKeyAction: c => c.Execute("PRAGMA cipher = 'sqlcipher'; PRAGMA legacy = 4;"));
   ```
   **No** usar `sqlite-net-sqlcipher` ni `SQLitePCLRaw.bundle_e_sqlcipher` (descontinuados). **No** agregar `sqlite-net-pcl` (trae `e_sqlite3` sin cifrado y choca con el bundle).
-- **Clave de BD**: 32 bytes aleatorios generados en el primer arranque y guardados en `SecureStorage` (Keychain/Keystore). No se respalda ni se exporta.
-- **Respaldo del sistema desactivado**: Android `android:allowBackup="false"` (la clave del Keystore no se restaura y la BD quedaría ilegible); en iOS el archivo de BD se marca con `NSURLIsExcludedFromBackupKey`. El único respaldo soportado es el export/import propio.
+- **Clave de BD**: 32 bytes aleatorios generados en el primer arranque y guardados en `SecureStorage` (Keychain/Keystore) por `SecureStorageDatabaseKeyProvider`. No se respalda ni se exporta.
+- **Arranque**: `DatabaseHost` (singleton, en Data) obtiene o crea la clave y abre la BD en `AppDataDirectory/db/piradar.db3`; `DatabaseGate` (en `MainLayout`) no muestra la app hasta que la BD está abierta. Si existe el archivo pero no la clave (`KeyMissing`) o la clave no abre el archivo (`Unreadable`), **nunca** se genera una clave nueva en silencio: se muestra la pantalla de error con "Empezar de cero", que requiere confirmación y llama a `DatabaseHost.ResetAsync()`. Las páginas acceden a la BD vía `DatabaseHost.Database`, que solo es válido dentro del gate.
+- **Respaldo del sistema desactivado**: en Android, `android:allowBackup="false"`, `fullBackupContent="false"` y `Resources/xml/data_extraction_rules.xml`, que excluye todo de la nube y de la transferencia entre dispositivos de Android 12+ (la clave del Keystore no viaja y la BD quedaría ilegible). En iOS, `DatabaseLocation` marca la carpeta `db/` con `NSURLIsExcludedFromBackupKey`. El único respaldo soportado es el export/import propio.
 - **OCR**: `Plugin.Maui.OCR` 1.1.1 detrás de `IOcrService` (adaptador `PluginOcrService`). Spike del 2026-09-23 (rama `spike/ocr`): compila en net10 para ambas plataformas y funciona **sin red** (Android usa el modelo latino de ML Kit empaquetado en la app; iOS usa Vision). Hallazgos que el código debe respetar:
   - Usar `tryHard: true`: en iOS el modo rápido rompe palabras y montos ("$82. 150", "SUPEFUIERCADO").
   - `OcrResult.Lines` viene **por columnas/bloques**, no en orden de lectura: etiqueta ("TOTAL A PAGAR") y monto ("$82.150") llegan separados. `ReceiptParser` debe reconstruir filas a partir de `Elements` agrupando por solapamiento vertical (Y/Height) y ordenando por X.

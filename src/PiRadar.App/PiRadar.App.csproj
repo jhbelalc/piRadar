@@ -59,4 +59,8 @@
         <PackageReference Include="Plugin.Maui.OCR" Version="1.1.1" />
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\PiRadar.Data\PiRadar.Data.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -12,11 +12,5 @@ internal sealed class TempDatabase : IDisposable
 
     public Task<PiRadarDatabase> OpenAsync() => PiRadarDatabase.OpenAsync(Path, Key);
 
-    public void Dispose()
-    {
-        foreach (var suffix in new[] { "", "-wal", "-shm", "-journal" })
-        {
-            File.Delete(Path + suffix);
-        }
-    }
+    public void Dispose() => PiRadarDatabase.DeleteFiles(Path);
 }

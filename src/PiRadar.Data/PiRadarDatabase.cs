@@ -3,6 +3,14 @@ using SQLite;
 
 namespace PiRadar.Data;
 
+public sealed record DatabaseInfo(
+    int SchemaVersion,
+    string Cipher,
+    bool ForeignKeysEnabled,
+    int CategoryCount,
+    int PaymentMethodCount,
+    int TransactionCount);
+
 /// <summary>Abre la BD cifrada (sqlite3mc en modo SQLCipher 4), la migra y expone la conexión.</summary>
 public sealed class PiRadarDatabase : IAsyncDisposable
 {
@@ -58,6 +66,24 @@ public sealed class PiRadarDatabase : IAsyncDisposable
         await connection.RunInTransactionAsync(Migrator.Migrate);
 
         return new PiRadarDatabase(connection);
+    }
+
+    /// <summary>Datos de diagnóstico, sin información del usuario.</summary>
+    public async Task<DatabaseInfo> GetInfoAsync() => new(
+        SchemaVersion: await Connection.ExecuteScalarAsync<int>("PRAGMA user_version"),
+        Cipher: await Connection.ExecuteScalarAsync<string>("PRAGMA cipher"),
+        ForeignKeysEnabled: await Connection.ExecuteScalarAsync<int>("PRAGMA foreign_keys") == 1,
+        CategoryCount: await Connection.ExecuteScalarAsync<int>("SELECT count(*) FROM \"Category\""),
+        PaymentMethodCount: await Connection.ExecuteScalarAsync<int>("SELECT count(*) FROM \"PaymentMethod\""),
+        TransactionCount: await Connection.ExecuteScalarAsync<int>("SELECT count(*) FROM \"Transactions\""));
+
+    /// <summary>Borra el archivo de BD y sus archivos auxiliares de SQLite. La BD debe estar cerrada.</summary>
+    public static void DeleteFiles(string path)
+    {
+        foreach (var suffix in (string[])["", "-journal", "-wal", "-shm"])
+        {
+            File.Delete(path + suffix);
+        }
     }
 
     public async ValueTask DisposeAsync() => await Connection.CloseAsync();

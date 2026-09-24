@@ -1,0 +1,70 @@
+@using Microsoft.Extensions.Logging
+@using PiRadar.Data
+@inject DatabaseHost Host
+@inject ILogger<DatabaseGate> Logger
+
+@* Abre la BD antes de mostrar la app; si no se puede, ofrece empezar de cero. *@
+@switch (_state)
+{
+    case GateState.Loading:
+        <p>Abriendo tus datos…</p>
+        break;
+
+    case GateState.Ready:
+        @ChildContent
+        break;
+
+    case GateState.Failed:
+        <h1>No se pudieron abrir tus datos</h1>
+        <p>@_message</p>
+        <p>Si tienes un respaldo, podrás importarlo después de empezar de cero.</p>
+        @if (_confirmReset)
+        {
+            <p><strong>Se borrarán todos los datos de este dispositivo. Esta acción no se puede deshacer.</strong></p>
+            <button class="btn btn-danger" @onclick="ResetAsync">Borrar y empezar de cero</button>
+            <button class="btn btn-secondary" @onclick="() => _confirmReset = false">Cancelar</button>
+        }
+        else
+        {
+            <button class="btn btn-primary" @onclick="() => _confirmReset = true">Empezar de cero…</button>
+        }
+        break;
+}
+
+@code {
+    private enum GateState { Loading, Ready, Failed }
+
+    private GateState _state = GateState.Loading;
+    private string _message = string.Empty;
+    private bool _confirmReset;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    protected override Task OnInitializedAsync() => RunAsync(() => Host.OpenAsync());
+
+    private Task ResetAsync() => RunAsync(() => Host.ResetAsync());
+
+    private async Task RunAsync(Func<Task<DatabaseStatus>> action)
+    {
+        _state = GateState.Loading;
+        _confirmReset = false;
+        try
+        {
+            var status = await action();
+            Logger.LogInformation("Estado de la base de datos: {Status}", status);
+            (_state, _message) = status switch
+            {
+                DatabaseStatus.Opened => (GateState.Ready, string.Empty),
+                DatabaseStatus.KeyMissing => (GateState.Failed,
+                    "Los datos existen pero la clave para leerlos ya no está en este dispositivo."),
+                _ => (GateState.Failed, "La clave guardada no abre los datos o el archivo está dañado."),
+            };
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("Error al abrir la base de datos: {ExceptionType}", ex.GetType().FullName);
+            // No se muestra el detalle: podría incluir rutas o datos del almacenamiento seguro.
+            (_state, _message) = (GateState.Failed, "Ocurrió un error inesperado al abrir el almacenamiento seguro.");
+        }
+    }
+}
