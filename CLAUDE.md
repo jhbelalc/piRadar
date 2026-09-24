@@ -27,8 +27,16 @@ App personal de finanzas para Android e iPhone: registrar gastos e ingresos (man
 ## Comandos
 ```sh
 dotnet build src/PiRadar.App -f net10.0-android              # compilar Android
-dotnet build src/PiRadar.App -f net10.0-ios26.0 -t:Run       # ejecutar en simulador iOS
+dotnet build src/PiRadar.App -f net10.0-ios26.0 -t:Run -p:_DeviceName=:v2:udid=<UDID>   # simulador iOS 18.1 (xcrun simctl list devices)
 dotnet test                                                  # tests (net10.0 puro, sin MAUI)
+```
+
+Simuladores/emuladores probados en este Mac Intel:
+- iOS: usar el runtime **iOS 18.1** (p. ej. iPhone 16). El simulador iOS 26.3 no arranca de forma fiable en Intel. La app compilada para `net10.0-ios26.0` corre en 18.1 (mínimo iOS 15).
+- Android: AVD `piRadar_API35` (android-35, google_apis, x86_64). Instalar/lanzar: `dotnet build src/PiRadar.App -f net10.0-android -t:Run`.
+```sh
+# leer archivos de la app (build Debug)
+adb shell run-as com.jhbelalc.piradar ls files
 ```
 
 ## Arquitectura
@@ -48,8 +56,8 @@ piRadar/
 │  │  │                         # PaymentMethods, Analytics, ExchangeRates, Backup, Settings
 │  │  ├─ Components/Shared/     # MoneyInput, CategoryPicker, PaymentMethodPicker, PeriodSelector, CurrencyToggle
 │  │  ├─ Services/              # DatabaseKeyProvider, CameraService, BackupFileService
-│  │  ├─ Platforms/Android/     # allowBackup=false; OCR nativo si el plugin no sirve
-│  │  ├─ Platforms/iOS/         # exclusión de backup de la BD; OCR nativo si el plugin no sirve
+│  │  ├─ Platforms/Android/     # allowBackup=false
+│  │  ├─ Platforms/iOS/         # exclusión de backup de la BD
 │  │  └─ MauiProgram.cs         # DI, MudBlazor, Batteries_V2.Init(), inicialización BD
 │  ├─ PiRadar.Core/             # Domain/, Abstractions/, Receipts/, Analytics/, Backup/
 │  └─ PiRadar.Data/             # Records/, Repositories/, Migrations/, Seed/, Backup/
@@ -67,7 +75,14 @@ piRadar/
   **No** usar `sqlite-net-sqlcipher` ni `SQLitePCLRaw.bundle_e_sqlcipher` (descontinuados). **No** agregar `sqlite-net-pcl` (trae `e_sqlite3` sin cifrado y choca con el bundle).
 - **Clave de BD**: 32 bytes aleatorios generados en el primer arranque y guardados en `SecureStorage` (Keychain/Keystore). No se respalda ni se exporta.
 - **Respaldo del sistema desactivado**: Android `android:allowBackup="false"` (la clave del Keystore no se restaura y la BD quedaría ilegible); en iOS el archivo de BD se marca con `NSURLIsExcludedFromBackupKey`. El único respaldo soportado es el export/import propio.
-- **OCR**: primero evaluar `Plugin.Maui.OCR` 1.1.1 (targets net9; debería consumirse desde net10). Spike: compilar `net10.0-android` y `net10.0-ios26.0` sin conflictos AndroidX/MAUI, funcionar offline (modelo ML Kit empaquetado) y devolver líneas con bounding boxes. Si pasa → adaptador `PluginOcrService : IOcrService`. Si no → implementación propia con `Xamarin.Google.MLKit.TextRecognition` (Android) y `VNRecognizeTextRequest` (iOS). `ReceiptParser` no depende del motor.
+- **OCR**: `Plugin.Maui.OCR` 1.1.1 detrás de `IOcrService` (adaptador `PluginOcrService`). Spike del 2026-09-23 (rama `spike/ocr`): compila en net10 para ambas plataformas y funciona **sin red** (Android usa el modelo latino de ML Kit empaquetado en la app; iOS usa Vision). Hallazgos que el código debe respetar:
+  - Usar `tryHard: true`: en iOS el modo rápido rompe palabras y montos ("$82. 150", "SUPEFUIERCADO").
+  - `OcrResult.Lines` viene **por columnas/bloques**, no en orden de lectura: etiqueta ("TOTAL A PAGAR") y monto ("$82.150") llegan separados. `ReceiptParser` debe reconstruir filas a partir de `Elements` agrupando por solapamiento vertical (Y/Height) y ordenando por X.
+  - En iOS cada `Element` trae el recuadro de **su línea** (todas las palabras de una línea comparten X/Y/Width/Height); en Android trae el recuadro **por palabra**. El agrupador de filas debe funcionar con ambos.
+  - `Confidence` no es fiable (iOS devuelve siempre 1.0).
+  - Errores típicos a tolerar en el parser: `0`↔`O` ("M0LIDO"), `İ` en lugar de `Í`, palabras partidas ("ELECTRÓNI CA"), tildes perdidas.
+  - El plugin también arrastra la variante de ML Kit de Play Services (advertencia `XA4301` por `.so` duplicado); no bloquea, revisar tamaño del APK más adelante.
+  - Si el plugin deja de funcionar en una versión futura de .NET/MAUI → implementación propia con `Xamarin.Google.MLKit.TextRecognition` (Android) y `VNRecognizeTextRequest` (iOS). `ReceiptParser` no depende del motor.
 - **Tabla de movimientos**: `[Table("Transactions")]`, porque `TRANSACTION` es palabra reservada en SQLite.
 - **Monedas**: totales siempre separados por moneda; vista consolidada opcional en la moneda base usando tasas ingresadas manualmente (tabla `ExchangeRate`).
 
