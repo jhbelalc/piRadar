@@ -1,0 +1,985 @@
+{
+ "Elements": [
+  {
+   "Text": "ONPRAS",
+   "X": 690,
+   "Y": 434,
+   "Width": 135,
+   "Height": 57
+  },
+  {
+   "Text": "Po",
+   "X": 842,
+   "Y": 420,
+   "Width": 79,
+   "Height": 46
+  },
+  {
+   "Text": "LA",
+   "X": 861,
+   "Y": 389,
+   "Width": 53,
+   "Height": 50
+  },
+  {
+   "Text": "cACTURA",
+   "X": 617,
+   "Y": 550,
+   "Width": 200,
+   "Height": 60
+  },
+  {
+   "Text": "ELECTRONICA",
+   "X": 856,
+   "Y": 561,
+   "Width": 355,
+   "Height": 67
+  },
+  {
+   "Text": "DE",
+   "X": 1250,
+   "Y": 579,
+   "Width": 58,
+   "Height": 53
+  },
+  {
+   "Text": "VENTA",
+   "X": 1346,
+   "Y": 583,
+   "Width": 153,
+   "Height": 58
+  },
+  {
+   "Text": "NUNERO",
+   "X": 602,
+   "Y": 596,
+   "Width": 179,
+   "Height": 62
+  },
+  {
+   "Text": ":",
+   "X": 798,
+   "Y": 607,
+   "Width": 8,
+   "Height": 52
+  },
+  {
+   "Text": "0000000000",
+   "X": 856,
+   "Y": 609,
+   "Width": 319,
+   "Height": 69
+  },
+  {
+   "Text": "ALMACENES",
+   "X": 587,
+   "Y": 650,
+   "Width": 295,
+   "Height": 72
+  },
+  {
+   "Text": "EXITO",
+   "X": 932,
+   "Y": 670,
+   "Width": 167,
+   "Height": 64
+  },
+  {
+   "Text": "S.A",
+   "X": 1128,
+   "Y": 681,
+   "Width": 103,
+   "Height": 61
+  },
+  {
+   "Text": "NIT",
+   "X": 1248,
+   "Y": 688,
+   "Width": 86,
+   "Height": 59
+  },
+  {
+   "Text": "8909006089",
+   "X": 1374,
+   "Y": 695,
+   "Width": 306,
+   "Height": 73
+  },
+  {
+   "Text": "RESPONSABLE",
+   "X": 586,
+   "Y": 711,
+   "Width": 362,
+   "Height": 64
+  },
+  {
+   "Text": "DE",
+   "X": 989,
+   "Y": 735,
+   "Width": 55,
+   "Height": 46
+  },
+  {
+   "Text": "IVA-GRAN",
+   "X": 1088,
+   "Y": 740,
+   "Width": 245,
+   "Height": 58
+  },
+  {
+   "Text": "CONTRIBUYENTE",
+   "X": 1373,
+   "Y": 757,
+   "Width": 396,
+   "Height": 65
+  },
+  {
+   "Text": "RETENEDOR",
+   "X": 588,
+   "Y": 769,
+   "Width": 294,
+   "Height": 59
+  },
+  {
+   "Text": "IMPUESTO",
+   "X": 925,
+   "Y": 788,
+   "Width": 249,
+   "Height": 56
+  },
+  {
+   "Text": "IVA",
+   "X": 1215,
+   "Y": 804,
+   "Width": 85,
+   "Height": 47
+  },
+  {
+   "Text": "AUTORRETENEDOR",
+   "X": 589,
+   "Y": 825,
+   "Width": 456,
+   "Height": 66
+  },
+  {
+   "Text": "RES8825",
+   "X": 1084,
+   "Y": 850,
+   "Width": 246,
+   "Height": 56
+  },
+  {
+   "Text": "DE",
+   "X": 1370,
+   "Y": 864,
+   "Width": 54,
+   "Height": 45
+  },
+  {
+   "Text": "16/NOV/2016",
+   "X": 1467,
+   "Y": 869,
+   "Width": 327,
+   "Height": 59
+  },
+  {
+   "Text": "Consumidor",
+   "X": 591,
+   "Y": 940,
+   "Width": 322,
+   "Height": 57
+  },
+  {
+   "Text": "Final",
+   "X": 954,
+   "Y": 960,
+   "Width": 148,
+   "Height": 47
+  },
+  {
+   "Text": "PLU",
+   "X": 608,
+   "Y": 1278,
+   "Width": 84,
+   "Height": 44
+  },
+  {
+   "Text": "RIR",
+   "X": 1001,
+   "Y": 347,
+   "Width": 54,
+   "Height": 48
+  },
+  {
+   "Text": "1781",
+   "X": 1083,
+   "Y": 334,
+   "Width": 102,
+   "Height": 53
+  },
+  {
+   "Text": "IDENTIFICACION:222222222222",
+   "X": 596,
+   "Y": 994,
+   "Width": 852,
+   "Height": 85
+  },
+  {
+   "Text": "2026-09-14",
+   "X": 610,
+   "Y": 1051,
+   "Width": 323,
+   "Height": 60
+  },
+  {
+   "Text": "16:50:36.390",
+   "X": 959,
+   "Y": 1065,
+   "Width": 364,
+   "Height": 61
+  },
+  {
+   "Text": "4781",
+   "X": 1363,
+   "Y": 1080,
+   "Width": 107,
+   "Height": 52
+  },
+  {
+   "Text": "003",
+   "X": 1518,
+   "Y": 1087,
+   "Width": 83,
+   "Height": 50
+  },
+  {
+   "Text": "0163",
+   "X": 1640,
+   "Y": 1091,
+   "Width": 110,
+   "Height": 52
+  },
+  {
+   "Text": "SUBTOTAL",
+   "X": 596,
+   "Y": 1589,
+   "Width": 244,
+   "Height": 41
+  },
+  {
+   "Text": "TSAPP",
+   "X": 1034,
+   "Y": 378,
+   "Width": 128,
+   "Height": 66
+  },
+  {
+   "Text": "CEL:",
+   "X": 1206,
+   "Y": 392,
+   "Width": 109,
+   "Height": 65
+  },
+  {
+   "Text": "3154277266",
+   "X": 1334,
+   "Y": 402,
+   "Width": 276,
+   "Height": 78
+  },
+  {
+   "Text": "DESCUENTO",
+   "X": 594,
+   "Y": 1635,
+   "Width": 274,
+   "Height": 46
+  },
+  {
+   "Text": "AHORR0",
+   "X": 590,
+   "Y": 1688,
+   "Width": 183,
+   "Height": 49
+  },
+  {
+   "Text": "1",
+   "X": 625,
+   "Y": 1332,
+   "Width": 13,
+   "Height": 46
+  },
+  {
+   "Text": "1/u",
+   "X": 687,
+   "Y": 1332,
+   "Width": 85,
+   "Height": 48
+  },
+  {
+   "Text": "X",
+   "X": 796,
+   "Y": 1335,
+   "Width": 24,
+   "Height": 46
+  },
+  {
+   "Text": "48.450",
+   "X": 860,
+   "Y": 1336,
+   "Width": 179,
+   "Height": 49
+  },
+  {
+   "Text": "V.Ahorro",
+   "X": 1081,
+   "Y": 1340,
+   "Width": 237,
+   "Height": 51
+  },
+  {
+   "Text": "16.958",
+   "X": 1360,
+   "Y": 1345,
+   "Width": 172,
+   "Height": 50
+  },
+  {
+   "Text": "3605411",
+   "X": 621,
+   "Y": 1383,
+   "Width": 208,
+   "Height": 48
+  },
+  {
+   "Text": "Serum",
+   "X": 859,
+   "Y": 1386,
+   "Width": 146,
+   "Height": 47
+  },
+  {
+   "Text": "CorP",
+   "X": 1047,
+   "Y": 1388,
+   "Width": 116,
+   "Height": 47
+  },
+  {
+   "Text": "Tono",
+   "X": 1204,
+   "Y": 1390,
+   "Width": 114,
+   "Height": 47
+  },
+  {
+   "Text": "TotalItem",
+   "X": 605,
+   "Y": 1434,
+   "Width": 307,
+   "Height": 45
+  },
+  {
+   "Text": ":1",
+   "X": 961,
+   "Y": 1439,
+   "Width": 37,
+   "Height": 41
+  },
+  {
+   "Text": "VALOR",
+   "X": 590,
+   "Y": 1742,
+   "Width": 149,
+   "Height": 44
+  },
+  {
+   "Text": "TOTAL",
+   "X": 784,
+   "Y": 1738,
+   "Width": 146,
+   "Height": 43
+  },
+  {
+   "Text": "DETALLE",
+   "X": 1018,
+   "Y": 1292,
+   "Width": 210,
+   "Height": 47
+  },
+  {
+   "Text": "FORMA",
+   "X": 583,
+   "Y": 1794,
+   "Width": 153,
+   "Height": 44
+  },
+  {
+   "Text": "PAGO",
+   "X": 778,
+   "Y": 1789,
+   "Width": 121,
+   "Height": 43
+  },
+  {
+   "Text": ":",
+   "X": 950,
+   "Y": 1787,
+   "Width": 5,
+   "Height": 40
+  },
+  {
+   "Text": "CONTADO",
+   "X": 974,
+   "Y": 1780,
+   "Width": 216,
+   "Height": 46
+  },
+  {
+   "Text": "TARJETA",
+   "X": 583,
+   "Y": 1843,
+   "Width": 215,
+   "Height": 48
+  },
+  {
+   "Text": "DEBITO",
+   "X": 841,
+   "Y": 1838,
+   "Width": 185,
+   "Height": 46
+  },
+  {
+   "Text": "DISCRIMINACION",
+   "X": 587,
+   "Y": 2039,
+   "Width": 447,
+   "Height": 40
+  },
+  {
+   "Text": "PRECIO",
+   "X": 1510,
+   "Y": 1308,
+   "Width": 173,
+   "Height": 33
+  },
+  {
+   "Text": "COMPRA",
+   "X": 475,
+   "Y": 3795,
+   "Width": 180,
+   "Height": 53
+  },
+  {
+   "Text": "Y",
+   "X": 695,
+   "Y": 3795,
+   "Width": 21,
+   "Height": 53
+  },
+  {
+   "Text": "RECOJE",
+   "X": 747,
+   "Y": 3795,
+   "Width": 180,
+   "Height": 53
+  },
+  {
+   "Text": "31.492A",
+   "X": 1544,
+   "Y": 1393,
+   "Width": 205,
+   "Height": 33
+  },
+  {
+   "Text": "48.450",
+   "X": 1551,
+   "Y": 1574,
+   "Width": 177,
+   "Height": 42
+  },
+  {
+   "Text": "14.250",
+   "X": 1555,
+   "Y": 1621,
+   "Width": 174,
+   "Height": 44
+  },
+  {
+   "Text": "TARIFAS",
+   "X": 1076,
+   "Y": 2034,
+   "Width": 216,
+   "Height": 35
+  },
+  {
+   "Text": "IMPUESTOS",
+   "X": 1338,
+   "Y": 2027,
+   "Width": 278,
+   "Height": 36
+  },
+  {
+   "Text": "TARIFA",
+   "X": 603,
+   "Y": 2073,
+   "Width": 182,
+   "Height": 42
+  },
+  {
+   "Text": "COMPRA",
+   "X": 824,
+   "Y": 2070,
+   "Width": 184,
+   "Height": 42
+  },
+  {
+   "Text": "BASE",
+   "X": 1049,
+   "Y": 2069,
+   "Width": 118,
+   "Height": 41
+  },
+  {
+   "Text": "I",
+   "X": 1221,
+   "Y": 2068,
+   "Width": 10,
+   "Height": 39
+  },
+  {
+   "Text": "MPUESTO",
+   "X": 1252,
+   "Y": 2066,
+   "Width": 210,
+   "Height": 41
+  },
+  {
+   "Text": "A-IVA=",
+   "X": 629,
+   "Y": 2109,
+   "Width": 173,
+   "Height": 42
+  },
+  {
+   "Text": "19%",
+   "X": 817,
+   "Y": 2109,
+   "Width": 76,
+   "Height": 42
+  },
+  {
+   "Text": "31.492",
+   "X": 929,
+   "Y": 2109,
+   "Width": 181,
+   "Height": 42
+  },
+  {
+   "Text": "26,464",
+   "X": 1152,
+   "Y": 2109,
+   "Width": 178,
+   "Height": 42
+  },
+  {
+   "Text": "5.028",
+   "X": 1373,
+   "Y": 2109,
+   "Width": 148,
+   "Height": 42
+  },
+  {
+   "Text": "16.958",
+   "X": 1557,
+   "Y": 1669,
+   "Width": 177,
+   "Height": 45
+  },
+  {
+   "Text": "3154277266",
+   "X": 1025,
+   "Y": 3797,
+   "Width": 302,
+   "Height": 56
+  },
+  {
+   "Text": "31.492",
+   "X": 1556,
+   "Y": 1719,
+   "Width": 181,
+   "Height": 46
+  },
+  {
+   "Text": "RES.DIAN#",
+   "X": 624,
+   "Y": 2210,
+   "Width": 272,
+   "Height": 41
+  },
+  {
+   "Text": "18764112432362",
+   "X": 939,
+   "Y": 2210,
+   "Width": 425,
+   "Height": 41
+  },
+  {
+   "Text": "VIG",
+   "X": 1406,
+   "Y": 2210,
+   "Width": 84,
+   "Height": 41
+  },
+  {
+   "Text": "24",
+   "X": 1532,
+   "Y": 2210,
+   "Width": 51,
+   "Height": 41
+  },
+  {
+   "Text": "MESES",
+   "X": 1626,
+   "Y": 2210,
+   "Width": 148,
+   "Height": 41
+  },
+  {
+   "Text": "DEL",
+   "X": 628,
+   "Y": 2259,
+   "Width": 84,
+   "Height": 38
+  },
+  {
+   "Text": "2026-07-10",
+   "X": 753,
+   "Y": 2259,
+   "Width": 301,
+   "Height": 38
+  },
+  {
+   "Text": "AL",
+   "X": 1095,
+   "Y": 2259,
+   "Width": 52,
+   "Height": 38
+  },
+  {
+   "Text": "2028-07-10",
+   "X": 1189,
+   "Y": 2259,
+   "Width": 301,
+   "Height": 38
+  },
+  {
+   "Text": "RANG.AUT",
+   "X": 631,
+   "Y": 2308,
+   "Width": 238,
+   "Height": 38
+  },
+  {
+   "Text": "RJ49",
+   "X": 911,
+   "Y": 2308,
+   "Width": 113,
+   "Height": 38
+  },
+  {
+   "Text": "162628",
+   "X": 1069,
+   "Y": 2308,
+   "Width": 173,
+   "Height": 38
+  },
+  {
+   "Text": "AL",
+   "X": 1284,
+   "Y": 2308,
+   "Width": 51,
+   "Height": 38
+  },
+  {
+   "Text": "RJ49",
+   "X": 1377,
+   "Y": 2308,
+   "Width": 113,
+   "Height": 38
+  },
+  {
+   "Text": "1000000",
+   "X": 1534,
+   "Y": 2308,
+   "Width": 206,
+   "Height": 38
+  },
+  {
+   "Text": "F.Expedicion:2026-09-1416:50:36.390",
+   "X": 633,
+   "Y": 2355,
+   "Width": 1074,
+   "Height": 45
+  },
+  {
+   "Text": "Cufe:8a31",
+   "X": 653,
+   "Y": 2396,
+   "Width": 257,
+   "Height": 53
+  },
+  {
+   "Text": "000000000000",
+   "X": 925,
+   "Y": 2396,
+   "Width": 392,
+   "Height": 53
+  },
+  {
+   "Text": "0000000000000000",
+   "X": 1317,
+   "Y": 2396,
+   "Width": 491,
+   "Height": 53
+  },
+  {
+   "Text": "00000000000000000000",
+   "X": 645,
+   "Y": 2448,
+   "Width": 604,
+   "Height": 50
+  },
+  {
+   "Text": "0000000000",
+   "X": 1260,
+   "Y": 2448,
+   "Width": 296,
+   "Height": 50
+  },
+  {
+   "Text": "fb562115",
+   "X": 1567,
+   "Y": 2448,
+   "Width": 240,
+   "Height": 50
+  },
+  {
+   "Text": "0000000000000000000000000",
+   "X": 640,
+   "Y": 2494,
+   "Width": 756,
+   "Height": 49
+  },
+  {
+   "Text": "Joshiba",
+   "X": 682,
+   "Y": 2983,
+   "Width": 187,
+   "Height": 50
+  },
+  {
+   "Text": "Globa",
+   "X": 929,
+   "Y": 2983,
+   "Width": 124,
+   "Height": 50
+  },
+  {
+   "Text": "l",
+   "X": 1062,
+   "Y": 2983,
+   "Width": 15,
+   "Height": 50
+  },
+  {
+   "Text": "Commerce",
+   "X": 1111,
+   "Y": 2983,
+   "Width": 227,
+   "Height": 50
+  },
+  {
+   "Text": "Soluti",
+   "X": 1392,
+   "Y": 2983,
+   "Width": 170,
+   "Height": 50
+  },
+  {
+   "Text": "ons",
+   "X": 1563,
+   "Y": 2983,
+   "Width": 80,
+   "Height": 50
+  },
+  {
+   "Text": "(Colombia)",
+   "X": 663,
+   "Y": 3037,
+   "Width": 283,
+   "Height": 42
+  },
+  {
+   "Text": "S.A.S",
+   "X": 984,
+   "Y": 3035,
+   "Width": 141,
+   "Height": 41
+  },
+  {
+   "Text": "NIT",
+   "X": 1162,
+   "Y": 3034,
+   "Width": 82,
+   "Height": 40
+  },
+  {
+   "Text": "900545074-9",
+   "X": 1284,
+   "Y": 3030,
+   "Width": 320,
+   "Height": 43
+  },
+  {
+   "Text": "SuperMarke",
+   "X": 660,
+   "Y": 3085,
+   "Width": 287,
+   "Height": 47
+  },
+  {
+   "Text": "t",
+   "X": 961,
+   "Y": 3085,
+   "Width": 14,
+   "Height": 47
+  },
+  {
+   "Text": "Appl",
+   "X": 1006,
+   "Y": 3085,
+   "Width": 106,
+   "Height": 47
+  },
+  {
+   "Text": "ication",
+   "X": 1131,
+   "Y": 3085,
+   "Width": 200,
+   "Height": 47
+  },
+  {
+   "Text": "efactur",
+   "X": 646,
+   "Y": 3137,
+   "Width": 189,
+   "Height": 49
+  },
+  {
+   "Text": "a",
+   "X": 861,
+   "Y": 3137,
+   "Width": 12,
+   "Height": 46
+  },
+  {
+   "Text": "Cadena",
+   "X": 905,
+   "Y": 3135,
+   "Width": 173,
+   "Height": 48
+  },
+  {
+   "Text": "S.A.",
+   "X": 1119,
+   "Y": 3133,
+   "Width": 103,
+   "Height": 47
+  },
+  {
+   "Text": "890930534-0",
+   "X": 1273,
+   "Y": 3129,
+   "Width": 329,
+   "Height": 50
+  },
+  {
+   "Text": "\":",
+   "X": 410,
+   "Y": 3571,
+   "Width": 34,
+   "Height": 57
+  },
+  {
+   "Text": "))",
+   "X": 526,
+   "Y": 3572,
+   "Width": 58,
+   "Height": 57
+  },
+  {
+   "Text": "MAPA:6365",
+   "X": 625,
+   "Y": 3572,
+   "Width": 293,
+   "Height": 61
+  },
+  {
+   "Text": "ID:2026091",
+   "X": 964,
+   "Y": 3576,
+   "Width": 321,
+   "Height": 61
+  },
+  {
+   "Text": "-4165009",
+   "X": 1305,
+   "Y": 3580,
+   "Width": 263,
+   "Height": 60
+  },
+  {
+   "Text": "NUTRX:",
+   "X": 508,
+   "Y": 3640,
+   "Width": 192,
+   "Height": 69
+  },
+  {
+   "Text": "202609",
+   "X": 714,
+   "Y": 3640,
+   "Width": 197,
+   "Height": 69
+  },
+  {
+   "Text": "1",
+   "X": 936,
+   "Y": 3640,
+   "Width": 20,
+   "Height": 69
+  },
+  {
+   "Text": "44781",
+   "X": 966,
+   "Y": 3640,
+   "Width": 163,
+   "Height": 69
+  },
+  {
+   "Text": "000301",
+   "X": 1138,
+   "Y": 3640,
+   "Width": 198,
+   "Height": 69
+  },
+  {
+   "Text": "63",
+   "X": 1335,
+   "Y": 3640,
+   "Width": 60,
+   "Height": 69
+  }
+ ],
+ "Engine": "Plugin.Maui.OCR/Android"
+}

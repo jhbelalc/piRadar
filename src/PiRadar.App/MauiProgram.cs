@@ -27,6 +27,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton(sp =>
 			new DatabaseHost(sp.GetRequiredService<IDatabaseKeyProvider>(), DatabaseLocation.GetDatabasePath()));
 		builder.Services.AddPiRadarData();
+		builder.Services.AddSingleton<PiRadar.Core.Abstractions.IOcrService>(sp => new PluginOcrService(sp.GetRequiredService<Plugin.Maui.OCR.IOcrService>()));
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();

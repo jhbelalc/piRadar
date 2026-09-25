@@ -15,6 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- OCR real de recibos (iOS y Android), anonimizado. Ver Receipts/Fixtures/README.md. -->
+    <None Include="Receipts\Fixtures\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\PiRadar.Core\PiRadar.Core.csproj" />
   </ItemGroup>
 

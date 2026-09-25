@@ -2,6 +2,7 @@
 @using System.Text
 @using PiRadar.Data
 @inject DatabaseHost Host
+@inject PiRadar.Core.Abstractions.IOcrService Ocr
 
 @* TEMPORAL: diagnóstico de la BD cifrada en el dispositivo. Se reemplaza por el Dashboard. *@
 <h1>piRadar</h1>
@@ -29,5 +30,11 @@
 
         Console.WriteLine("DBCHECK_BEGIN\n" + _output + "DBCHECK_END");
         await File.WriteAllTextAsync(Path.Combine(FileSystem.AppDataDirectory, "db-check.txt"), _output);
+#if DEBUG
+        if (await PiRadar.App.Services.OcrLab.RunIfRequestedAsync(Ocr) is { } lab)
+        {
+            _output += "\nOCR lab:\n" + lab;
+        }
+#endif
     }
 }

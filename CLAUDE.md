@@ -59,14 +59,15 @@ piRadar/
 │  │  ├─ Components/Pages/      # Dashboard, Transactions, TransactionEdit, ScanReceipt, Categories,
 │  │  │                         # PaymentMethods, Analytics, ExchangeRates, Backup, Settings
 │  │  ├─ Components/Shared/     # MoneyInput, CategoryPicker, PaymentMethodPicker, PeriodSelector, CurrencyToggle
-│  │  ├─ Services/              # DatabaseKeyProvider, CameraService, BackupFileService
+│  │  ├─ Services/              # DatabaseKeyProvider, PluginOcrService, ImageOrientation, OcrLab (Debug), CameraService, BackupFileService
 │  │  ├─ Platforms/Android/     # allowBackup=false
 │  │  ├─ Platforms/iOS/         # exclusión de backup de la BD
 │  │  └─ MauiProgram.cs         # DI, MudBlazor, Batteries_V2.Init(), inicialización BD
-│  ├─ PiRadar.Core/             # Domain/, Abstractions/, Receipts/, Analytics/, Backup/
+│  ├─ PiRadar.Core/             # Domain/, Abstractions/, Receipts/, Images/, Analytics/, Backup/
 │  └─ PiRadar.Data/             # Records/, Repositories/, Migrations/, Seed/, Backup/
+├─ tools/ocr-fixtures/         # cómo generar y anonimizar fixtures de OCR (README.md)
 └─ tests/
-   ├─ PiRadar.Core.Tests/
+   ├─ PiRadar.Core.Tests/        # Receipts/Fixtures/{ios,android}: OCR real anonimizado de 18 recibos
    └─ PiRadar.Data.Tests/
 ```
 
@@ -88,6 +89,16 @@ piRadar/
   - Errores típicos a tolerar en el parser: `0`↔`O` ("M0LIDO"), `İ` en lugar de `Í`, palabras partidas ("ELECTRÓNI CA"), tildes perdidas.
   - El plugin también arrastra la variante de ML Kit de Play Services (advertencia `XA4301` por `.so` duplicado); no bloquea, revisar tamaño del APK más adelante.
   - Si el plugin deja de funcionar en una versión futura de .NET/MAUI → implementación propia con `Xamarin.Google.MLKit.TextRecognition` (Android) y `VNRecognizeTextRequest` (iOS). `ReceiptParser` no depende del motor.
+  - **ML Kit (Android) ignora la orientación EXIF** y lee de lado las fotos de cámara (`Orientation = 6` en fotos verticales); Vision (iOS) sí la respeta. `PluginOcrService` rota los píxeles antes del OCR (`ImageOrientation`, que lee la etiqueta con `JpegOrientation` de Core; `Android.Media.ExifInterface` devolvió 0 con fotos del iPhone).
+  - Pruebas con 17 recibos reales (2026-09-24): el tamaño de la imagen casi no cambia la calidad en iOS; en Android la imagen completa acierta más totales. Pasar al OCR la foto completa (orientada) y guardar en `ReceiptImage` la versión de ~1600 px. Tiempo por imagen: ~8 s en el emulador Android, ~20 s en el simulador iOS (Vision en CPU; en el iPhone es mucho menor).
+- **`ReceiptParser`** (Core/Receipts): `RowBuilder` reconstruye filas; luego total, fecha, NIT, comercio y moneda con reglas sacadas de recibos reales. Solo **propone**: devuelve candidatos (`TotalCandidates`, `MerchantCandidates`) y marcas de confianza (`TotalConfirmed`, `TaxIdVerified`, `HasTime`); el usuario confirma. Reglas clave:
+  - Montos: separador + 3 dígitos = miles; + 1–2 dígitos al final = decimales; separadores mezclados ⇒ el último es decimal. COP redondea centavos. Números sin separador de más de 7 dígitos no son montos (teléfonos, códigos).
+  - Total: prioridad `TOTAL A PAGAR`/`CON PROPINA` > `TOTAL FACTURA`/`VALOR TOTAL`/`TOTAL VENTA`/`ORDER TOTAL` > `TOTAL`; se excluyen subtotales, impuestos, ítems, ahorros y filas de resumen con 3+ montos; sin palabra clave ⇒ pago − cambio.
+  - Fecha: día primero (mes primero si el día no es válido o el recibo es USD); se descartan resoluciones, vigencias y fechas futuras; si solo hay fechas de ese tipo no se propone ninguna.
+  - NIT: el primero antes de los totales que no sea del cliente ni de un proveedor de software; se valida o calcula el DV (módulo 11 DIAN).
+  - Comercio: la **marca** (nombre comercial) primero y la **razón social** (sin S.A./SAS/LTDA ni "Colombia") como alternativa. Paso 5: recordar por NIT el nombre que el usuario eligió la última vez (consultando `Receipt.ParsedTaxId` → `Transactions.Merchant`).
+  - Moneda: COP si hay NIT; USD si no hay NIT y aparece `US$`/`USD` o texto en inglés de recibo.
+  - No escribe logs (texto OCR y montos son datos del usuario).
 - **Repositorios**: interfaces en `PiRadar.Core/Abstractions`, implementaciones `internal` en `PiRadar.Data/Repositories`, registradas con `services.AddPiRadarData()`. Toman la conexión de `DatabaseHost.Database` en cada llamada (siguen sirviendo tras `ResetAsync`). Cada escritura valida y escribe dentro de una misma transacción de BD. Las reglas de negocio lanzan `DomainValidationException` con un mensaje en español que se puede mostrar al usuario. Las categorías y los medios de pago con movimientos (o con subcategorías) se archivan en vez de borrarse; uno archivado no se puede elegir en movimientos nuevos, pero los movimientos viejos lo conservan. `CreatedAt`/`UpdatedAt` los fija el repositorio con `IClock`.
 - **Tabla de movimientos**: `[Table("Transactions")]`, porque `TRANSACTION` es palabra reservada en SQLite.
 - **Monedas**: totales siempre separados por moneda; vista consolidada opcional en la moneda base usando tasas ingresadas manualmente (tabla `ExchangeRate`).
@@ -105,7 +116,7 @@ piRadar/
 
 Versión de esquema en `PRAGMA user_version`.
 
-**Flujo OCR**: `MediaPicker` → redimensionar → `IOcrService.RecognizeAsync` → `ReceiptParser` (total, fecha, comercio, NIT, moneda; formatos `1.234.567` y `1.234,56`) → formulario pre-llenado → confirmación del usuario → `Receipt` + `ReceiptImage` + `Transactions` en una sola transacción de BD.
+**Flujo OCR**: `MediaPicker` → `IOcrService.RecognizeAsync` (foto completa, orientada) → `ReceiptParser` (total, fecha, comercio, NIT, moneda; formatos `1.234.567` y `1.234,56`) → formulario pre-llenado → confirmación del usuario → `ITransactionRepository.AddWithReceiptAsync` (`Receipt` con las filas en `OcrText` + `ReceiptImage` de ~1600 px + `Transactions`, en una sola transacción de BD).
 
 **Análisis**: `SpendingAnalyzer` agrega en memoria por día/semana/mes/año, categoría y medio de pago; series por moneda y consolidada opcional. Gráficos con `MudChart`.
 

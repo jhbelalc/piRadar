@@ -1,0 +1,1461 @@
+{
+ "Elements": [
+  {
+   "Text": "MINISO",
+   "X": 1354,
+   "Y": 98,
+   "Width": 579,
+   "Height": 62
+  },
+  {
+   "Text": "COLOMBIA",
+   "X": 1354,
+   "Y": 98,
+   "Width": 579,
+   "Height": 62
+  },
+  {
+   "Text": "SAS",
+   "X": 1354,
+   "Y": 98,
+   "Width": 579,
+   "Height": 62
+  },
+  {
+   "Text": "NIT",
+   "X": 1391,
+   "Y": 159,
+   "Width": 517,
+   "Height": 63
+  },
+  {
+   "Text": "901.137.699-5",
+   "X": 1391,
+   "Y": 159,
+   "Width": 517,
+   "Height": 63
+  },
+  {
+   "Text": "AGENTE",
+   "X": 1280,
+   "Y": 222,
+   "Width": 271,
+   "Height": 62
+  },
+  {
+   "Text": "DE",
+   "X": 1280,
+   "Y": 222,
+   "Width": 271,
+   "Height": 62
+  },
+  {
+   "Text": "RETENCION",
+   "X": 1563,
+   "Y": 207,
+   "Width": 480,
+   "Height": 80
+  },
+  {
+   "Text": "DE",
+   "X": 1563,
+   "Y": 207,
+   "Width": 480,
+   "Height": 80
+  },
+  {
+   "Text": "IVA",
+   "X": 1563,
+   "Y": 207,
+   "Width": 480,
+   "Height": 80
+  },
+  {
+   "Text": "GRANDES",
+   "X": 1354,
+   "Y": 283,
+   "Width": 209,
+   "Height": 49
+  },
+  {
+   "Text": "CONTRIBUYENTES",
+   "X": 1551,
+   "Y": 271,
+   "Width": 431,
+   "Height": 62
+  },
+  {
+   "Text": "DEGUN",
+   "X": 1354,
+   "Y": 345,
+   "Width": 591,
+   "Height": 25
+  },
+  {
+   "Text": "RESULUCION",
+   "X": 1354,
+   "Y": 345,
+   "Width": 591,
+   "Height": 25
+  },
+  {
+   "Text": "JIAN",
+   "X": 1354,
+   "Y": 345,
+   "Width": 591,
+   "Height": 25
+  },
+  {
+   "Text": "000200",
+   "X": 1391,
+   "Y": 381,
+   "Width": 283,
+   "Height": 49
+  },
+  {
+   "Text": "DEI",
+   "X": 1391,
+   "Y": 381,
+   "Width": 283,
+   "Height": 49
+  },
+  {
+   "Text": "SOMOS",
+   "X": 1219,
+   "Y": 430,
+   "Width": 603,
+   "Height": 74
+  },
+  {
+   "Text": "AUTORRETENEDORES",
+   "X": 1219,
+   "Y": 430,
+   "Width": 603,
+   "Height": 74
+  },
+  {
+   "Text": "103-10",
+   "X": 1711,
+   "Y": 689,
+   "Width": 197,
+   "Height": 62
+  },
+  {
+   "Text": "valger",
+   "X": 1330,
+   "Y": 788,
+   "Width": 197,
+   "Height": 123
+  },
+  {
+   "Text": "expedición",
+   "X": 1637,
+   "Y": 788,
+   "Width": 283,
+   "Height": 62
+  },
+  {
+   "Text": "CITU",
+   "X": 1071,
+   "Y": 852,
+   "Width": 838,
+   "Height": 93
+  },
+  {
+   "Text": "4719",
+   "X": 1071,
+   "Y": 852,
+   "Width": 838,
+   "Height": 93
+  },
+  {
+   "Text": "-",
+   "X": 1071,
+   "Y": 852,
+   "Width": 838,
+   "Height": 93
+  },
+  {
+   "Text": "TARIFA",
+   "X": 1071,
+   "Y": 852,
+   "Width": 838,
+   "Height": 93
+  },
+  {
+   "Text": "ICA",
+   "X": 1071,
+   "Y": 852,
+   "Width": 838,
+   "Height": 93
+  },
+  {
+   "Text": "BOGOTA",
+   "X": 1071,
+   "Y": 852,
+   "Width": 838,
+   "Height": 93
+  },
+  {
+   "Text": "11.04",
+   "X": 1896,
+   "Y": 885,
+   "Width": 382,
+   "Height": 63
+  },
+  {
+   "Text": "X",
+   "X": 1896,
+   "Y": 885,
+   "Width": 382,
+   "Height": 63
+  },
+  {
+   "Text": "1000",
+   "X": 1896,
+   "Y": 885,
+   "Width": 382,
+   "Height": 63
+  },
+  {
+   "Text": "Factura",
+   "X": 1071,
+   "Y": 1009,
+   "Width": 222,
+   "Height": 62
+  },
+  {
+   "Text": "electrónica",
+   "X": 1293,
+   "Y": 997,
+   "Width": 677,
+   "Height": 74
+  },
+  {
+   "Text": "de",
+   "X": 1293,
+   "Y": 997,
+   "Width": 677,
+   "Height": 74
+  },
+  {
+   "Text": "venta",
+   "X": 1293,
+   "Y": 997,
+   "Width": 677,
+   "Height": 74
+  },
+  {
+   "Text": "No:",
+   "X": 1293,
+   "Y": 997,
+   "Width": 677,
+   "Height": 74
+  },
+  {
+   "Text": "64E1-66923",
+   "X": 1071,
+   "Y": 1059,
+   "Width": 295,
+   "Height": 62
+  },
+  {
+   "Text": "Fecha",
+   "X": 1071,
+   "Y": 1108,
+   "Width": 492,
+   "Height": 62
+  },
+  {
+   "Text": "expedicion:",
+   "X": 1071,
+   "Y": 1108,
+   "Width": 492,
+   "Height": 62
+  },
+  {
+   "Text": "16/09/2026",
+   "X": 1563,
+   "Y": 1108,
+   "Width": 665,
+   "Height": 49
+  },
+  {
+   "Text": "5:22:42",
+   "X": 1563,
+   "Y": 1108,
+   "Width": 665,
+   "Height": 49
+  },
+  {
+   "Text": "p.m.",
+   "X": 1563,
+   "Y": 1108,
+   "Width": 665,
+   "Height": 49
+  },
+  {
+   "Text": "echa",
+   "X": 1108,
+   "Y": 1169,
+   "Width": 468,
+   "Height": 62
+  },
+  {
+   "Text": "vencimiento:",
+   "X": 1108,
+   "Y": 1169,
+   "Width": 468,
+   "Height": 62
+  },
+  {
+   "Text": "6/09/2026",
+   "X": 1637,
+   "Y": 1157,
+   "Width": 259,
+   "Height": 49
+  },
+  {
+   "Text": "tienda:",
+   "X": 1342,
+   "Y": 1219,
+   "Width": 209,
+   "Height": 62
+  },
+  {
+   "Text": "va.",
+   "X": 1071,
+   "Y": 1305,
+   "Width": 135,
+   "Height": 25
+  },
+  {
+   "Text": "a",
+   "X": 1071,
+   "Y": 1305,
+   "Width": 135,
+   "Height": 25
+  },
+  {
+   "Text": "CIUDAD",
+   "X": 1219,
+   "Y": 1268,
+   "Width": 197,
+   "Height": 62
+  },
+  {
+   "Text": "171",
+   "X": 1576,
+   "Y": 1219,
+   "Width": 98,
+   "Height": 49
+  },
+  {
+   "Text": "Lanero",
+   "X": 1071,
+   "Y": 1354,
+   "Width": 185,
+   "Height": 25
+  },
+  {
+   "Text": "0420",
+   "X": 1379,
+   "Y": 1252,
+   "Width": 787,
+   "Height": 155
+  },
+  {
+   "Text": "FA",
+   "X": 1379,
+   "Y": 1252,
+   "Width": 787,
+   "Height": 155
+  },
+  {
+   "Text": "COISCO",
+   "X": 1379,
+   "Y": 1252,
+   "Width": 787,
+   "Height": 155
+  },
+  {
+   "Text": "NN",
+   "X": 1379,
+   "Y": 1252,
+   "Width": 787,
+   "Height": 155
+  },
+  {
+   "Text": "NN",
+   "X": 1379,
+   "Y": 1252,
+   "Width": 787,
+   "Height": 155
+  },
+  {
+   "Text": "C.",
+   "X": 1071,
+   "Y": 1379,
+   "Width": 382,
+   "Height": 62
+  },
+  {
+   "Text": "INT:",
+   "X": 1071,
+   "Y": 1379,
+   "Width": 382,
+   "Height": 62
+  },
+  {
+   "Text": "494235",
+   "X": 1071,
+   "Y": 1379,
+   "Width": 382,
+   "Height": 62
+  },
+  {
+   "Text": "Cliente",
+   "X": 1071,
+   "Y": 1440,
+   "Width": 468,
+   "Height": 62
+  },
+  {
+   "Text": "C.C/Nit:",
+   "X": 1071,
+   "Y": 1440,
+   "Width": 468,
+   "Height": 62
+  },
+  {
+   "Text": "Nombre",
+   "X": 1071,
+   "Y": 1489,
+   "Width": 911,
+   "Height": 74
+  },
+  {
+   "Text": "Cliente:",
+   "X": 1071,
+   "Y": 1489,
+   "Width": 911,
+   "Height": 74
+  },
+  {
+   "Text": "CONSUMIDOR",
+   "X": 1071,
+   "Y": 1489,
+   "Width": 911,
+   "Height": 74
+  },
+  {
+   "Text": "FINAL",
+   "X": 1071,
+   "Y": 1489,
+   "Width": 911,
+   "Height": 74
+  },
+  {
+   "Text": "Producto",
+   "X": 1059,
+   "Y": 1625,
+   "Width": 246,
+   "Height": 25
+  },
+  {
+   "Text": "Lant",
+   "X": 1403,
+   "Y": 1625,
+   "Width": 160,
+   "Height": 25
+  },
+  {
+   "Text": "mo",
+   "X": 1883,
+   "Y": 1625,
+   "Width": 295,
+   "Height": 25
+  },
+  {
+   "Text": "Total",
+   "X": 1883,
+   "Y": 1625,
+   "Width": 295,
+   "Height": 25
+  },
+  {
+   "Text": "***PROMO",
+   "X": 1243,
+   "Y": 1773,
+   "Width": 849,
+   "Height": 62
+  },
+  {
+   "Text": "BARQUILLOS",
+   "X": 1243,
+   "Y": 1773,
+   "Width": 849,
+   "Height": 62
+  },
+  {
+   "Text": "2X9900***",
+   "X": 1243,
+   "Y": 1773,
+   "Width": 849,
+   "Height": 62
+  },
+  {
+   "Text": "BARQUILLO",
+   "X": 1169,
+   "Y": 1822,
+   "Width": 726,
+   "Height": 74
+  },
+  {
+   "Text": "43GR",
+   "X": 1169,
+   "Y": 1822,
+   "Width": 726,
+   "Height": 74
+  },
+  {
+   "Text": "SABOR",
+   "X": 1169,
+   "Y": 1822,
+   "Width": 726,
+   "Height": 74
+  },
+  {
+   "Text": "×",
+   "X": 1169,
+   "Y": 1822,
+   "Width": 726,
+   "Height": 74
+  },
+  {
+   "Text": "2",
+   "X": 1169,
+   "Y": 1822,
+   "Width": 726,
+   "Height": 74
+  },
+  {
+   "Text": "Descuento:",
+   "X": 1108,
+   "Y": 1883,
+   "Width": 320,
+   "Height": 49
+  },
+  {
+   "Text": "-$",
+   "X": 2056,
+   "Y": 1883,
+   "Width": 234,
+   "Height": 62
+  },
+  {
+   "Text": "7.900",
+   "X": 2056,
+   "Y": 1883,
+   "Width": 234,
+   "Height": 62
+  },
+  {
+   "Text": "Precio",
+   "X": 1059,
+   "Y": 1932,
+   "Width": 542,
+   "Height": 63
+  },
+  {
+   "Text": "de",
+   "X": 1059,
+   "Y": 1932,
+   "Width": 542,
+   "Height": 63
+  },
+  {
+   "Text": "paquete:",
+   "X": 1059,
+   "Y": 1932,
+   "Width": 542,
+   "Height": 63
+  },
+  {
+   "Text": "$",
+   "X": 1637,
+   "Y": 1932,
+   "Width": 222,
+   "Height": 63
+  },
+  {
+   "Text": "9.900",
+   "X": 1637,
+   "Y": 1932,
+   "Width": 222,
+   "Height": 63
+  },
+  {
+   "Text": "******",
+   "X": 1588,
+   "Y": 1994,
+   "Width": 172,
+   "Height": 25
+  },
+  {
+   "Text": "0000000000000",
+   "X": 1046,
+   "Y": 2019,
+   "Width": 1243,
+   "Height": 74
+  },
+  {
+   "Text": "PELUCHE",
+   "X": 1046,
+   "Y": 2019,
+   "Width": 1243,
+   "Height": 74
+  },
+  {
+   "Text": "MINI",
+   "X": 1046,
+   "Y": 2019,
+   "Width": 1243,
+   "Height": 74
+  },
+  {
+   "Text": "PEN",
+   "X": 1046,
+   "Y": 2019,
+   "Width": 1243,
+   "Height": 74
+  },
+  {
+   "Text": "PEN$",
+   "X": 1046,
+   "Y": 2019,
+   "Width": 1243,
+   "Height": 74
+  },
+  {
+   "Text": "49.800",
+   "X": 1046,
+   "Y": 2019,
+   "Width": 1243,
+   "Height": 74
+  },
+  {
+   "Text": "900",
+   "X": 1736,
+   "Y": 2080,
+   "Width": 98,
+   "Height": 49
+  },
+  {
+   "Text": "0000000000000",
+   "X": 1046,
+   "Y": 2117,
+   "Width": 579,
+   "Height": 111
+  },
+  {
+   "Text": "B015$",
+   "X": 1046,
+   "Y": 2117,
+   "Width": 579,
+   "Height": 111
+  },
+  {
+   "Text": "1200",
+   "X": 1883,
+   "Y": 2080,
+   "Width": 419,
+   "Height": 98
+  },
+  {
+   "Text": "x",
+   "X": 1883,
+   "Y": 2080,
+   "Width": 419,
+   "Height": 98
+  },
+  {
+   "Text": "$",
+   "X": 1883,
+   "Y": 2080,
+   "Width": 419,
+   "Height": 98
+  },
+  {
+   "Text": "3.800",
+   "X": 1883,
+   "Y": 2080,
+   "Width": 419,
+   "Height": 98
+  },
+  {
+   "Text": "Subtotal",
+   "X": 1034,
+   "Y": 2216,
+   "Width": 246,
+   "Height": 62
+  },
+  {
+   "Text": "$",
+   "X": 1576,
+   "Y": 2166,
+   "Width": 209,
+   "Height": 49
+  },
+  {
+   "Text": "1.900",
+   "X": 1576,
+   "Y": 2166,
+   "Width": 209,
+   "Height": 49
+  },
+  {
+   "Text": "$",
+   "X": 2044,
+   "Y": 2191,
+   "Width": 259,
+   "Height": 74
+  },
+  {
+   "Text": "53.362",
+   "X": 2044,
+   "Y": 2191,
+   "Width": 259,
+   "Height": 74
+  },
+  {
+   "Text": "IVA",
+   "X": 1034,
+   "Y": 2279,
+   "Width": 235,
+   "Height": 71
+  },
+  {
+   "Text": "19%",
+   "X": 1034,
+   "Y": 2279,
+   "Width": 235,
+   "Height": 71
+  },
+  {
+   "Text": "$",
+   "X": 1514,
+   "Y": 2264,
+   "Width": 271,
+   "Height": 63
+  },
+  {
+   "Text": "53.362",
+   "X": 1514,
+   "Y": 2264,
+   "Width": 271,
+   "Height": 63
+  },
+  {
+   "Text": "10.",
+   "X": 2117,
+   "Y": 2253,
+   "Width": 86,
+   "Height": 74
+  },
+  {
+   "Text": ".",
+   "X": 2191,
+   "Y": 2252,
+   "Width": 111,
+   "Height": 75
+  },
+  {
+   "Text": "138",
+   "X": 2191,
+   "Y": 2252,
+   "Width": 111,
+   "Height": 75
+  },
+  {
+   "Text": "Total",
+   "X": 1046,
+   "Y": 2339,
+   "Width": 160,
+   "Height": 62
+  },
+  {
+   "Text": "$",
+   "X": 2056,
+   "Y": 2312,
+   "Width": 245,
+   "Height": 66
+  },
+  {
+   "Text": "63.500",
+   "X": 2056,
+   "Y": 2312,
+   "Width": 245,
+   "Height": 66
+  },
+  {
+   "Text": "Usted",
+   "X": 1354,
+   "Y": 2450,
+   "Width": 628,
+   "Height": 111
+  },
+  {
+   "Text": "ahorró",
+   "X": 1354,
+   "Y": 2450,
+   "Width": 628,
+   "Height": 111
+  },
+  {
+   "Text": "$",
+   "X": 1354,
+   "Y": 2450,
+   "Width": 628,
+   "Height": 111
+  },
+  {
+   "Text": "7.900",
+   "X": 1354,
+   "Y": 2450,
+   "Width": 628,
+   "Height": 111
+  },
+  {
+   "Text": "$",
+   "X": 2056,
+   "Y": 2597,
+   "Width": 259,
+   "Height": 62
+  },
+  {
+   "Text": "63.500",
+   "X": 2056,
+   "Y": 2597,
+   "Width": 259,
+   "Height": 62
+  },
+  {
+   "Text": "Mastercaro",
+   "X": 1071,
+   "Y": 2634,
+   "Width": 295,
+   "Height": 37
+  },
+  {
+   "Text": "de",
+   "X": 1182,
+   "Y": 2658,
+   "Width": 837,
+   "Height": 75
+  },
+  {
+   "Text": "tarjeta.",
+   "X": 1182,
+   "Y": 2658,
+   "Width": 837,
+   "Height": 75
+  },
+  {
+   "Text": "XXXXXXXXXXXX0000",
+   "X": 1182,
+   "Y": 2658,
+   "Width": 837,
+   "Height": 75
+  },
+  {
+   "Text": "Fecha",
+   "X": 1096,
+   "Y": 2721,
+   "Width": 579,
+   "Height": 74
+  },
+  {
+   "Text": "de",
+   "X": 1096,
+   "Y": 2721,
+   "Width": 579,
+   "Height": 74
+  },
+  {
+   "Text": "vencimiento",
+   "X": 1096,
+   "Y": 2721,
+   "Width": 579,
+   "Height": 74
+  },
+  {
+   "Text": "de",
+   "X": 1182,
+   "Y": 2782,
+   "Width": 505,
+   "Height": 62
+  },
+  {
+   "Text": "autorización.",
+   "X": 1182,
+   "Y": 2782,
+   "Width": 505,
+   "Height": 62
+  },
+  {
+   "Text": "000000",
+   "X": 1687,
+   "Y": 2770,
+   "Width": 197,
+   "Height": 62
+  },
+  {
+   "Text": "Forma",
+   "X": 1071,
+   "Y": 2893,
+   "Width": 1046,
+   "Height": 136
+  },
+  {
+   "Text": "de",
+   "X": 1071,
+   "Y": 2893,
+   "Width": 1046,
+   "Height": 136
+  },
+  {
+   "Text": "Parve",
+   "X": 1071,
+   "Y": 2893,
+   "Width": 1046,
+   "Height": 136
+  },
+  {
+   "Text": "Contag",
+   "X": 1071,
+   "Y": 2893,
+   "Width": 1046,
+   "Height": 136
+  },
+  {
+   "Text": "sus",
+   "X": 1071,
+   "Y": 2893,
+   "Width": 1046,
+   "Height": 136
+  },
+  {
+   "Text": "registros",
+   "X": 1071,
+   "Y": 2893,
+   "Width": 1046,
+   "Height": 136
+  },
+  {
+   "Text": "Consérvelo",
+   "X": 1293,
+   "Y": 3003,
+   "Width": 849,
+   "Height": 63
+  },
+  {
+   "Text": "para",
+   "X": 1293,
+   "Y": 3003,
+   "Width": 849,
+   "Height": 63
+  },
+  {
+   "Text": "sus",
+   "X": 1293,
+   "Y": 3003,
+   "Width": 849,
+   "Height": 63
+  },
+  {
+   "Text": "registros",
+   "X": 1293,
+   "Y": 3003,
+   "Width": 849,
+   "Height": 63
+  },
+  {
+   "Text": "Resolución",
+   "X": 1219,
+   "Y": 3115,
+   "Width": 973,
+   "Height": 62
+  },
+  {
+   "Text": "DIAN",
+   "X": 1219,
+   "Y": 3115,
+   "Width": 973,
+   "Height": 62
+  },
+  {
+   "Text": "No.",
+   "X": 1219,
+   "Y": 3115,
+   "Width": 973,
+   "Height": 62
+  },
+  {
+   "Text": ":",
+   "X": 1219,
+   "Y": 3115,
+   "Width": 973,
+   "Height": 62
+  },
+  {
+   "Text": "18764105973896",
+   "X": 1219,
+   "Y": 3115,
+   "Width": 973,
+   "Height": 62
+  },
+  {
+   "Text": "54538",
+   "X": 1121,
+   "Y": 3222,
+   "Width": 541,
+   "Height": 68
+  },
+  {
+   "Text": "A",
+   "X": 1121,
+   "Y": 3222,
+   "Width": 541,
+   "Height": 68
+  },
+  {
+   "Text": "2000000",
+   "X": 1121,
+   "Y": 3222,
+   "Width": 541,
+   "Height": 68
+  },
+  {
+   "Text": "de",
+   "X": 1121,
+   "Y": 3222,
+   "Width": 541,
+   "Height": 68
+  },
+  {
+   "Text": "200t0a",
+   "X": 1366,
+   "Y": 3164,
+   "Width": 911,
+   "Height": 135
+  },
+  {
+   "Text": "de",
+   "X": 1366,
+   "Y": 3164,
+   "Width": 911,
+   "Height": 135
+  },
+  {
+   "Text": "16l02/226-16/02/2027",
+   "X": 1366,
+   "Y": 3164,
+   "Width": 911,
+   "Height": 135
+  },
+  {
+   "Text": "64E1",
+   "X": 1760,
+   "Y": 3275,
+   "Width": 135,
+   "Height": 62
+  },
+  {
+   "Text": "Apreciado",
+   "X": 1083,
+   "Y": 3335,
+   "Width": 554,
+   "Height": 75
+  },
+  {
+   "Text": "Cliente:",
+   "X": 1083,
+   "Y": 3335,
+   "Width": 554,
+   "Height": 75
+  },
+  {
+   "Text": "será",
+   "X": 1120,
+   "Y": 3384,
+   "Width": 1009,
+   "Height": 75
+  },
+  {
+   "Text": "enviada",
+   "X": 1120,
+   "Y": 3384,
+   "Width": 1009,
+   "Height": 75
+  },
+  {
+   "Text": "al",
+   "X": 1120,
+   "Y": 3384,
+   "Width": 1009,
+   "Height": 75
+  },
+  {
+   "Text": "correo",
+   "X": 1120,
+   "Y": 3384,
+   "Width": 1009,
+   "Height": 75
+  },
+  {
+   "Text": "electrónico",
+   "X": 1120,
+   "Y": 3384,
+   "Width": 1009,
+   "Height": 75
+  },
+  {
+   "Text": "pret",
+   "X": 1505,
+   "Y": 3263,
+   "Width": 777,
+   "Height": 212
+  },
+  {
+   "Text": "Su",
+   "X": 1505,
+   "Y": 3263,
+   "Width": 777,
+   "Height": 212
+  },
+  {
+   "Text": "factura",
+   "X": 1505,
+   "Y": 3263,
+   "Width": 777,
+   "Height": 212
+  },
+  {
+   "Text": "electrinior",
+   "X": 1505,
+   "Y": 3263,
+   "Width": 777,
+   "Height": 212
+  },
+  {
+   "Text": "mado",
+   "X": 1096,
+   "Y": 3459,
+   "Width": 874,
+   "Height": 74
+  },
+  {
+   "Text": "por",
+   "X": 1096,
+   "Y": 3459,
+   "Width": 874,
+   "Height": 74
+  },
+  {
+   "Text": "usted",
+   "X": 1096,
+   "Y": 3459,
+   "Width": 874,
+   "Height": 74
+  },
+  {
+   "Text": "al",
+   "X": 1096,
+   "Y": 3459,
+   "Width": 874,
+   "Height": 74
+  },
+  {
+   "Text": "cajero",
+   "X": 1096,
+   "Y": 3459,
+   "Width": 874,
+   "Height": 74
+  },
+  {
+   "Text": "en",
+   "X": 1096,
+   "Y": 3459,
+   "Width": 874,
+   "Height": 74
+  },
+  {
+   "Text": "el",
+   "X": 1096,
+   "Y": 3459,
+   "Width": 874,
+   "Height": 74
+  },
+  {
+   "Text": "nonenlo",
+   "X": 1994,
+   "Y": 3472,
+   "Width": 283,
+   "Height": 25
+  },
+  {
+   "Text": "ce",
+   "X": 1994,
+   "Y": 3472,
+   "Width": 283,
+   "Height": 25
+  },
+  {
+   "Text": "realizar",
+   "X": 1096,
+   "Y": 3508,
+   "Width": 1194,
+   "Height": 74
+  },
+  {
+   "Text": "la",
+   "X": 1096,
+   "Y": 3508,
+   "Width": 1194,
+   "Height": 74
+  },
+  {
+   "Text": "compra",
+   "X": 1096,
+   "Y": 3508,
+   "Width": 1194,
+   "Height": 74
+  },
+  {
+   "Text": "o",
+   "X": 1096,
+   "Y": 3508,
+   "Width": 1194,
+   "Height": 74
+  },
+  {
+   "Text": "descargarla",
+   "X": 1096,
+   "Y": 3508,
+   "Width": 1194,
+   "Height": 74
+  },
+  {
+   "Text": "escanean",
+   "X": 1096,
+   "Y": 3508,
+   "Width": 1194,
+   "Height": 74
+  },
+  {
+   "Text": "do",
+   "X": 1477,
+   "Y": 3556,
+   "Width": 443,
+   "Height": 65
+  },
+  {
+   "Text": "el",
+   "X": 1477,
+   "Y": 3556,
+   "Width": 443,
+   "Height": 65
+  },
+  {
+   "Text": "codigo",
+   "X": 1477,
+   "Y": 3556,
+   "Width": 443,
+   "Height": 65
+  },
+  {
+   "Text": "QR",
+   "X": 1477,
+   "Y": 3556,
+   "Width": 443,
+   "Height": 65
+  },
+  {
+   "Text": "Opiniones",
+   "X": 1354,
+   "Y": 3680,
+   "Width": 702,
+   "Height": 75
+  },
+  {
+   "Text": "y",
+   "X": 1354,
+   "Y": 3680,
+   "Width": 702,
+   "Height": 75
+  },
+  {
+   "Text": "sugerencias:",
+   "X": 1354,
+   "Y": 3680,
+   "Width": 702,
+   "Height": 75
+  },
+  {
+   "Text": "Email:",
+   "X": 1083,
+   "Y": 3729,
+   "Width": 1219,
+   "Height": 88
+  },
+  {
+   "Text": "servicioalclientecolombia@miniso.co",
+   "X": 1083,
+   "Y": 3729,
+   "Width": 1219,
+   "Height": 88
+  },
+  {
+   "Text": "Mercancia",
+   "X": 1145,
+   "Y": 3779,
+   "Width": 1133,
+   "Height": 87
+  },
+  {
+   "Text": "en",
+   "X": 1145,
+   "Y": 3779,
+   "Width": 1133,
+   "Height": 87
+  },
+  {
+   "Text": "Promoción",
+   "X": 1145,
+   "Y": 3779,
+   "Width": 1133,
+   "Height": 87
+  },
+  {
+   "Text": "no",
+   "X": 1145,
+   "Y": 3779,
+   "Width": 1133,
+   "Height": 87
+  },
+  {
+   "Text": "tiene",
+   "X": 1145,
+   "Y": 3779,
+   "Width": 1133,
+   "Height": 87
+  },
+  {
+   "Text": "cambio",
+   "X": 1145,
+   "Y": 3779,
+   "Width": 1133,
+   "Height": 87
+  },
+  {
+   "Text": "Artículos",
+   "X": 1366,
+   "Y": 3902,
+   "Width": 677,
+   "Height": 74
+  },
+  {
+   "Text": "vendidos.",
+   "X": 1366,
+   "Y": 3902,
+   "Width": 677,
+   "Height": 74
+  },
+  {
+   "Text": ":",
+   "X": 1366,
+   "Y": 3902,
+   "Width": 677,
+   "Height": 74
+  },
+  {
+   "Text": "6",
+   "X": 1366,
+   "Y": 3902,
+   "Width": 677,
+   "Height": 74
+  },
+  {
+   "Text": "SoftwareAptos-Fabricante",
+   "X": 1080,
+   "Y": 3987,
+   "Width": 916,
+   "Height": 39
+  },
+  {
+   "Text": "Aptos",
+   "X": 1080,
+   "Y": 3987,
+   "Width": 916,
+   "Height": 39
+  },
+  {
+   "Text": "Account",
+   "X": 1214,
+   "Y": 3987,
+   "Width": 1080,
+   "Height": 83
+  },
+  {
+   "Text": "Number:",
+   "X": 1214,
+   "Y": 3987,
+   "Width": 1080,
+   "Height": 83
+  },
+  {
+   "Text": "14380",
+   "X": 1214,
+   "Y": 3987,
+   "Width": 1080,
+   "Height": 83
+  },
+  {
+   "Text": "4525",
+   "X": 1214,
+   "Y": 3987,
+   "Width": 1080,
+   "Height": 83
+  },
+  {
+   "Text": "Rcood,",
+   "X": 1214,
+   "Y": 3987,
+   "Width": 1080,
+   "Height": 83
+  },
+  {
+   "Text": "Ino",
+   "X": 1214,
+   "Y": 3987,
+   "Width": 1080,
+   "Height": 83
+  },
+  {
+   "Text": "TRANNID:",
+   "X": 1502,
+   "Y": 5601,
+   "Width": 443,
+   "Height": 62
+  },
+  {
+   "Text": "412060",
+   "X": 1502,
+   "Y": 5601,
+   "Width": 443,
+   "Height": 62
+  }
+ ],
+ "Engine": "Plugin.Maui.OCR/iOS"
+}

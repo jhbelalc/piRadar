@@ -1,0 +1,719 @@
+{
+ "Elements": [
+  {
+   "Text": "LA",
+   "X": 1305,
+   "Y": 418,
+   "Width": 406,
+   "Height": 74
+  },
+  {
+   "Text": "PA",
+   "X": 1305,
+   "Y": 418,
+   "Width": 406,
+   "Height": 74
+  },
+  {
+   "Text": "Inversiones",
+   "X": 1477,
+   "Y": 738,
+   "Width": 616,
+   "Height": 62
+  },
+  {
+   "Text": "Necevi",
+   "X": 1477,
+   "Y": 738,
+   "Width": 616,
+   "Height": 62
+  },
+  {
+   "Text": "SAS",
+   "X": 1477,
+   "Y": 738,
+   "Width": 616,
+   "Height": 62
+  },
+  {
+   "Text": "NIT:",
+   "X": 1576,
+   "Y": 836,
+   "Width": 419,
+   "Height": 63
+  },
+  {
+   "Text": "860351427",
+   "X": 1576,
+   "Y": 836,
+   "Width": 419,
+   "Height": 63
+  },
+  {
+   "Text": "La",
+   "X": 1502,
+   "Y": 936,
+   "Width": 542,
+   "Height": 62
+  },
+  {
+   "Text": "Parrilla",
+   "X": 1502,
+   "Y": 936,
+   "Width": 542,
+   "Height": 62
+  },
+  {
+   "Text": "la",
+   "X": 1502,
+   "Y": 936,
+   "Width": 542,
+   "Height": 62
+  },
+  {
+   "Text": "Original",
+   "X": 1502,
+   "Y": 936,
+   "Width": 542,
+   "Height": 62
+  },
+  {
+   "Text": "Salitre",
+   "X": 1502,
+   "Y": 1022,
+   "Width": 566,
+   "Height": 62
+  },
+  {
+   "Text": "-",
+   "X": 1502,
+   "Y": 1022,
+   "Width": 566,
+   "Height": 62
+  },
+  {
+   "Text": "Tel.:",
+   "X": 1502,
+   "Y": 1022,
+   "Width": 566,
+   "Height": 62
+  },
+  {
+   "Text": "4168035",
+   "X": 1502,
+   "Y": 1022,
+   "Width": 566,
+   "Height": 62
+  },
+  {
+   "Text": "No.",
+   "X": 1440,
+   "Y": 1169,
+   "Width": 665,
+   "Height": 62
+  },
+  {
+   "Text": "Resolución:",
+   "X": 1440,
+   "Y": 1169,
+   "Width": 665,
+   "Height": 62
+  },
+  {
+   "Text": "18764111860229",
+   "X": 1440,
+   "Y": 1169,
+   "Width": 665,
+   "Height": 62
+  },
+  {
+   "Text": "Consecutivo:",
+   "X": 1440,
+   "Y": 1256,
+   "Width": 652,
+   "Height": 38
+  },
+  {
+   "Text": "44886",
+   "X": 1440,
+   "Y": 1256,
+   "Width": 652,
+   "Height": 38
+  },
+  {
+   "Text": "hasta",
+   "X": 1440,
+   "Y": 1256,
+   "Width": 652,
+   "Height": 38
+  },
+  {
+   "Text": "200000",
+   "X": 1440,
+   "Y": 1256,
+   "Width": 652,
+   "Height": 38
+  },
+  {
+   "Text": "Fecha:",
+   "X": 1416,
+   "Y": 1317,
+   "Width": 702,
+   "Height": 37
+  },
+  {
+   "Text": "2026-07-12",
+   "X": 1416,
+   "Y": 1317,
+   "Width": 702,
+   "Height": 37
+  },
+  {
+   "Text": "hasta",
+   "X": 1416,
+   "Y": 1317,
+   "Width": 702,
+   "Height": 37
+  },
+  {
+   "Text": "2028-07-12",
+   "X": 1416,
+   "Y": 1317,
+   "Width": 702,
+   "Height": 37
+  },
+  {
+   "Text": "Factura",
+   "X": 1305,
+   "Y": 1514,
+   "Width": 923,
+   "Height": 62
+  },
+  {
+   "Text": "Electrónica",
+   "X": 1305,
+   "Y": 1514,
+   "Width": 923,
+   "Height": 62
+  },
+  {
+   "Text": "de",
+   "X": 1305,
+   "Y": 1514,
+   "Width": 923,
+   "Height": 62
+  },
+  {
+   "Text": "Venta",
+   "X": 1305,
+   "Y": 1514,
+   "Width": 923,
+   "Height": 62
+  },
+  {
+   "Text": "No:",
+   "X": 1305,
+   "Y": 1514,
+   "Width": 923,
+   "Height": 62
+  },
+  {
+   "Text": "G02E",
+   "X": 1305,
+   "Y": 1514,
+   "Width": 923,
+   "Height": 62
+  },
+  {
+   "Text": "-",
+   "X": 1305,
+   "Y": 1514,
+   "Width": 923,
+   "Height": 62
+  },
+  {
+   "Text": "48659",
+   "X": 1305,
+   "Y": 1514,
+   "Width": 923,
+   "Height": 62
+  },
+  {
+   "Text": "FECHA",
+   "X": 1022,
+   "Y": 1575,
+   "Width": 406,
+   "Height": 63
+  },
+  {
+   "Text": "EMISION:",
+   "X": 1022,
+   "Y": 1575,
+   "Width": 406,
+   "Height": 63
+  },
+  {
+   "Text": "FECHA",
+   "X": 1022,
+   "Y": 1662,
+   "Width": 492,
+   "Height": 74
+  },
+  {
+   "Text": "VALIDACIÓN:",
+   "X": 1022,
+   "Y": 1662,
+   "Width": 492,
+   "Height": 74
+  },
+  {
+   "Text": "18/9/2026,",
+   "X": 1909,
+   "Y": 1664,
+   "Width": 578,
+   "Height": 89
+  },
+  {
+   "Text": "12:55:13",
+   "X": 1909,
+   "Y": 1664,
+   "Width": 578,
+   "Height": 89
+  },
+  {
+   "Text": "p.",
+   "X": 1909,
+   "Y": 1664,
+   "Width": 578,
+   "Height": 89
+  },
+  {
+   "Text": "m.",
+   "X": 1909,
+   "Y": 1664,
+   "Width": 578,
+   "Height": 89
+  },
+  {
+   "Text": "6oid0",
+   "X": 1034,
+   "Y": 1834,
+   "Width": 234,
+   "Height": 25
+  },
+  {
+   "Text": "CLIENTE",
+   "X": 1034,
+   "Y": 1883,
+   "Width": 222,
+   "Height": 62
+  },
+  {
+   "Text": "IDENTIFICA.",
+   "X": 1034,
+   "Y": 1970,
+   "Width": 295,
+   "Height": 62
+  },
+  {
+   "Text": "TELÉFONO",
+   "X": 1034,
+   "Y": 2142,
+   "Width": 259,
+   "Height": 62
+  },
+  {
+   "Text": "DIRECCIÓN",
+   "X": 1034,
+   "Y": 2228,
+   "Width": 271,
+   "Height": 62
+  },
+  {
+   "Text": "CANT",
+   "X": 1046,
+   "Y": 2388,
+   "Width": 135,
+   "Height": 62
+  },
+  {
+   "Text": "CONSUMIDOR",
+   "X": 1354,
+   "Y": 1883,
+   "Width": 492,
+   "Height": 62
+  },
+  {
+   "Text": "FINAL",
+   "X": 1354,
+   "Y": 1883,
+   "Width": 492,
+   "Height": 62
+  },
+  {
+   "Text": "222222222222",
+   "X": 1354,
+   "Y": 1970,
+   "Width": 369,
+   "Height": 62
+  },
+  {
+   "Text": "laparrilla@lapardillacarnes.com",
+   "X": 1354,
+   "Y": 2056,
+   "Width": 714,
+   "Height": 62
+  },
+  {
+   "Text": "6017452160",
+   "X": 1366,
+   "Y": 2142,
+   "Width": 295,
+   "Height": 62
+  },
+  {
+   "Text": "CRA",
+   "X": 1366,
+   "Y": 2228,
+   "Width": 345,
+   "Height": 62
+  },
+  {
+   "Text": "63",
+   "X": 1366,
+   "Y": 2228,
+   "Width": 345,
+   "Height": 62
+  },
+  {
+   "Text": "100",
+   "X": 1366,
+   "Y": 2228,
+   "Width": 345,
+   "Height": 62
+  },
+  {
+   "Text": "77",
+   "X": 1366,
+   "Y": 2228,
+   "Width": 345,
+   "Height": 62
+  },
+  {
+   "Text": "Menu",
+   "X": 1280,
+   "Y": 2499,
+   "Width": 357,
+   "Height": 62
+  },
+  {
+   "Text": "Ejecutivo",
+   "X": 1280,
+   "Y": 2499,
+   "Width": 357,
+   "Height": 62
+  },
+  {
+   "Text": "Clasico",
+   "X": 1280,
+   "Y": 2548,
+   "Width": 185,
+   "Height": 62
+  },
+  {
+   "Text": "Corno",
+   "X": 1280,
+   "Y": 2658,
+   "Width": 345,
+   "Height": 27
+  },
+  {
+   "Text": "cazuela",
+   "X": 1280,
+   "Y": 2658,
+   "Width": 345,
+   "Height": 27
+  },
+  {
+   "Text": "Montanera",
+   "X": 1280,
+   "Y": 2696,
+   "Width": 259,
+   "Height": 62
+  },
+  {
+   "Text": "TOTAL",
+   "X": 1133,
+   "Y": 2856,
+   "Width": 603,
+   "Height": 62
+  },
+  {
+   "Text": "SIN",
+   "X": 1133,
+   "Y": 2856,
+   "Width": 603,
+   "Height": 62
+  },
+  {
+   "Text": "IMPUESTOS:",
+   "X": 1133,
+   "Y": 2856,
+   "Width": 603,
+   "Height": 62
+  },
+  {
+   "Text": "IMPUESTOS:",
+   "X": 1416,
+   "Y": 2954,
+   "Width": 320,
+   "Height": 62
+  },
+  {
+   "Text": "DESCUENTOS:",
+   "X": 1366,
+   "Y": 3041,
+   "Width": 369,
+   "Height": 62
+  },
+  {
+   "Text": "SUB",
+   "X": 1428,
+   "Y": 3139,
+   "Width": 320,
+   "Height": 62
+  },
+  {
+   "Text": "TOTAL:",
+   "X": 1428,
+   "Y": 3139,
+   "Width": 320,
+   "Height": 62
+  },
+  {
+   "Text": "SER.",
+   "X": 1256,
+   "Y": 3237,
+   "Width": 480,
+   "Height": 62
+  },
+  {
+   "Text": "VOLUNTARIO:",
+   "X": 1256,
+   "Y": 3237,
+   "Width": 480,
+   "Height": 62
+  },
+  {
+   "Text": "TOTAL",
+   "X": 1071,
+   "Y": 3323,
+   "Width": 677,
+   "Height": 88
+  },
+  {
+   "Text": "FACTURA:",
+   "X": 1071,
+   "Y": 3323,
+   "Width": 677,
+   "Height": 88
+  },
+  {
+   "Text": "V.UNI",
+   "X": 1970,
+   "Y": 2388,
+   "Width": 148,
+   "Height": 62
+  },
+  {
+   "Text": "$24,900",
+   "X": 1920,
+   "Y": 2499,
+   "Width": 197,
+   "Height": 62
+  },
+  {
+   "Text": "$27,900",
+   "X": 1908,
+   "Y": 2647,
+   "Width": 197,
+   "Height": 62
+  },
+  {
+   "Text": "SEAGOS",
+   "X": 2290,
+   "Y": 2524,
+   "Width": 185,
+   "Height": 25
+  },
+  {
+   "Text": "$27,900",
+   "X": 2290,
+   "Y": 2647,
+   "Width": 197,
+   "Height": 62
+  },
+  {
+   "Text": "MASL",
+   "X": 1970,
+   "Y": 3533,
+   "Width": 123,
+   "Height": 25
+  },
+  {
+   "Text": "348,889",
+   "X": 1920,
+   "Y": 3595,
+   "Width": 197,
+   "Height": 62
+  },
+  {
+   "Text": "$48,889",
+   "X": 2265,
+   "Y": 2856,
+   "Width": 209,
+   "Height": 62
+  },
+  {
+   "Text": "$3,911",
+   "X": 2290,
+   "Y": 2942,
+   "Width": 172,
+   "Height": 62
+  },
+  {
+   "Text": "$0",
+   "X": 2388,
+   "Y": 3028,
+   "Width": 74,
+   "Height": 62
+  },
+  {
+   "Text": "$52,800",
+   "X": 2265,
+   "Y": 3115,
+   "Width": 209,
+   "Height": 74
+  },
+  {
+   "Text": "$O",
+   "X": 2388,
+   "Y": 3213,
+   "Width": 86,
+   "Height": 62
+  },
+  {
+   "Text": "$52,800",
+   "X": 2154,
+   "Y": 3311,
+   "Width": 320,
+   "Height": 98
+  },
+  {
+   "Text": "VALOR",
+   "X": 2314,
+   "Y": 3496,
+   "Width": 172,
+   "Height": 49
+  },
+  {
+   "Text": "$3,911",
+   "X": 2327,
+   "Y": 3582,
+   "Width": 160,
+   "Height": 62
+  },
+  {
+   "Text": "FORMAS",
+   "X": 1551,
+   "Y": 3779,
+   "Width": 431,
+   "Height": 62
+  },
+  {
+   "Text": "DE",
+   "X": 1551,
+   "Y": 3779,
+   "Width": 431,
+   "Height": 62
+  },
+  {
+   "Text": "PAGO",
+   "X": 1551,
+   "Y": 3779,
+   "Width": 431,
+   "Height": 62
+  },
+  {
+   "Text": "Tarjeta",
+   "X": 1046,
+   "Y": 3878,
+   "Width": 172,
+   "Height": 62
+  },
+  {
+   "Text": "CUFE:",
+   "X": 1046,
+   "Y": 3976,
+   "Width": 148,
+   "Height": 62
+  },
+  {
+   "Text": "$52,800",
+   "X": 2290,
+   "Y": 3853,
+   "Width": 197,
+   "Height": 62
+  },
+  {
+   "Text": "00000000000/00000000000000000000000000000",
+   "X": 1366,
+   "Y": 4013,
+   "Width": 1096,
+   "Height": 98
+  },
+  {
+   "Text": "Desarrollado",
+   "X": 1256,
+   "Y": 5191,
+   "Width": 1007,
+   "Height": 153
+  },
+  {
+   "Text": "por",
+   "X": 1256,
+   "Y": 5191,
+   "Width": 1007,
+   "Height": 153
+  },
+  {
+   "Text": "RA.",
+   "X": 1256,
+   "Y": 5191,
+   "Width": 1007,
+   "Height": 153
+  },
+  {
+   "Text": "EH",
+   "X": 1256,
+   "Y": 5191,
+   "Width": 1007,
+   "Height": 153
+  },
+  {
+   "Text": "ANT:",
+   "X": 1256,
+   "Y": 5191,
+   "Width": 1007,
+   "Height": 153
+  },
+  {
+   "Text": "901HB611H",
+   "X": 1256,
+   "Y": 5191,
+   "Width": 1007,
+   "Height": 153
+  }
+ ],
+ "Engine": "Plugin.Maui.OCR/iOS"
+}

@@ -1,0 +1,439 @@
+{
+ "Elements": [
+  {
+   "Text": "SUPERMERCADO",
+   "X": 52,
+   "Y": 74,
+   "Width": 214,
+   "Height": 27
+  },
+  {
+   "Text": "EL",
+   "X": 287,
+   "Y": 74,
+   "Width": 32,
+   "Height": 27
+  },
+  {
+   "Text": "ÉXITO",
+   "X": 341,
+   "Y": 74,
+   "Width": 87,
+   "Height": 27
+  },
+  {
+   "Text": "S.A.",
+   "X": 449,
+   "Y": 74,
+   "Width": 64,
+   "Height": 27
+  },
+  {
+   "Text": "NIT",
+   "X": 50,
+   "Y": 126,
+   "Width": 54,
+   "Height": 23
+  },
+  {
+   "Text": "890.900.608-9",
+   "X": 124,
+   "Y": 126,
+   "Width": 229,
+   "Height": 23
+  },
+  {
+   "Text": "CL",
+   "X": 52,
+   "Y": 171,
+   "Width": 33,
+   "Height": 26
+  },
+  {
+   "Text": "10",
+   "X": 107,
+   "Y": 171,
+   "Width": 31,
+   "Height": 26
+  },
+  {
+   "Text": "#",
+   "X": 158,
+   "Y": 171,
+   "Width": 18,
+   "Height": 26
+  },
+  {
+   "Text": "43E-135",
+   "X": 195,
+   "Y": 171,
+   "Width": 123,
+   "Height": 26
+  },
+  {
+   "Text": "MEDELLİN",
+   "X": 339,
+   "Y": 171,
+   "Width": 142,
+   "Height": 26
+  },
+  {
+   "Text": "FACTURA",
+   "X": 53,
+   "Y": 219,
+   "Width": 123,
+   "Height": 26
+  },
+  {
+   "Text": "ELECTRÓNI",
+   "X": 197,
+   "Y": 219,
+   "Width": 157,
+   "Height": 26
+  },
+  {
+   "Text": "CA",
+   "X": 359,
+   "Y": 219,
+   "Width": 34,
+   "Height": 26
+  },
+  {
+   "Text": "DE",
+   "X": 413,
+   "Y": 219,
+   "Width": 32,
+   "Height": 26
+  },
+  {
+   "Text": "VENTA",
+   "X": 466,
+   "Y": 219,
+   "Width": 89,
+   "Height": 26
+  },
+  {
+   "Text": "No.",
+   "X": 50,
+   "Y": 270,
+   "Width": 47,
+   "Height": 23
+  },
+  {
+   "Text": "SETP",
+   "X": 124,
+   "Y": 270,
+   "Width": 69,
+   "Height": 23
+  },
+  {
+   "Text": "99012345",
+   "X": 214,
+   "Y": 270,
+   "Width": 140,
+   "Height": 23
+  },
+  {
+   "Text": "FECHA:",
+   "X": 53,
+   "Y": 318,
+   "Width": 98,
+   "Height": 26
+  },
+  {
+   "Text": "14/09/2026",
+   "X": 179,
+   "Y": 318,
+   "Width": 176,
+   "Height": 26
+  },
+  {
+   "Text": "HORA:",
+   "X": 395,
+   "Y": 318,
+   "Width": 84,
+   "Height": 26
+  },
+  {
+   "Text": "18:42",
+   "X": 504,
+   "Y": 318,
+   "Width": 85,
+   "Height": 26
+  },
+  {
+   "Text": "LECHE",
+   "X": 53,
+   "Y": 414,
+   "Width": 86,
+   "Height": 24
+  },
+  {
+   "Text": "ENTERA",
+   "X": 161,
+   "Y": 414,
+   "Width": 105,
+   "Height": 24
+  },
+  {
+   "Text": "1L",
+   "X": 287,
+   "Y": 414,
+   "Width": 31,
+   "Height": 24
+  },
+  {
+   "Text": "PAN",
+   "X": 53,
+   "Y": 510,
+   "Width": 50,
+   "Height": 24
+  },
+  {
+   "Text": "TAJADO",
+   "X": 122,
+   "Y": 510,
+   "Width": 107,
+   "Height": 24
+  },
+  {
+   "Text": "CAFÉ",
+   "X": 52,
+   "Y": 555,
+   "Width": 68,
+   "Height": 26
+  },
+  {
+   "Text": "M0LIDO",
+   "X": 140,
+   "Y": 555,
+   "Width": 107,
+   "Height": 26
+  },
+  {
+   "Text": "500G",
+   "X": 268,
+   "Y": 555,
+   "Width": 69,
+   "Height": 26
+  },
+  {
+   "Text": "HUEVOS",
+   "X": 52,
+   "Y": 606,
+   "Width": 104,
+   "Height": 23
+  },
+  {
+   "Text": "AA",
+   "X": 176,
+   "Y": 606,
+   "Width": 36,
+   "Height": 23
+  },
+  {
+   "Text": "x30",
+   "X": 232,
+   "Y": 606,
+   "Width": 51,
+   "Height": 23
+  },
+  {
+   "Text": "ARROZ",
+   "X": 50,
+   "Y": 654,
+   "Width": 89,
+   "Height": 23
+  },
+  {
+   "Text": "5KG",
+   "X": 160,
+   "Y": 654,
+   "Width": 50,
+   "Height": 23
+  },
+  {
+   "Text": "SUBTOTAL",
+   "X": 52,
+   "Y": 750,
+   "Width": 141,
+   "Height": 24
+  },
+  {
+   "Text": "IVA",
+   "X": 65,
+   "Y": 795,
+   "Width": 52,
+   "Height": 29
+  },
+  {
+   "Text": "19%",
+   "X": 125,
+   "Y": 795,
+   "Width": 51,
+   "Height": 29
+  },
+  {
+   "Text": "TOTAL",
+   "X": 50,
+   "Y": 846,
+   "Width": 89,
+   "Height": 23
+  },
+  {
+   "Text": "A",
+   "X": 158,
+   "Y": 846,
+   "Width": 18,
+   "Height": 23
+  },
+  {
+   "Text": "PAGAR",
+   "X": 197,
+   "Y": 846,
+   "Width": 87,
+   "Height": 23
+  },
+  {
+   "Text": "CAMBIO",
+   "X": 52,
+   "Y": 990,
+   "Width": 105,
+   "Height": 23
+  },
+  {
+   "Text": "2",
+   "X": 467,
+   "Y": 414,
+   "Width": 13,
+   "Height": 25
+  },
+  {
+   "Text": "x",
+   "X": 502,
+   "Y": 413,
+   "Width": 14,
+   "Height": 25
+  },
+  {
+   "Text": "4.950",
+   "X": 538,
+   "Y": 411,
+   "Width": 86,
+   "Height": 27
+  },
+  {
+   "Text": "GRACIAS",
+   "X": 51,
+   "Y": 1038,
+   "Width": 123,
+   "Height": 24
+  },
+  {
+   "Text": "POR",
+   "X": 197,
+   "Y": 1038,
+   "Width": 52,
+   "Height": 24
+  },
+  {
+   "Text": "SU",
+   "X": 268,
+   "Y": 1038,
+   "Width": 33,
+   "Height": 24
+  },
+  {
+   "Text": "COMPRA",
+   "X": 322,
+   "Y": 1038,
+   "Width": 106,
+   "Height": 24
+  },
+  {
+   "Text": "9.900",
+   "X": 503,
+   "Y": 459,
+   "Width": 85,
+   "Height": 27
+  },
+  {
+   "Text": "7.300",
+   "X": 520,
+   "Y": 508,
+   "Width": 85,
+   "Height": 24
+  },
+  {
+   "Text": "21.450",
+   "X": 503,
+   "Y": 556,
+   "Width": 101,
+   "Height": 25
+  },
+  {
+   "Text": "18.900",
+   "X": 504,
+   "Y": 606,
+   "Width": 103,
+   "Height": 24
+  },
+  {
+   "Text": "24.600",
+   "X": 503,
+   "Y": 652,
+   "Width": 102,
+   "Height": 25
+  },
+  {
+   "Text": "69.294",
+   "X": 503,
+   "Y": 750,
+   "Width": 105,
+   "Height": 23
+  },
+  {
+   "Text": "12.856",
+   "X": 504,
+   "Y": 798,
+   "Width": 102,
+   "Height": 24
+  },
+  {
+   "Text": "TARJETA",
+   "X": 58,
+   "Y": 939,
+   "Width": 133,
+   "Height": 29
+  },
+  {
+   "Text": "DÉBITO",
+   "X": 196,
+   "Y": 939,
+   "Width": 105,
+   "Height": 29
+  },
+  {
+   "Text": "*****0000",
+   "X": 321,
+   "Y": 939,
+   "Width": 142,
+   "Height": 29
+  },
+  {
+   "Text": "82.150",
+   "X": 503,
+   "Y": 942,
+   "Width": 104,
+   "Height": 23
+  },
+  {
+   "Text": "$82.150",
+   "X": 485,
+   "Y": 842,
+   "Width": 119,
+   "Height": 31
+  }
+ ],
+ "Engine": "Plugin.Maui.OCR/Android"
+}

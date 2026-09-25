@@ -1,0 +1,1335 @@
+{
+ "Elements": [
+  {
+   "Text": "ORD:#",
+   "X": 904,
+   "Y": 226,
+   "Width": 817,
+   "Height": 192
+  },
+  {
+   "Text": "321",
+   "X": 904,
+   "Y": 226,
+   "Width": 817,
+   "Height": 192
+  },
+  {
+   "Text": "ARCOS",
+   "X": 1034,
+   "Y": 408,
+   "Width": 591,
+   "Height": 44
+  },
+  {
+   "Text": "DORADOS",
+   "X": 1034,
+   "Y": 408,
+   "Width": 591,
+   "Height": 44
+  },
+  {
+   "Text": "COLOMBIA",
+   "X": 1034,
+   "Y": 408,
+   "Width": 591,
+   "Height": 44
+  },
+  {
+   "Text": "SAO",
+   "X": 1034,
+   "Y": 408,
+   "Width": 591,
+   "Height": 44
+  },
+  {
+   "Text": "NIT",
+   "X": 1130,
+   "Y": 452,
+   "Width": 391,
+   "Height": 43
+  },
+  {
+   "Text": "300",
+   "X": 1130,
+   "Y": 452,
+   "Width": 391,
+   "Height": 43
+  },
+  {
+   "Text": "244.387-6",
+   "X": 1130,
+   "Y": 452,
+   "Width": 391,
+   "Height": 43
+  },
+  {
+   "Text": "MCDONALDS",
+   "X": 1086,
+   "Y": 504,
+   "Width": 487,
+   "Height": 52
+  },
+  {
+   "Text": "JARDINPLAZA",
+   "X": 1086,
+   "Y": 504,
+   "Width": 487,
+   "Height": 52
+  },
+  {
+   "Text": "AESPONSABLE",
+   "X": 1121,
+   "Y": 547,
+   "Width": 426,
+   "Height": 52
+  },
+  {
+   "Text": "DE",
+   "X": 1121,
+   "Y": 547,
+   "Width": 426,
+   "Height": 52
+  },
+  {
+   "Text": "IVA",
+   "X": 1121,
+   "Y": 547,
+   "Width": 426,
+   "Height": 52
+  },
+  {
+   "Text": "AGENTE",
+   "X": 1069,
+   "Y": 599,
+   "Width": 530,
+   "Height": 53
+  },
+  {
+   "Text": "RETENEDOR",
+   "X": 1069,
+   "Y": 599,
+   "Width": 530,
+   "Height": 53
+  },
+  {
+   "Text": "DE",
+   "X": 1069,
+   "Y": 599,
+   "Width": 530,
+   "Height": 53
+  },
+  {
+   "Text": "IVA",
+   "X": 1069,
+   "Y": 599,
+   "Width": 530,
+   "Height": 53
+  },
+  {
+   "Text": "Calle",
+   "X": 678,
+   "Y": 652,
+   "Width": 365,
+   "Height": 52
+  },
+  {
+   "Text": "118",
+   "X": 678,
+   "Y": 652,
+   "Width": 365,
+   "Height": 52
+  },
+  {
+   "Text": "47-7:3",
+   "X": 678,
+   "Y": 652,
+   "Width": 365,
+   "Height": 52
+  },
+  {
+   "Text": "Cal,",
+   "X": 1078,
+   "Y": 652,
+   "Width": 209,
+   "Height": 61
+  },
+  {
+   "Text": "co",
+   "X": 1078,
+   "Y": 652,
+   "Width": 209,
+   "Height": 61
+  },
+  {
+   "Text": "Reterencia",
+   "X": 678,
+   "Y": 704,
+   "Width": 252,
+   "Height": 53
+  },
+  {
+   "Text": "Factura",
+   "X": 678,
+   "Y": 747,
+   "Width": 965,
+   "Height": 61
+  },
+  {
+   "Text": "electronica",
+   "X": 678,
+   "Y": 747,
+   "Width": 965,
+   "Height": 61
+  },
+  {
+   "Text": "de",
+   "X": 678,
+   "Y": 747,
+   "Width": 965,
+   "Height": 61
+  },
+  {
+   "Text": "Venta:",
+   "X": 678,
+   "Y": 747,
+   "Width": 965,
+   "Height": 61
+  },
+  {
+   "Text": "000000000000",
+   "X": 678,
+   "Y": 747,
+   "Width": 965,
+   "Height": 61
+  },
+  {
+   "Text": "Fecha",
+   "X": 678,
+   "Y": 799,
+   "Width": 1008,
+   "Height": 61
+  },
+  {
+   "Text": "Generacion",
+   "X": 678,
+   "Y": 799,
+   "Width": 1008,
+   "Height": 61
+  },
+  {
+   "Text": "Factura",
+   "X": 678,
+   "Y": 799,
+   "Width": 1008,
+   "Height": 61
+  },
+  {
+   "Text": "2026-09-20",
+   "X": 678,
+   "Y": 799,
+   "Width": 1008,
+   "Height": 61
+  },
+  {
+   "Text": "19:12:46",
+   "X": 678,
+   "Y": 799,
+   "Width": 1008,
+   "Height": 61
+  },
+  {
+   "Text": "Fecha",
+   "X": 678,
+   "Y": 842,
+   "Width": 1078,
+   "Height": 62
+  },
+  {
+   "Text": "Validacion",
+   "X": 678,
+   "Y": 842,
+   "Width": 1078,
+   "Height": 62
+  },
+  {
+   "Text": "Diar",
+   "X": 678,
+   "Y": 842,
+   "Width": 1078,
+   "Height": 62
+  },
+  {
+   "Text": "2026-09-20",
+   "X": 678,
+   "Y": 842,
+   "Width": 1078,
+   "Height": 62
+  },
+  {
+   "Text": "19:12:46-05:00",
+   "X": 678,
+   "Y": 842,
+   "Width": 1078,
+   "Height": 62
+  },
+  {
+   "Text": "INFORMACTON",
+   "X": 686,
+   "Y": 947,
+   "Width": 513,
+   "Height": 52
+  },
+  {
+   "Text": "DE",
+   "X": 686,
+   "Y": 947,
+   "Width": 513,
+   "Height": 52
+  },
+  {
+   "Text": "CLIENTE",
+   "X": 686,
+   "Y": 947,
+   "Width": 513,
+   "Height": 52
+  },
+  {
+   "Text": "Noabre",
+   "X": 686,
+   "Y": 991,
+   "Width": 730,
+   "Height": 61
+  },
+  {
+   "Text": "Cliente:",
+   "X": 686,
+   "Y": 991,
+   "Width": 730,
+   "Height": 61
+  },
+  {
+   "Text": "Consunidor",
+   "X": 686,
+   "Y": 991,
+   "Width": 730,
+   "Height": 61
+  },
+  {
+   "Text": "Final",
+   "X": 686,
+   "Y": 991,
+   "Width": 730,
+   "Height": 61
+  },
+  {
+   "Text": "Numero",
+   "X": 686,
+   "Y": 1043,
+   "Width": 869,
+   "Height": 52
+  },
+  {
+   "Text": "de",
+   "X": 686,
+   "Y": 1043,
+   "Width": 869,
+   "Height": 52
+  },
+  {
+   "Text": "idantificacion:",
+   "X": 686,
+   "Y": 1043,
+   "Width": 869,
+   "Height": 52
+  },
+  {
+   "Text": "222222222222",
+   "X": 686,
+   "Y": 1043,
+   "Width": 869,
+   "Height": 52
+  },
+  {
+   "Text": "Codigo",
+   "X": 817,
+   "Y": 1147,
+   "Width": 799,
+   "Height": 44
+  },
+  {
+   "Text": "Descipcion",
+   "X": 817,
+   "Y": 1147,
+   "Width": 799,
+   "Height": 44
+  },
+  {
+   "Text": "W/M",
+   "X": 817,
+   "Y": 1147,
+   "Width": 799,
+   "Height": 44
+  },
+  {
+   "Text": "Cant",
+   "X": 817,
+   "Y": 1147,
+   "Width": 799,
+   "Height": 44
+  },
+  {
+   "Text": "Precio/u",
+   "X": 817,
+   "Y": 1147,
+   "Width": 799,
+   "Height": 44
+  },
+  {
+   "Text": "JlEUA",
+   "X": 1634,
+   "Y": 1164,
+   "Width": 87,
+   "Height": 17
+  },
+  {
+   "Text": "%",
+   "X": 1729,
+   "Y": 1138,
+   "Width": 174,
+   "Height": 53
+  },
+  {
+   "Text": "Total",
+   "X": 1729,
+   "Y": 1138,
+   "Width": 174,
+   "Height": 53
+  },
+  {
+   "Text": "46606",
+   "X": 799,
+   "Y": 1190,
+   "Width": 122,
+   "Height": 52
+  },
+  {
+   "Text": "l'enHunhen",
+   "X": 947,
+   "Y": 1199,
+   "Width": 226,
+   "Height": 43
+  },
+  {
+   "Text": "94",
+   "X": 1199,
+   "Y": 1190,
+   "Width": 61,
+   "Height": 52
+  },
+  {
+   "Text": "42773",
+   "X": 1399,
+   "Y": 1190,
+   "Width": 130,
+   "Height": 52
+  },
+  {
+   "Text": "IVA",
+   "X": 1608,
+   "Y": 1190,
+   "Width": 96,
+   "Height": 52
+  },
+  {
+   "Text": "19",
+   "X": 1694,
+   "Y": 1190,
+   "Width": 182,
+   "Height": 44
+  },
+  {
+   "Text": "42773",
+   "X": 1694,
+   "Y": 1190,
+   "Width": 182,
+   "Height": 44
+  },
+  {
+   "Text": "CON",
+   "X": 747,
+   "Y": 1338,
+   "Width": 35,
+   "Height": 87
+  },
+  {
+   "Text": "1504€",
+   "X": 799,
+   "Y": 1243,
+   "Width": 122,
+   "Height": 43
+  },
+  {
+   "Text": "10",
+   "X": 956,
+   "Y": 1243,
+   "Width": 304,
+   "Height": 52
+  },
+  {
+   "Text": "Nuggets",
+   "X": 956,
+   "Y": 1243,
+   "Width": 304,
+   "Height": 52
+  },
+  {
+   "Text": "94",
+   "X": 956,
+   "Y": 1243,
+   "Width": 304,
+   "Height": 52
+  },
+  {
+   "Text": "IVA",
+   "X": 1608,
+   "Y": 1243,
+   "Width": 78,
+   "Height": 52
+  },
+  {
+   "Text": "19",
+   "X": 1694,
+   "Y": 1243,
+   "Width": 104,
+   "Height": 43
+  },
+  {
+   "Text": "0",
+   "X": 1694,
+   "Y": 1243,
+   "Width": 104,
+   "Height": 43
+  },
+  {
+   "Text": "1000:425alsaCaiun",
+   "X": 799,
+   "Y": 1286,
+   "Width": 461,
+   "Height": 52
+  },
+  {
+   "Text": "94",
+   "X": 799,
+   "Y": 1286,
+   "Width": 461,
+   "Height": 52
+  },
+  {
+   "Text": "5",
+   "X": 756,
+   "Y": 1390,
+   "Width": 156,
+   "Height": 44
+  },
+  {
+   "Text": "4259:",
+   "X": 756,
+   "Y": 1390,
+   "Width": 156,
+   "Height": 44
+  },
+  {
+   "Text": "LaninaSai",
+   "X": 947,
+   "Y": 1347,
+   "Width": 226,
+   "Height": 43
+  },
+  {
+   "Text": "IVA",
+   "X": 1608,
+   "Y": 1295,
+   "Width": 191,
+   "Height": 52
+  },
+  {
+   "Text": "19",
+   "X": 1608,
+   "Y": 1295,
+   "Width": 191,
+   "Height": 52
+  },
+  {
+   "Text": "0",
+   "X": 1608,
+   "Y": 1295,
+   "Width": 191,
+   "Height": 52
+  },
+  {
+   "Text": "4259:",
+   "X": 791,
+   "Y": 1338,
+   "Width": 122,
+   "Height": 43
+  },
+  {
+   "Text": "91l",
+   "X": 1190,
+   "Y": 1338,
+   "Width": 70,
+   "Height": 61
+  },
+  {
+   "Text": "IVA",
+   "X": 1608,
+   "Y": 1337,
+   "Width": 191,
+   "Height": 54
+  },
+  {
+   "Text": "19",
+   "X": 1608,
+   "Y": 1337,
+   "Width": 191,
+   "Height": 54
+  },
+  {
+   "Text": "0",
+   "X": 1608,
+   "Y": 1337,
+   "Width": 191,
+   "Height": 54
+  },
+  {
+   "Text": "L.aninaHun",
+   "X": 947,
+   "Y": 1389,
+   "Width": 225,
+   "Height": 54
+  },
+  {
+   "Text": "94",
+   "X": 1199,
+   "Y": 1390,
+   "Width": 61,
+   "Height": 43
+  },
+  {
+   "Text": "IVA",
+   "X": 1608,
+   "Y": 1381,
+   "Width": 191,
+   "Height": 53
+  },
+  {
+   "Text": "19",
+   "X": 1608,
+   "Y": 1381,
+   "Width": 191,
+   "Height": 53
+  },
+  {
+   "Text": "0",
+   "X": 1608,
+   "Y": 1381,
+   "Width": 191,
+   "Height": 53
+  },
+  {
+   "Text": "6",
+   "X": 764,
+   "Y": 1435,
+   "Width": 400,
+   "Height": 49
+  },
+  {
+   "Text": "1000041alsuSuee",
+   "X": 764,
+   "Y": 1435,
+   "Width": 400,
+   "Height": 49
+  },
+  {
+   "Text": "IVA",
+   "X": 1599,
+   "Y": 1434,
+   "Width": 191,
+   "Height": 52
+  },
+  {
+   "Text": "19",
+   "X": 1599,
+   "Y": 1434,
+   "Width": 191,
+   "Height": 52
+  },
+  {
+   "Text": "0",
+   "X": 1599,
+   "Y": 1434,
+   "Width": 191,
+   "Height": 52
+  },
+  {
+   "Text": "Total",
+   "X": 695,
+   "Y": 1503,
+   "Width": 530,
+   "Height": 52
+  },
+  {
+   "Text": "Linna",
+   "X": 695,
+   "Y": 1503,
+   "Width": 530,
+   "Height": 52
+  },
+  {
+   "Text": "Detalles:",
+   "X": 695,
+   "Y": 1503,
+   "Width": 530,
+   "Height": 52
+  },
+  {
+   "Text": "6",
+   "X": 695,
+   "Y": 1503,
+   "Width": 530,
+   "Height": 52
+  },
+  {
+   "Text": "SUBTOTAL",
+   "X": 1555,
+   "Y": 1555,
+   "Width": 330,
+   "Height": 52
+  },
+  {
+   "Text": "42773",
+   "X": 1555,
+   "Y": 1555,
+   "Width": 330,
+   "Height": 52
+  },
+  {
+   "Text": "JNCL",
+   "X": 1434,
+   "Y": 1598,
+   "Width": 278,
+   "Height": 53
+  },
+  {
+   "Text": "19%",
+   "X": 1434,
+   "Y": 1598,
+   "Width": 278,
+   "Height": 53
+  },
+  {
+   "Text": "IVA",
+   "X": 1434,
+   "Y": 1598,
+   "Width": 278,
+   "Height": 53
+  },
+  {
+   "Text": "=",
+   "X": 1729,
+   "Y": 1598,
+   "Width": 148,
+   "Height": 53
+  },
+  {
+   "Text": "8127",
+   "X": 1729,
+   "Y": 1598,
+   "Width": 148,
+   "Height": 53
+  },
+  {
+   "Text": "TOTAL",
+   "X": 1538,
+   "Y": 1651,
+   "Width": 348,
+   "Height": 52
+  },
+  {
+   "Text": "COP",
+   "X": 1538,
+   "Y": 1651,
+   "Width": 348,
+   "Height": 52
+  },
+  {
+   "Text": "50900",
+   "X": 1538,
+   "Y": 1651,
+   "Width": 348,
+   "Height": 52
+  },
+  {
+   "Text": "FORHA",
+   "X": 695,
+   "Y": 1712,
+   "Width": 139,
+   "Height": 61
+  },
+  {
+   "Text": "REBLO",
+   "X": 695,
+   "Y": 1712,
+   "Width": 504,
+   "Height": 103
+  },
+  {
+   "Text": "DE",
+   "X": 695,
+   "Y": 1712,
+   "Width": 504,
+   "Height": 103
+  },
+  {
+   "Text": "PAIGHE",
+   "X": 695,
+   "Y": 1712,
+   "Width": 504,
+   "Height": 103
+  },
+  {
+   "Text": "GEGTRE",
+   "X": 695,
+   "Y": 1712,
+   "Width": 504,
+   "Height": 103
+  },
+  {
+   "Text": "Lalte",
+   "X": 695,
+   "Y": 1850,
+   "Width": 904,
+   "Height": 96
+  },
+  {
+   "Text": "drant",
+   "X": 695,
+   "Y": 1850,
+   "Width": 904,
+   "Height": 96
+  },
+  {
+   "Text": "fia",
+   "X": 695,
+   "Y": 1850,
+   "Width": 904,
+   "Height": 96
+  },
+  {
+   "Text": "del",
+   "X": 695,
+   "Y": 1850,
+   "Width": 904,
+   "Height": 96
+  },
+  {
+   "Text": "trien",
+   "X": 695,
+   "Y": 1850,
+   "Width": 904,
+   "Height": 96
+  },
+  {
+   "Text": "y/a",
+   "X": 695,
+   "Y": 1850,
+   "Width": 904,
+   "Height": 96
+  },
+  {
+   "Text": "prestacion",
+   "X": 695,
+   "Y": 1850,
+   "Width": 904,
+   "Height": 96
+  },
+  {
+   "Text": "servic10:",
+   "X": 1686,
+   "Y": 1860,
+   "Width": 217,
+   "Height": 35
+  },
+  {
+   "Text": "FEV,",
+   "X": 721,
+   "Y": 2416,
+   "Width": 660,
+   "Height": 44
+  },
+  {
+   "Text": "Res.",
+   "X": 721,
+   "Y": 2416,
+   "Width": 660,
+   "Height": 44
+  },
+  {
+   "Text": "WUAA",
+   "X": 721,
+   "Y": 2416,
+   "Width": 660,
+   "Height": 44
+  },
+  {
+   "Text": "00000000000000,",
+   "X": 721,
+   "Y": 2416,
+   "Width": 660,
+   "Height": 44
+  },
+  {
+   "Text": "_del",
+   "X": 1382,
+   "Y": 2416,
+   "Width": 574,
+   "Height": 61
+  },
+  {
+   "Text": "30/06/2026",
+   "X": 1382,
+   "Y": 2416,
+   "Width": 574,
+   "Height": 61
+  },
+  {
+   "Text": "hasta",
+   "X": 1382,
+   "Y": 2416,
+   "Width": 574,
+   "Height": 61
+  },
+  {
+   "Text": "30/1",
+   "X": 1382,
+   "Y": 2416,
+   "Width": 574,
+   "Height": 61
+  },
+  {
+   "Text": "2/2027",
+   "X": 1277,
+   "Y": 2459,
+   "Width": 122,
+   "Height": 43
+  },
+  {
+   "Text": "Prefijo",
+   "X": 982,
+   "Y": 2501,
+   "Width": 712,
+   "Height": 64
+  },
+  {
+   "Text": "JFl423001",
+   "X": 982,
+   "Y": 2501,
+   "Width": 712,
+   "Height": 64
+  },
+  {
+   "Text": "al",
+   "X": 982,
+   "Y": 2501,
+   "Width": 712,
+   "Height": 64
+  },
+  {
+   "Text": "00000000000",
+   "X": 982,
+   "Y": 2501,
+   "Width": 712,
+   "Height": 64
+  },
+  {
+   "Text": "CUFE:",
+   "X": 722,
+   "Y": 2540,
+   "Width": 1234,
+   "Height": 81
+  },
+  {
+   "Text": "ba56b4:000000000000000000000000000000000000000000",
+   "X": 722,
+   "Y": 2540,
+   "Width": 1234,
+   "Height": 81
+  },
+  {
+   "Text": "000000000000",
+   "X": 721,
+   "Y": 2598,
+   "Width": 1008,
+   "Height": 62
+  },
+  {
+   "Text": "efebbb",
+   "X": 721,
+   "Y": 2598,
+   "Width": 1008,
+   "Height": 62
+  },
+  {
+   "Text": "000000000000000000000000000*",
+   "X": 721,
+   "Y": 2598,
+   "Width": 1008,
+   "Height": 62
+  },
+  {
+   "Text": "HOMDS",
+   "X": 1025,
+   "Y": 2641,
+   "Width": 626,
+   "Height": 62
+  },
+  {
+   "Text": "GRANDES",
+   "X": 1025,
+   "Y": 2641,
+   "Width": 626,
+   "Height": 62
+  },
+  {
+   "Text": "CONTRIBUYENTES",
+   "X": 1025,
+   "Y": 2641,
+   "Width": 626,
+   "Height": 62
+  },
+  {
+   "Text": "KEGUN",
+   "X": 973,
+   "Y": 2685,
+   "Width": 495,
+   "Height": 52
+  },
+  {
+   "Text": "RES.",
+   "X": 973,
+   "Y": 2685,
+   "Width": 495,
+   "Height": 52
+  },
+  {
+   "Text": "1",
+   "X": 973,
+   "Y": 2685,
+   "Width": 495,
+   "Height": 52
+  },
+  {
+   "Text": "000200",
+   "X": 973,
+   "Y": 2685,
+   "Width": 495,
+   "Height": 52
+  },
+  {
+   "Text": "DE:",
+   "X": 973,
+   "Y": 2685,
+   "Width": 495,
+   "Height": 52
+  },
+  {
+   "Text": "27/12/2024",
+   "X": 1460,
+   "Y": 2695,
+   "Width": 244,
+   "Height": 50
+  },
+  {
+   "Text": "Proveedor",
+   "X": 730,
+   "Y": 2735,
+   "Width": 208,
+   "Height": 56
+  },
+  {
+   "Text": "Carvajal",
+   "X": 1226,
+   "Y": 2728,
+   "Width": 729,
+   "Height": 80
+  },
+  {
+   "Text": "Tecnologia",
+   "X": 1226,
+   "Y": 2728,
+   "Width": 729,
+   "Height": 80
+  },
+  {
+   "Text": "y",
+   "X": 1226,
+   "Y": 2728,
+   "Width": 729,
+   "Height": 80
+  },
+  {
+   "Text": "Servicios",
+   "X": 1226,
+   "Y": 2728,
+   "Width": 729,
+   "Height": 80
+  },
+  {
+   "Text": "S",
+   "X": 1226,
+   "Y": 2728,
+   "Width": 729,
+   "Height": 80
+  },
+  {
+   "Text": "A.S",
+   "X": 748,
+   "Y": 2760,
+   "Width": 1198,
+   "Height": 91
+  },
+  {
+   "Text": "äIC",
+   "X": 748,
+   "Y": 2760,
+   "Width": 1198,
+   "Height": 91
+  },
+  {
+   "Text": "-",
+   "X": 748,
+   "Y": 2760,
+   "Width": 1198,
+   "Height": 91
+  },
+  {
+   "Text": "Nonbre",
+   "X": 748,
+   "Y": 2760,
+   "Width": 1198,
+   "Height": 91
+  },
+  {
+   "Text": "del",
+   "X": 748,
+   "Y": 2760,
+   "Width": 1198,
+   "Height": 91
+  },
+  {
+   "Text": "Sl:",
+   "X": 748,
+   "Y": 2760,
+   "Width": 1198,
+   "Height": 91
+  },
+  {
+   "Text": "CENFinanciero",
+   "X": 748,
+   "Y": 2760,
+   "Width": 1198,
+   "Height": 91
+  },
+  {
+   "Text": "-",
+   "X": 748,
+   "Y": 2760,
+   "Width": 1198,
+   "Height": 91
+  },
+  {
+   "Text": "Nit:",
+   "X": 748,
+   "Y": 2760,
+   "Width": 1198,
+   "Height": 91
+  },
+  {
+   "Text": "890.321.1",
+   "X": 748,
+   "Y": 2760,
+   "Width": 1198,
+   "Height": 91
+  },
+  {
+   "Text": "51-0",
+   "X": 1286,
+   "Y": 2824,
+   "Width": 104,
+   "Height": 52
+  },
+  {
+   "Text": "Representacion",
+   "X": 756,
+   "Y": 2876,
+   "Width": 1173,
+   "Height": 62
+  },
+  {
+   "Text": "aratica",
+   "X": 756,
+   "Y": 2876,
+   "Width": 1173,
+   "Height": 62
+  },
+  {
+   "Text": "de",
+   "X": 756,
+   "Y": 2876,
+   "Width": 1173,
+   "Height": 62
+  },
+  {
+   "Text": "Factura",
+   "X": 756,
+   "Y": 2876,
+   "Width": 1173,
+   "Height": 62
+  },
+  {
+   "Text": "electronica",
+   "X": 756,
+   "Y": 2876,
+   "Width": 1173,
+   "Height": 62
+  },
+  {
+   "Text": "de",
+   "X": 756,
+   "Y": 2876,
+   "Width": 1173,
+   "Height": 62
+  },
+  {
+   "Text": "Venta",
+   "X": 756,
+   "Y": 2876,
+   "Width": 1173,
+   "Height": 62
+  },
+  {
+   "Text": "Se",
+   "X": 956,
+   "Y": 2909,
+   "Width": 774,
+   "Height": 57
+  },
+  {
+   "Text": "informo",
+   "X": 956,
+   "Y": 2909,
+   "Width": 774,
+   "Height": 57
+  },
+  {
+   "Text": "la",
+   "X": 956,
+   "Y": 2909,
+   "Width": 774,
+   "Height": 57
+  },
+  {
+   "Text": "CC",
+   "X": 956,
+   "Y": 2909,
+   "Width": 774,
+   "Height": 57
+  },
+  {
+   "Text": "10000003",
+   "X": 956,
+   "Y": 2909,
+   "Width": 774,
+   "Height": 57
+  },
+  {
+   "Text": "para",
+   "X": 956,
+   "Y": 2909,
+   "Width": 774,
+   "Height": 57
+  },
+  {
+   "Text": "MiM",
+   "X": 956,
+   "Y": 2909,
+   "Width": 774,
+   "Height": 57
+  },
+  {
+   "Text": "tana",
+   "X": 921,
+   "Y": 3033,
+   "Width": 547,
+   "Height": 52
+  },
+  {
+   "Text": "estum",
+   "X": 921,
+   "Y": 3033,
+   "Width": 547,
+   "Height": 52
+  },
+  {
+   "Text": "tu",
+   "X": 921,
+   "Y": 3033,
+   "Width": 547,
+   "Height": 52
+  },
+  {
+   "Text": "visita",
+   "X": 921,
+   "Y": 3033,
+   "Width": 547,
+   "Height": 52
+  },
+  {
+   "Text": "hoy",
+   "X": 921,
+   "Y": 3033,
+   "Width": 547,
+   "Height": 52
+  },
+  {
+   "Text": "Cuentans",
+   "X": 834,
+   "Y": 3084,
+   "Width": 695,
+   "Height": 52
+  },
+  {
+   "Text": "escaneundo",
+   "X": 834,
+   "Y": 3084,
+   "Width": 695,
+   "Height": 52
+  },
+  {
+   "Text": "aste",
+   "X": 834,
+   "Y": 3084,
+   "Width": 695,
+   "Height": 52
+  },
+  {
+   "Text": "codigo",
+   "X": 834,
+   "Y": 3084,
+   "Width": 695,
+   "Height": 52
+  }
+ ],
+ "Engine": "Plugin.Maui.OCR/iOS"
+}

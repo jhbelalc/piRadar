@@ -1,0 +1,761 @@
+{
+ "Elements": [
+  {
+   "Text": "amazon.com",
+   "X": 513,
+   "Y": 1170,
+   "Width": 538,
+   "Height": 110
+  },
+  {
+   "Text": "SPqX6zK0f8",
+   "X": 1408,
+   "Y": 1269,
+   "Width": 269,
+   "Height": 52
+  },
+  {
+   "Text": "Your",
+   "X": 513,
+   "Y": 1364,
+   "Width": 1042,
+   "Height": 94
+  },
+  {
+   "Text": "order",
+   "X": 513,
+   "Y": 1364,
+   "Width": 1042,
+   "Height": 94
+  },
+  {
+   "Text": "of",
+   "X": 513,
+   "Y": 1364,
+   "Width": 1042,
+   "Height": 94
+  },
+  {
+   "Text": "September",
+   "X": 513,
+   "Y": 1364,
+   "Width": 1042,
+   "Height": 94
+  },
+  {
+   "Text": "11,",
+   "X": 513,
+   "Y": 1364,
+   "Width": 1042,
+   "Height": 94
+  },
+  {
+   "Text": "2026",
+   "X": 513,
+   "Y": 1364,
+   "Width": 1042,
+   "Height": 94
+  },
+  {
+   "Text": "(Order",
+   "X": 513,
+   "Y": 1364,
+   "Width": 1042,
+   "Height": 94
+  },
+  {
+   "Text": "ID",
+   "X": 513,
+   "Y": 1364,
+   "Width": 1042,
+   "Height": 94
+  },
+  {
+   "Text": "112-8735779-4306645)",
+   "X": 513,
+   "Y": 1364,
+   "Width": 1042,
+   "Height": 94
+  },
+  {
+   "Text": "Qty.",
+   "X": 513,
+   "Y": 1434,
+   "Width": 78,
+   "Height": 43
+  },
+  {
+   "Text": "Item",
+   "X": 608,
+   "Y": 1442,
+   "Width": 78,
+   "Height": 35
+  },
+  {
+   "Text": "Item",
+   "X": 1590,
+   "Y": 1480,
+   "Width": 158,
+   "Height": 39
+  },
+  {
+   "Text": "Price",
+   "X": 1590,
+   "Y": 1480,
+   "Width": 158,
+   "Height": 39
+  },
+  {
+   "Text": "WILDZEN",
+   "X": 608,
+   "Y": 1509,
+   "Width": 947,
+   "Height": 87
+  },
+  {
+   "Text": "XXL",
+   "X": 608,
+   "Y": 1509,
+   "Width": 947,
+   "Height": 87
+  },
+  {
+   "Text": "Polarized",
+   "X": 608,
+   "Y": 1509,
+   "Width": 947,
+   "Height": 87
+  },
+  {
+   "Text": "Sunglasses",
+   "X": 608,
+   "Y": 1509,
+   "Width": 947,
+   "Height": 87
+  },
+  {
+   "Text": "for",
+   "X": 608,
+   "Y": 1509,
+   "Width": 947,
+   "Height": 87
+  },
+  {
+   "Text": "Men",
+   "X": 608,
+   "Y": 1509,
+   "Width": 947,
+   "Height": 87
+  },
+  {
+   "Text": "Women,",
+   "X": 608,
+   "Y": 1509,
+   "Width": 947,
+   "Height": 87
+  },
+  {
+   "Text": "Big",
+   "X": 608,
+   "Y": 1509,
+   "Width": 947,
+   "Height": 87
+  },
+  {
+   "Text": "Wide",
+   "X": 608,
+   "Y": 1509,
+   "Width": 947,
+   "Height": 87
+  },
+  {
+   "Text": "Head",
+   "X": 609,
+   "Y": 1548,
+   "Width": 964,
+   "Height": 79
+  },
+  {
+   "Text": "Mens",
+   "X": 609,
+   "Y": 1548,
+   "Width": 964,
+   "Height": 79
+  },
+  {
+   "Text": "Sunglasses",
+   "X": 609,
+   "Y": 1548,
+   "Width": 964,
+   "Height": 79
+  },
+  {
+   "Text": "Polarized",
+   "X": 609,
+   "Y": 1548,
+   "Width": 964,
+   "Height": 79
+  },
+  {
+   "Text": "UV400",
+   "X": 609,
+   "Y": 1548,
+   "Width": 964,
+   "Height": 79
+  },
+  {
+   "Text": "Sun",
+   "X": 609,
+   "Y": 1548,
+   "Width": 964,
+   "Height": 79
+  },
+  {
+   "Text": "Glasses",
+   "X": 609,
+   "Y": 1548,
+   "Width": 964,
+   "Height": 79
+  },
+  {
+   "Text": "for",
+   "X": 609,
+   "Y": 1548,
+   "Width": 964,
+   "Height": 79
+  },
+  {
+   "Text": "Driving",
+   "X": 609,
+   "Y": 1548,
+   "Width": 964,
+   "Height": 79
+  },
+  {
+   "Text": "$21.99",
+   "X": 1582,
+   "Y": 1547,
+   "Width": 122,
+   "Height": 43
+  },
+  {
+   "Text": "0000000000",
+   "X": 608,
+   "Y": 1625,
+   "Width": 243,
+   "Height": 43
+  },
+  {
+   "Text": "WZ281-1-1",
+   "X": 609,
+   "Y": 1676,
+   "Width": 468,
+   "Height": 46
+  },
+  {
+   "Text": "(Sold",
+   "X": 609,
+   "Y": 1676,
+   "Width": 468,
+   "Height": 46
+  },
+  {
+   "Text": "by",
+   "X": 609,
+   "Y": 1676,
+   "Width": 468,
+   "Height": 46
+  },
+  {
+   "Text": "WILDZEN)",
+   "X": 609,
+   "Y": 1676,
+   "Width": 468,
+   "Height": 46
+  },
+  {
+   "Text": "Philips",
+   "X": 609,
+   "Y": 1720,
+   "Width": 912,
+   "Height": 79
+  },
+  {
+   "Text": "Over",
+   "X": 609,
+   "Y": 1720,
+   "Width": 912,
+   "Height": 79
+  },
+  {
+   "Text": "The",
+   "X": 609,
+   "Y": 1720,
+   "Width": 912,
+   "Height": 79
+  },
+  {
+   "Text": "Ear",
+   "X": 609,
+   "Y": 1720,
+   "Width": 912,
+   "Height": 79
+  },
+  {
+   "Text": "Studio",
+   "X": 609,
+   "Y": 1720,
+   "Width": 912,
+   "Height": 79
+  },
+  {
+   "Text": "Headphones",
+   "X": 609,
+   "Y": 1720,
+   "Width": 912,
+   "Height": 79
+  },
+  {
+   "Text": "for",
+   "X": 609,
+   "Y": 1720,
+   "Width": 912,
+   "Height": 79
+  },
+  {
+   "Text": "Recording",
+   "X": 609,
+   "Y": 1720,
+   "Width": 912,
+   "Height": 79
+  },
+  {
+   "Text": "Open",
+   "X": 609,
+   "Y": 1720,
+   "Width": 912,
+   "Height": 79
+  },
+  {
+   "Text": "Back",
+   "X": 608,
+   "Y": 1759,
+   "Width": 825,
+   "Height": 67
+  },
+  {
+   "Text": "Gaming",
+   "X": 608,
+   "Y": 1759,
+   "Width": 825,
+   "Height": 67
+  },
+  {
+   "Text": "Headset",
+   "X": 608,
+   "Y": 1759,
+   "Width": 825,
+   "Height": 67
+  },
+  {
+   "Text": "with",
+   "X": 608,
+   "Y": 1759,
+   "Width": 825,
+   "Height": 67
+  },
+  {
+   "Text": "Microphone",
+   "X": 608,
+   "Y": 1759,
+   "Width": 825,
+   "Height": 67
+  },
+  {
+   "Text": "Studio",
+   "X": 608,
+   "Y": 1759,
+   "Width": 825,
+   "Height": 67
+  },
+  {
+   "Text": "Monitor",
+   "X": 608,
+   "Y": 1759,
+   "Width": 825,
+   "Height": 67
+  },
+  {
+   "Text": "Headphones...",
+   "X": 600,
+   "Y": 1799,
+   "Width": 243,
+   "Height": 52
+  },
+  {
+   "Text": "$109.99",
+   "X": 1573,
+   "Y": 1755,
+   "Width": 139,
+   "Height": 43
+  },
+  {
+   "Text": "BSD-PHILIPS-SHP9600MB-2",
+   "X": 600,
+   "Y": 1913,
+   "Width": 851,
+   "Height": 72
+  },
+  {
+   "Text": "000000000000",
+   "X": 600,
+   "Y": 1913,
+   "Width": 851,
+   "Height": 72
+  },
+  {
+   "Text": "(Sold",
+   "X": 600,
+   "Y": 1913,
+   "Width": 851,
+   "Height": 72
+  },
+  {
+   "Text": "by",
+   "X": 600,
+   "Y": 1913,
+   "Width": 851,
+   "Height": 72
+  },
+  {
+   "Text": "Bsd",
+   "X": 600,
+   "Y": 1913,
+   "Width": 851,
+   "Height": 72
+  },
+  {
+   "Text": "Wholesale)",
+   "X": 600,
+   "Y": 1955,
+   "Width": 182,
+   "Height": 43
+  },
+  {
+   "Text": "GIGASTONE",
+   "X": 591,
+   "Y": 2016,
+   "Width": 904,
+   "Height": 52
+  },
+  {
+   "Text": "128GB",
+   "X": 591,
+   "Y": 2016,
+   "Width": 904,
+   "Height": 52
+  },
+  {
+   "Text": "Micro",
+   "X": 591,
+   "Y": 2016,
+   "Width": 904,
+   "Height": 52
+  },
+  {
+   "Text": "SD",
+   "X": 591,
+   "Y": 2016,
+   "Width": 904,
+   "Height": 52
+  },
+  {
+   "Text": "Card",
+   "X": 591,
+   "Y": 2016,
+   "Width": 904,
+   "Height": 52
+  },
+  {
+   "Text": "2-Pack,",
+   "X": 591,
+   "Y": 2016,
+   "Width": 904,
+   "Height": 52
+  },
+  {
+   "Text": "A1",
+   "X": 591,
+   "Y": 2016,
+   "Width": 904,
+   "Height": 52
+  },
+  {
+   "Text": "V30",
+   "X": 591,
+   "Y": 2016,
+   "Width": 904,
+   "Height": 52
+  },
+  {
+   "Text": "4K",
+   "X": 591,
+   "Y": 2016,
+   "Width": 904,
+   "Height": 52
+  },
+  {
+   "Text": "Video",
+   "X": 591,
+   "Y": 2016,
+   "Width": 904,
+   "Height": 52
+  },
+  {
+   "Text": "Recording,",
+   "X": 591,
+   "Y": 2051,
+   "Width": 965,
+   "Height": 52
+  },
+  {
+   "Text": "Compatible",
+   "X": 591,
+   "Y": 2051,
+   "Width": 965,
+   "Height": 52
+  },
+  {
+   "Text": "with",
+   "X": 591,
+   "Y": 2051,
+   "Width": 965,
+   "Height": 52
+  },
+  {
+   "Text": "Security",
+   "X": 591,
+   "Y": 2051,
+   "Width": 965,
+   "Height": 52
+  },
+  {
+   "Text": "Camera,",
+   "X": 591,
+   "Y": 2051,
+   "Width": 965,
+   "Height": 52
+  },
+  {
+   "Text": "Dash",
+   "X": 591,
+   "Y": 2051,
+   "Width": 965,
+   "Height": 52
+  },
+  {
+   "Text": "cam,",
+   "X": 591,
+   "Y": 2051,
+   "Width": 965,
+   "Height": 52
+  },
+  {
+   "Text": "Drone,",
+   "X": 591,
+   "Y": 2051,
+   "Width": 965,
+   "Height": 52
+  },
+  {
+   "Text": "360.98",
+   "X": 1564,
+   "Y": 2042,
+   "Width": 113,
+   "Height": 17
+  },
+  {
+   "Text": "Personal",
+   "X": 591,
+   "Y": 2137,
+   "Width": 304,
+   "Height": 19
+  },
+  {
+   "Text": "computers",
+   "X": 591,
+   "Y": 2137,
+   "Width": 304,
+   "Height": 19
+  },
+  {
+   "Text": "B07XG2X54Z",
+   "X": 591,
+   "Y": 2164,
+   "Width": 252,
+   "Height": 43
+  },
+  {
+   "Text": "MSD-4K-Ultra-HD-Video-",
+   "X": 591,
+   "Y": 2207,
+   "Width": 912,
+   "Height": 52
+  },
+  {
+   "Text": "128GB-2PK",
+   "X": 591,
+   "Y": 2207,
+   "Width": 912,
+   "Height": 52
+  },
+  {
+   "Text": "000000000000",
+   "X": 591,
+   "Y": 2207,
+   "Width": 912,
+   "Height": 52
+  },
+  {
+   "Text": "(Sold",
+   "X": 591,
+   "Y": 2207,
+   "Width": 912,
+   "Height": 52
+  },
+  {
+   "Text": "by",
+   "X": 591,
+   "Y": 2207,
+   "Width": 912,
+   "Height": 52
+  },
+  {
+   "Text": "gigastone",
+   "X": 582,
+   "Y": 2259,
+   "Width": 313,
+   "Height": 26
+  },
+  {
+   "Text": "America,",
+   "X": 582,
+   "Y": 2259,
+   "Width": 313,
+   "Height": 26
+  },
+  {
+   "Text": "This",
+   "X": 487,
+   "Y": 2311,
+   "Width": 469,
+   "Height": 18
+  },
+  {
+   "Text": "shioment",
+   "X": 487,
+   "Y": 2311,
+   "Width": 469,
+   "Height": 18
+  },
+  {
+   "Text": "completes",
+   "X": 487,
+   "Y": 2311,
+   "Width": 469,
+   "Height": 18
+  },
+  {
+   "Text": "your",
+   "X": 487,
+   "Y": 2311,
+   "Width": 469,
+   "Height": 18
+  },
+  {
+   "Text": "order",
+   "X": 487,
+   "Y": 2311,
+   "Width": 469,
+   "Height": 18
+  },
+  {
+   "Text": "Subtota",
+   "X": 1199,
+   "Y": 2311,
+   "Width": 122,
+   "Height": 17
+  },
+  {
+   "Text": "Shipping",
+   "X": 1208,
+   "Y": 2346,
+   "Width": 287,
+   "Height": 27
+  },
+  {
+   "Text": "&",
+   "X": 1208,
+   "Y": 2346,
+   "Width": 287,
+   "Height": 27
+  },
+  {
+   "Text": "Handlina",
+   "X": 1208,
+   "Y": 2346,
+   "Width": 287,
+   "Height": 27
+  },
+  {
+   "Text": "Promotional",
+   "X": 1199,
+   "Y": 2372,
+   "Width": 339,
+   "Height": 45
+  },
+  {
+   "Text": "Certificate",
+   "X": 1199,
+   "Y": 2372,
+   "Width": 339,
+   "Height": 45
+  },
+  {
+   "Text": "Total",
+   "X": 1886,
+   "Y": 1486,
+   "Width": 96,
+   "Height": 43
+  },
+  {
+   "Text": "$21.99",
+   "X": 1860,
+   "Y": 1555,
+   "Width": 113,
+   "Height": 43
+  },
+  {
+   "Text": "$109.99",
+   "X": 1834,
+   "Y": 1764,
+   "Width": 139,
+   "Height": 43
+  },
+  {
+   "Text": "$00.98",
+   "X": 1842,
+   "Y": 2051,
+   "Width": 104,
+   "Height": 17
+  },
+  {
+   "Text": "$17.06",
+   "X": 1834,
+   "Y": 2355,
+   "Width": 104,
+   "Height": 35
+  }
+ ],
+ "Engine": "Plugin.Maui.OCR/iOS"
+}

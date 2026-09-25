@@ -480,3 +480,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Términos privados para anonimizar fixtures de OCR (ver tools/ocr-fixtures/README.md)
+tools/ocr-fixtures/private-terms.txt
