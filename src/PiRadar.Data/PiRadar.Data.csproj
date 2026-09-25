@@ -8,6 +8,7 @@
     <!-- sqlite-net sin SQLite nativo + sqlite3mc (modo SQLCipher). No usar sqlite-net-pcl ni sqlite-net-sqlcipher. -->
     <PackageReference Include="sqlite-net-base" Version="1.9.172" />
     <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3mc" Version="2.1.11" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -7,10 +7,10 @@ internal static class RecordMapping
     private static DateTime AsUtc(DateTime value) => DateTime.SpecifyKind(value, DateTimeKind.Utc);
     private static DateTime AsLocal(DateTime value) => DateTime.SpecifyKind(value, DateTimeKind.Local);
 
-    private static DateTime ToUtcForStorage(DateTime value) =>
+    internal static DateTime ToUtcForStorage(DateTime value) =>
         value.Kind == DateTimeKind.Local ? value.ToUniversalTime() : value;
 
-    private static DateTime ToLocalForStorage(DateTime value) =>
+    internal static DateTime ToLocalForStorage(DateTime value) =>
         value.Kind == DateTimeKind.Utc ? value.ToLocalTime() : value;
 
     public static Category ToDomain(this CategoryRecord r) => new()

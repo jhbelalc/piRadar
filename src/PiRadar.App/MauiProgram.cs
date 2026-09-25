@@ -26,6 +26,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<IDatabaseKeyProvider, SecureStorageDatabaseKeyProvider>();
 		builder.Services.AddSingleton(sp =>
 			new DatabaseHost(sp.GetRequiredService<IDatabaseKeyProvider>(), DatabaseLocation.GetDatabasePath()));
+		builder.Services.AddPiRadarData();
 
 #if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();

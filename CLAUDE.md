@@ -88,6 +88,7 @@ piRadar/
   - Errores típicos a tolerar en el parser: `0`↔`O` ("M0LIDO"), `İ` en lugar de `Í`, palabras partidas ("ELECTRÓNI CA"), tildes perdidas.
   - El plugin también arrastra la variante de ML Kit de Play Services (advertencia `XA4301` por `.so` duplicado); no bloquea, revisar tamaño del APK más adelante.
   - Si el plugin deja de funcionar en una versión futura de .NET/MAUI → implementación propia con `Xamarin.Google.MLKit.TextRecognition` (Android) y `VNRecognizeTextRequest` (iOS). `ReceiptParser` no depende del motor.
+- **Repositorios**: interfaces en `PiRadar.Core/Abstractions`, implementaciones `internal` en `PiRadar.Data/Repositories`, registradas con `services.AddPiRadarData()`. Toman la conexión de `DatabaseHost.Database` en cada llamada (siguen sirviendo tras `ResetAsync`). Cada escritura valida y escribe dentro de una misma transacción de BD. Las reglas de negocio lanzan `DomainValidationException` con un mensaje en español que se puede mostrar al usuario. Las categorías y los medios de pago con movimientos (o con subcategorías) se archivan en vez de borrarse; uno archivado no se puede elegir en movimientos nuevos, pero los movimientos viejos lo conservan. `CreatedAt`/`UpdatedAt` los fija el repositorio con `IClock`.
 - **Tabla de movimientos**: `[Table("Transactions")]`, porque `TRANSACTION` es palabra reservada en SQLite.
 - **Monedas**: totales siempre separados por moneda; vista consolidada opcional en la moneda base usando tasas ingresadas manualmente (tabla `ExchangeRate`).
 

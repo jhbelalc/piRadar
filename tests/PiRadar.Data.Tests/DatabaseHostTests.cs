@@ -104,27 +104,4 @@ public class DatabaseHostTests
         Assert.All(results, s => Assert.Equal(DatabaseStatus.Opened, s));
         Assert.Equal(1, keys.SaveCalls);
     }
-
-    private sealed class InMemoryKeyProvider : IDatabaseKeyProvider
-    {
-        public byte[]? Key { get; set; }
-        public int SaveCalls { get; private set; }
-        public int DeleteCalls { get; private set; }
-
-        public Task<byte[]?> TryGetKeyAsync(CancellationToken cancellationToken = default) => Task.FromResult(Key);
-
-        public Task SaveKeyAsync(byte[] key, CancellationToken cancellationToken = default)
-        {
-            SaveCalls++;
-            Key = key;
-            return Task.CompletedTask;
-        }
-
-        public Task DeleteKeyAsync(CancellationToken cancellationToken = default)
-        {
-            DeleteCalls++;
-            Key = null;
-            return Task.CompletedTask;
-        }
-    }
 }
