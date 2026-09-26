@@ -69,13 +69,23 @@ internal static class TextNormalizer
 
     /// <summary>
     /// Como <see cref="ContainsAny"/>, pero tolera una letra de diferencia en palabras clave de 6+ letras
-    /// ("RECEIP" por "RECEIPT", "CULNTANOS" por "CUENTANOS"). Ambos textos en forma compacta.
+    /// ("RECEIP" por "RECEIPT", "CULNTANOS" por "CUENTANOS"). La coincidencia aproximada debe empezar donde empieza
+    /// una palabra: "ARA JERONIMO" contiene "RAJERO", a una letra de "CAJERO", sin tener nada que ver.
     /// </summary>
-    public static bool ContainsApprox(string compactText, params ReadOnlySpan<string> compactKeywords)
+    public static bool ContainsApprox(string text, params ReadOnlySpan<string> compactKeywords)
     {
+        var compactText = new StringBuilder();
+        var wordStarts = new List<int>();
+        foreach (var word in text.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            wordStarts.Add(compactText.Length);
+            compactText.Append(Compact(word));
+        }
+
+        var compact = compactText.ToString();
         foreach (var keyword in compactKeywords)
         {
-            if (compactText.Contains(keyword, StringComparison.Ordinal))
+            if (compact.Contains(keyword, StringComparison.Ordinal))
             {
                 return true;
             }
@@ -85,11 +95,11 @@ internal static class TextNormalizer
                 continue;
             }
 
-            for (var length = keyword.Length - 1; length <= keyword.Length + 1; length++)
+            foreach (var start in wordStarts)
             {
-                for (var start = 0; start + length <= compactText.Length; start++)
+                for (var length = keyword.Length - 1; length <= keyword.Length + 1 && start + length <= compact.Length; length++)
                 {
-                    if (EditDistanceAtMostOne(compactText.AsSpan(start, length), keyword))
+                    if (EditDistanceAtMostOne(compact.AsSpan(start, length), keyword))
                     {
                         return true;
                     }

@@ -263,7 +263,9 @@ public static partial class ReceiptParser
     // ---------------------------------------------------------------- Fecha
 
     private static readonly string[] DateHints =
-        ["FECHA", "DATE", "EMISION", "EXPEDICION", "GENERACION", "GENERA", "ORDEROF", "VALIDA"];
+        ["FECHA", "DATE", "EMISION", "EXPEDICION", "GENERACION", "GENERA", "ORDEROF", "VALIDA",
+        // Parqueaderos: se paga al salir.
+        "SALIDA"];
 
     private static readonly string[] DateNoise =
     [
@@ -287,7 +289,8 @@ public static partial class ReceiptParser
 
                 // La hora puede venir pegada a la fecha ("2026-09-2117:36:41"): se busca en el texto que sigue a la fecha.
                 var after = token.End <= line.Text.Length ? line.Text[token.End..] : string.Empty;
-                var time = DateParser.FindTimes(after).Select(t => (TimeOnly?)t.Time).FirstOrDefault()
+                var time = DateParser.FindSplitTimeAfterDate(after)
+                    ?? DateParser.FindTimes(after).Select(t => (TimeOnly?)t.Time).FirstOrDefault()
                     ?? DateParser.FindTimes(line.Text).Select(t => (TimeOnly?)t.Time).FirstOrDefault();
                 var hinted = line.Has(DateHints);
                 if (time is null && hinted)
@@ -354,7 +357,7 @@ public static partial class ReceiptParser
             var m = NitWithKeyword().Match(line.Folded);
             if (!m.Success && line.Index < headerEnd)
             {
-                // "900.335.241-1" sin la palabra NIT, solo en la cabecera.
+                // "900.335.241-1" o "900480569-1" sin la palabra NIT, solo en la cabecera.
                 m = NitWithoutKeyword().Match(line.Folded);
             }
 
@@ -378,7 +381,8 @@ public static partial class ReceiptParser
 
         if (m.Groups["dv"].Success)
         {
-            var dv = m.Groups["dv"].Value[0] - '0';
+            // "900480569-L": el OCR lee a veces el 1 del DV como L o I.
+            var dv = m.Groups["dv"].Value[0] is 'L' or 'I' ? 1 : m.Groups["dv"].Value[0] - '0';
             return new TaxIdResult(TaxId.Format(digits, dv), TaxId.CheckDigit(digits) == dv, -1);
         }
 
@@ -400,7 +404,7 @@ public static partial class ReceiptParser
     [GeneratedRegex(@"N\s?\.?\s?I\s?\.?\s?T\s?\.?\s?[:.]?\s?(?<num>\d[\d.\s]{4,15}\d)(?:\s?-\s?(?<dv>\d)(?!\d))?")]
     private static partial Regex NitWithKeyword();
 
-    [GeneratedRegex(@"(?<![\d.])(?<num>\d{2,3}\.\d{3}\.\d{3})\s?-\s?(?<dv>\d)(?!\d)")]
+    [GeneratedRegex(@"(?<![\d.])(?<num>\d{2,3}\.\d{3}\.\d{3}|\d{9})\s?-\s?(?<dv>\d|[LI]\b)(?!\d)")]
     private static partial Regex NitWithoutKeyword();
 
     [GeneratedRegex(@"NIT\s?/\s?C\.?\s?C|C\.?\s?C\.?\s?/\s?NIT")]
@@ -465,8 +469,9 @@ public static partial class ReceiptParser
         {
             var text = lines[i].Text;
 
-            // "ALMACENES EXITO S.A NIT 8909006089": el nombre va antes del NIT.
-            var nit = NitPrefix().Match(TextNormalizer.Fold(text));
+            // "ALMACENES EXITO S.A NIT 8909006089" o "... S.A.S. 900480569-1": el nombre va antes del NIT.
+            var folded = TextNormalizer.Fold(text);
+            var nit = NitPrefix().Match(folded) is { Success: true } withKeyword ? withKeyword : NitWithoutKeyword().Match(folded);
             if (nit.Success && nit.Index > 0)
             {
                 text = text[..nit.Index];
@@ -529,7 +534,7 @@ public static partial class ReceiptParser
 
         var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries)
             .Select(w => w.Trim('~', '*', '-', '_', ':', ',', '|', '!', '¡', '(', ')', '"'))
-            .Where(w => w.Length > 0 && !w.Any(char.IsDigit))
+            .Where(w => w.Length > 0 && (!w.Any(char.IsDigit) || Ordinal().IsMatch(w)))
             .ToList();
         if (words.Count == 0)
         {
@@ -559,7 +564,7 @@ public static partial class ReceiptParser
         }
 
         // Aproximado: ML Kit parte y confunde letras ("RECEIP", "CULNTANOS").
-        return TextNormalizer.ContainsApprox(TextNormalizer.Compact(name), MerchantNoise) ? null : name;
+        return TextNormalizer.ContainsApprox(name, MerchantNoise) ? null : name;
     }
 
     /// <summary>¿El texto compacto es solo nombres de lugar pegados? ("SANTIAGODECALICOLOMBIA", aunque ML Kit parta palabras).</summary>
@@ -619,7 +624,8 @@ public static partial class ReceiptParser
         var words = Colombia.TextInfo.ToTitleCase(name.ToLower(Colombia)).Split(' ');
         for (var i = 1; i < words.Length; i++)
         {
-            if (LowercaseConnectors.Contains(words[i].ToLowerInvariant()))
+            // Conectores y ordinales ("5ta", no "5Ta").
+            if (LowercaseConnectors.Contains(words[i].ToLowerInvariant()) || Ordinal().IsMatch(words[i]))
             {
                 words[i] = words[i].ToLowerInvariant();
             }
@@ -636,6 +642,10 @@ public static partial class ReceiptParser
 
     [GeneratedRegex(@"^\s*(?:PUNTO\s+DE\s+VEN\w{2}|RAZ[OÓ]N\s+SOCIAL)\s*:\s*", RegexOptions.IgnoreCase)]
     private static partial Regex NamePrefix();
+
+    // "PARQUEADERO LA 5TA", "LA 14".
+    [GeneratedRegex(@"^\d{1,2}(?:TA|RA|DA|MA|NA|VA|TO|RO|DO|MO|NO|VO)$", RegexOptions.IgnoreCase)]
+    private static partial Regex Ordinal();
 
     [GeneratedRegex(@"\d{7,}")]
     private static partial Regex LongNumber();

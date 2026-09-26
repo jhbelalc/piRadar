@@ -62,4 +62,22 @@ public class DateParserTests
     {
         Assert.Equal(new TimeOnly(hour, minute, second), Assert.Single(DateParser.FindTimes(row)).Time);
     }
+
+    [Theory]
+    [InlineData(" 09 15:03 VALIDACION DIAN:", 9, 15, 3)]
+    [InlineData(" - 23 43:36", 23, 43, 36)]
+    public void FindSplitTimeAfterDate_ReadsTimeWithLostColon(string after, int hour, int minute, int second)
+    {
+        Assert.Equal(new TimeOnly(hour, minute, second), DateParser.FindSplitTimeAfterDate(after));
+    }
+
+    [Theory]
+    [InlineData(" 15:03")]
+    [InlineData(" 69 15:03")]
+    [InlineData(" 09 15:03:22")]
+    [InlineData(" CAJA 02 18:42")]
+    public void FindSplitTimeAfterDate_IgnoresOtherShapes(string after)
+    {
+        Assert.Null(DateParser.FindSplitTimeAfterDate(after));
+    }
 }

@@ -76,7 +76,7 @@ piRadar/
 │  └─ PiRadar.Data/             # Records/, Repositories/, Migrations/, Seed/, Backup/
 ├─ tools/ocr-fixtures/         # cómo generar y anonimizar fixtures de OCR (README.md)
 └─ tests/
-   ├─ PiRadar.Core.Tests/        # Receipts/Fixtures/{ios,android}: OCR real anonimizado de 18 recibos
+   ├─ PiRadar.Core.Tests/        # Receipts/Fixtures/{ios,android}: OCR real anonimizado de 20 recibos
    └─ PiRadar.Data.Tests/
 ```
 

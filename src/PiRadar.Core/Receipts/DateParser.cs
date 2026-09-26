@@ -116,6 +116,16 @@ internal static partial class DateParser
         return result;
     }
 
+    /// <summary>
+    /// Hora al comienzo del texto que sigue a una fecha cuando el OCR perdió el primer ":" de "HH:mm:ss"
+    /// ("2026-09-26 09 15:03" es 09:15:03). Fuera de ese lugar "02 18:42" es más probable caja + hora.
+    /// </summary>
+    public static TimeOnly? FindSplitTimeAfterDate(string after)
+    {
+        var m = SplitTime().Match(TextNormalizer.Fold(after));
+        return m.Success ? new TimeOnly(Int(m, "h"), Int(m, "min"), Int(m, "s")) : null;
+    }
+
     [GeneratedRegex(@"(?<=[\d/.-])[OU](?=\d)|(?<=\d)[OU](?=[\d/.-])")]
     private static partial Regex LetterZero();
 
@@ -139,4 +149,7 @@ internal static partial class DateParser
 
     [GeneratedRegex(@"(?<!\d)(?<!\d\s?:\s?)(?<h>\d{1,2})\s?:\s?(?<min>\d{2})(?:\s?:\s?(?<s>\d{2}))?(?:[.,]\d{1,3})?(?:\s?(?<ap>[APD])[.,]?\s?M\b\.?)?(?![\d:])")]
     private static partial Regex Time();
+
+    [GeneratedRegex(@"^\s?-?\s?(?<h>[01]\d|2[0-3])\s(?<min>[0-5]\d)\s?:\s?(?<s>[0-5]\d)(?![\d:])")]
+    private static partial Regex SplitTime();
 }

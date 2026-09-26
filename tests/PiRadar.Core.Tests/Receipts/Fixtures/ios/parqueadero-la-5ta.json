@@ -1,0 +1,383 @@
+{
+ "Elements": [
+  {
+   "Text": "PARQUEADERO",
+   "X": 547,
+   "Y": 590,
+   "Width": 1868,
+   "Height": 200
+  },
+  {
+   "Text": "LA",
+   "X": 547,
+   "Y": 590,
+   "Width": 1868,
+   "Height": 200
+  },
+  {
+   "Text": "5TA",
+   "X": 547,
+   "Y": 590,
+   "Width": 1868,
+   "Height": 200
+  },
+  {
+   "Text": "CRA",
+   "X": 1251,
+   "Y": 842,
+   "Width": 478,
+   "Height": 79
+  },
+  {
+   "Text": "13",
+   "X": 1251,
+   "Y": 842,
+   "Width": 478,
+   "Height": 79
+  },
+  {
+   "Text": "#5-37",
+   "X": 1251,
+   "Y": 842,
+   "Width": 478,
+   "Height": 79
+  },
+  {
+   "Text": "CEL:",
+   "X": 1199,
+   "Y": 921,
+   "Width": 582,
+   "Height": 87
+  },
+  {
+   "Text": "3136330244",
+   "X": 1199,
+   "Y": 921,
+   "Width": 582,
+   "Height": 87
+  },
+  {
+   "Text": "HORARIO:LUN-DOM",
+   "X": 1052,
+   "Y": 998,
+   "Width": 868,
+   "Height": 104
+  },
+  {
+   "Text": "24H",
+   "X": 1052,
+   "Y": 998,
+   "Width": 868,
+   "Height": 104
+  },
+  {
+   "Text": "RECIBO",
+   "X": 1156,
+   "Y": 1086,
+   "Width": 669,
+   "Height": 88
+  },
+  {
+   "Text": "No.",
+   "X": 1156,
+   "Y": 1086,
+   "Width": 669,
+   "Height": 88
+  },
+  {
+   "Text": "45,300",
+   "X": 1156,
+   "Y": 1086,
+   "Width": 669,
+   "Height": 88
+  },
+  {
+   "Text": "Placa",
+   "X": 1112,
+   "Y": 2059,
+   "Width": 721,
+   "Height": 96
+  },
+  {
+   "Text": ":",
+   "X": 1112,
+   "Y": 2059,
+   "Width": 721,
+   "Height": 96
+  },
+  {
+   "Text": "ABC123",
+   "X": 1112,
+   "Y": 2059,
+   "Width": 721,
+   "Height": 96
+  },
+  {
+   "Text": "Entrada",
+   "X": 669,
+   "Y": 2197,
+   "Width": 338,
+   "Height": 80
+  },
+  {
+   "Text": "2026-09-25",
+   "X": 1086,
+   "Y": 2198,
+   "Width": 904,
+   "Height": 87
+  },
+  {
+   "Text": "-",
+   "X": 1086,
+   "Y": 2198,
+   "Width": 904,
+   "Height": 87
+  },
+  {
+   "Text": "23:43:36",
+   "X": 1086,
+   "Y": 2198,
+   "Width": 904,
+   "Height": 87
+  },
+  {
+   "Text": "Salida",
+   "X": 669,
+   "Y": 2320,
+   "Width": 269,
+   "Height": 78
+  },
+  {
+   "Text": "2026-09-26",
+   "X": 1069,
+   "Y": 2311,
+   "Width": 912,
+   "Height": 88
+  },
+  {
+   "Text": "-",
+   "X": 1069,
+   "Y": 2311,
+   "Width": 912,
+   "Height": 88
+  },
+  {
+   "Text": "00:24:54",
+   "X": 1069,
+   "Y": 2311,
+   "Width": 912,
+   "Height": 88
+  },
+  {
+   "Text": "Tiempo:",
+   "X": 669,
+   "Y": 2433,
+   "Width": 1251,
+   "Height": 87
+  },
+  {
+   "Text": "0",
+   "X": 669,
+   "Y": 2433,
+   "Width": 1251,
+   "Height": 87
+  },
+  {
+   "Text": "Horas",
+   "X": 669,
+   "Y": 2433,
+   "Width": 1251,
+   "Height": 87
+  },
+  {
+   "Text": "+",
+   "X": 669,
+   "Y": 2433,
+   "Width": 1251,
+   "Height": 87
+  },
+  {
+   "Text": "42",
+   "X": 669,
+   "Y": 2433,
+   "Width": 1251,
+   "Height": 87
+  },
+  {
+   "Text": "Minutos",
+   "X": 669,
+   "Y": 2433,
+   "Width": 1251,
+   "Height": 87
+  },
+  {
+   "Text": "Cajero",
+   "X": 669,
+   "Y": 2537,
+   "Width": 1086,
+   "Height": 96
+  },
+  {
+   "Text": ":",
+   "X": 669,
+   "Y": 2537,
+   "Width": 1086,
+   "Height": 96
+  },
+  {
+   "Text": "CAJA",
+   "X": 669,
+   "Y": 2537,
+   "Width": 1086,
+   "Height": 96
+  },
+  {
+   "Text": "GENERAL.",
+   "X": 669,
+   "Y": 2537,
+   "Width": 1086,
+   "Height": 96
+  },
+  {
+   "Text": "Subtotal",
+   "X": 1477,
+   "Y": 2884,
+   "Width": 791,
+   "Height": 105
+  },
+  {
+   "Text": "$",
+   "X": 1477,
+   "Y": 2884,
+   "Width": 791,
+   "Height": 105
+  },
+  {
+   "Text": "4,000.00",
+   "X": 1477,
+   "Y": 2884,
+   "Width": 791,
+   "Height": 105
+  },
+  {
+   "Text": "IVA",
+   "X": 1833,
+   "Y": 3002,
+   "Width": 428,
+   "Height": 91
+  },
+  {
+   "Text": "$",
+   "X": 1833,
+   "Y": 3002,
+   "Width": 428,
+   "Height": 91
+  },
+  {
+   "Text": "0.00",
+   "X": 1833,
+   "Y": 3002,
+   "Width": 428,
+   "Height": 91
+  },
+  {
+   "Text": "Total",
+   "X": 1390,
+   "Y": 3084,
+   "Width": 878,
+   "Height": 140
+  },
+  {
+   "Text": "$",
+   "X": 1390,
+   "Y": 3084,
+   "Width": 878,
+   "Height": 140
+  },
+  {
+   "Text": "4,000.00",
+   "X": 1390,
+   "Y": 3084,
+   "Width": 878,
+   "Height": 140
+  },
+  {
+   "Text": "Ambientes",
+   "X": 689,
+   "Y": 3326,
+   "Width": 1529,
+   "Height": 151
+  },
+  {
+   "Text": "Seguros",
+   "X": 689,
+   "Y": 3326,
+   "Width": 1529,
+   "Height": 151
+  },
+  {
+   "Text": "S.A.S",
+   "X": 689,
+   "Y": 3326,
+   "Width": 1529,
+   "Height": 151
+  },
+  {
+   "Text": "©",
+   "X": 689,
+   "Y": 3326,
+   "Width": 1529,
+   "Height": 151
+  },
+  {
+   "Text": "2026",
+   "X": 689,
+   "Y": 3326,
+   "Width": 1529,
+   "Height": 151
+  },
+  {
+   "Text": "Software:",
+   "X": 1017,
+   "Y": 3432,
+   "Width": 878,
+   "Height": 122
+  },
+  {
+   "Text": "AS-Parking",
+   "X": 1017,
+   "Y": 3432,
+   "Width": 878,
+   "Height": 122
+  },
+  {
+   "Text": "www.ambientes-seguros.com",
+   "X": 843,
+   "Y": 3528,
+   "Width": 1208,
+   "Height": 122
+  },
+  {
+   "Text": "NIT",
+   "X": 1069,
+   "Y": 3606,
+   "Width": 765,
+   "Height": 140
+  },
+  {
+   "Text": "-",
+   "X": 1069,
+   "Y": 3606,
+   "Width": 765,
+   "Height": 140
+  },
+  {
+   "Text": "901697756-9",
+   "X": 1069,
+   "Y": 3606,
+   "Width": 765,
+   "Height": 140
+  }
+ ],
+ "Engine": "Plugin.Maui.OCR/iOS"
+}

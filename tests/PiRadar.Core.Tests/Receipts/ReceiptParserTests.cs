@@ -181,4 +181,40 @@ public class ReceiptParserTests
         Assert.Null(result.TaxId);
         Assert.Equal(Currency.COP, result.Currency);
     }
+
+    [Fact]
+    public void Parse_Parking_UsesExitDate_AndKeepsOrdinalInName()
+    {
+        string[] rows =
+        [
+            "PARQUEADERO LA 5TA",
+            "Entrada 2026-09-23 - 23:43:36",
+            "Salida 2026-09-24 - 00:24:54",
+            "Total $ 4,000.00",
+        ];
+
+        var result = ReceiptParser.Parse(rows, Today);
+
+        Assert.Equal(new DateTime(2026, 9, 24, 0, 24, 54), result.Date);
+        Assert.Equal("Parqueadero La 5ta", result.Merchant);
+        Assert.Equal(new Money(4000, Currency.COP), result.Total);
+    }
+
+    [Fact]
+    public void Parse_HeaderNitWithoutKeyword_WithCheckDigitReadAsL()
+    {
+        string[] rows =
+        [
+            "TIENDAS ARA JERONIMO MARTINS COLOMBIA S.A.S. 900480569-L",
+            "GENERACION: 2026-09-24 09 15:03",
+            "Total: 17 190",
+        ];
+
+        var result = ReceiptParser.Parse(rows, Today);
+
+        Assert.Equal("900480569-1", result.TaxId);
+        Assert.True(result.TaxIdVerified);
+        Assert.Equal(new DateTime(2026, 9, 24, 9, 15, 3), result.Date);
+        Assert.Contains("Tiendas Ara Jeronimo Martins", result.MerchantCandidates);
+    }
 }

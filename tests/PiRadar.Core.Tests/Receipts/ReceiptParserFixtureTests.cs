@@ -7,13 +7,13 @@ using PiRadar.Core.Receipts;
 namespace PiRadar.Core.Tests.Receipts;
 
 /// <summary>
-/// OCR real (Vision en iOS 18.1 y ML Kit en Android 35) de 17 recibos fotografiados con iPhone más el recibo de
+/// OCR real (Vision en iOS 18.1 y ML Kit en Android 35) de 19 recibos fotografiados con iPhone más el recibo de
 /// muestra, anonimizados. Cada campo que el parser acierta queda fijado; los que el OCR no alcanzó a leer se marcan
 /// como no verificados con el motivo.
 /// </summary>
 public class ReceiptParserFixtureTests
 {
-    private static readonly DateOnly Today = new(2026, 9, 24);
+    private static readonly DateOnly Today = new(2026, 9, 26);
 
     /// <param name="Date">"yyyy-MM-dd"; <c>"—"</c> = no debe proponer fecha; <c>null</c> = no se verifica.</param>
     /// <param name="Time">"HH:mm"; <c>null</c> = no se verifica.</param>
@@ -27,6 +27,7 @@ public class ReceiptParserFixtureTests
 
     public static TheoryData<Expected> Receipts =>
     [
+        new Expected("ios", "ara", 17190, "2026-09-26", "09:15", "900480569-1", "tiendas ara"),
         new Expected("ios", "ava", 29400, "2026-09-20", "18:47", "901784030-3", "ava gyro shack"),
         new Expected("ios", "burica", 8580, "2026-09-06", "17:34", "800130144-1", "burica"),
         // La línea "CARULLA LA MARIA" (inclinada) no la lee ningún motor: queda la razón social.
@@ -48,7 +49,11 @@ public class ReceiptParserFixtureTests
         new Expected("ios", "pricesmart-guanabana", 47700, "2026-09-16", "16:38", "900319753-3", "pricesmart"),
         new Expected("ios", "pricesmart-sin-fecha", 93400, "—", null, "900319753-3", "pricesmart"),
         new Expected("ios", "tribal", 31000, "2026-09-20", "18:45", "900980767-9", "tribal"),
+        // Montos con formato inglés ("$ 4,000.00"); fecha ISO de salida; el único NIT es del proveedor del software.
+        new Expected("ios", "parqueadero-la-5ta", 4000, "2026-09-26", "00:24", "—", "parqueadero la 5ta"),
 
+        // ML Kit lee la hora "09:15:03" como "69 15:03" y el NIT como "9004B0569-L".
+        new Expected("android", "ara", 17190, "2026-09-26", null, null, "tiendas ara"),
         new Expected("android", "ava", 29400, "2026-09-20", "18:47", "901784030-3", "ava gyro shack"),
         new Expected("android", "burica", 8580, "2026-09-06", "17:34", "800130144-1", "burica"),
         new Expected("android", "carulla", 31492, "2026-09-14", "16:50", "890900608-9", "almacenes exito"),
@@ -69,6 +74,7 @@ public class ReceiptParserFixtureTests
         new Expected("android", "pricesmart-sin-fecha", 93400, "—", null, "900319753-3", "pricesm"),
         // ML Kit lee mal el NIT.
         new Expected("android", "tribal", 31000, "2026-09-20", "18:45", null, "tribal"),
+        new Expected("android", "parqueadero-la-5ta", 4000, "2026-09-26", "00:24", "—", "parqueadero la 5ta"),
     ];
 
     [Theory]
