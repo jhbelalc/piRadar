@@ -27,8 +27,9 @@
         <ApplicationId>com.jhbelalc.piradar</ApplicationId>
 
         <!-- Versions -->
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-        <ApplicationVersion>1</ApplicationVersion>
+        <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
+        <!-- Subir en cada APK que se entrega: Android no instala encima una versión con número menor. -->
+        <ApplicationVersion>2</ApplicationVersion>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
@@ -42,6 +43,31 @@
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#00695C" BaseSize="128,128" />
 
     </ItemGroup>
+
+    <!-- Release para teléfonos (ARM64): sin x86_64, que solo sirve al emulador y duplicaba cada librería nativa (APK de
+         46,7 MB). Release en el emulador: -p:PiRadarEmulator=true (no -p:RuntimeIdentifiers, que se propaga a Core y Data). -->
+    <PropertyGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('-android'))">
+        <RuntimeIdentifiers Condition="'$(PiRadarEmulator)' != 'true'">android-arm64</RuntimeIdentifiers>
+        <RuntimeIdentifiers Condition="'$(PiRadarEmulator)' == 'true'">android-x64</RuntimeIdentifiers>
+
+        <!-- Firma con la clave propia de piRadar (fuera del repo; su contraseña está en el llavero de macOS y la pasa
+             tools/build-apk.sh). Las actualizaciones solo se instalan encima si van firmadas con la misma clave. -->
+        <PiRadarKeyStore Condition="'$(PiRadarKeyStore)' == ''">$(MSBuildThisFileDirectory)..\..\..\piRadar-firma\piradar.keystore</PiRadarKeyStore>
+        <AndroidKeyStore>true</AndroidKeyStore>
+        <AndroidSigningKeyStore>$(PiRadarKeyStore)</AndroidSigningKeyStore>
+        <AndroidSigningKeyAlias>piradar</AndroidSigningKeyAlias>
+        <AndroidSigningStorePass>env:PIRADAR_KEYSTORE_PASS</AndroidSigningStorePass>
+        <AndroidSigningKeyPass>env:PIRADAR_KEYSTORE_PASS</AndroidSigningKeyPass>
+    </PropertyGroup>
+
+    <!-- Sin la clave propia no se genera un Release: firmado con otra clave no se podría instalar encima del actual. -->
+    <Target Name="PiRadarCheckSigningKey" BeforeTargets="BeforeBuild"
+            Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('-android'))">
+        <Error Condition="!Exists('$(PiRadarKeyStore)')"
+               Text="No se encontró la clave de firma de piRadar en $(PiRadarKeyStore). Cópiala ahí o indica otra ruta con -p:PiRadarKeyStore=..." />
+        <Error Condition="'$(PIRADAR_KEYSTORE_PASS)' == ''"
+               Text="Falta la contraseña de la clave (PIRADAR_KEYSTORE_PASS). Compila el APK con tools/build-apk.sh, que la lee del llavero de macOS." />
+    </Target>
 
     <!-- Release sin permisos de red en Android (la app funciona 100 % sin conexión). -->
     <ItemGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('-android'))">

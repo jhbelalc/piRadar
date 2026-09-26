@@ -32,9 +32,12 @@ xcrun simctl install <UDID> src/PiRadar.App/bin/Debug/net10.0-ios26.0/iossimulat
 dotnet build src/PiRadar.App -f net10.0-android -t:Install   # compilar e instalar en el emulador Android
 dotnet test                                                  # todos los tests (net10.0 puro, sin MAUI)
 dotnet test --project tests/PiRadar.Data.Tests              # un proyecto de tests
+tools/build-apk.sh                                           # APK Release firmado para el teléfono → ~/Desktop/piRadar-<versión>.apk
 ```
 
 `-t:Run` **no** recompila (lanza lo que ya está en `bin/`), y `dotnet build` a secas no regenera el `-Signed.apk`: usar los comandos de arriba.
+
+**APK para el teléfono (Release Android)**: solo `android-arm64` (27,9 MB; con x86_64 eran 46,7 MB); para probar Release en el emulador, `tools/build-apk.sh -p:PiRadarEmulator=true` (no `-p:RuntimeIdentifiers`: se propaga a Core y Data). Se firma con la **clave propia** `../piRadar-firma/piradar.keystore` (alias `piradar`, válida hasta 2056, fuera del repo) y su contraseña está en el llavero de macOS (servicio `piradar-android-keystore`); el script la pasa en `PIRADAR_KEYSTORE_PASS`. Sin clave o sin contraseña el build Release falla a propósito (`PiRadarCheckSigningKey`): firmado con otra clave no se instalaría encima del que tiene el usuario. El usuario tiene copia de la clave y la contraseña; nunca versionarlas. En el emulador, pasar de Debug (clave de desarrollo) a Release (clave propia) o al revés exige `adb uninstall com.jhbelalc.piradar` (se pierden los datos de prueba). Subir `ApplicationVersion` en cada APK entregado (Android no instala encima una versión con número menor). La primera instalación en el Honor del usuario (ALT-NX3, MagicOS 9) fue con la clave de desarrollo: pasar a la propia exigió una vez respaldo `.piradar` → desinstalar → instalar → restaurar.
 
 Simuladores/emuladores probados en este Mac Intel:
 - iOS: usar el runtime **iOS 18.1** (p. ej. iPhone 16). El simulador iOS 26.3 no arranca de forma fiable en Intel. La app compilada para `net10.0-ios26.0` corre en 18.1 (mínimo iOS 15).
@@ -98,7 +101,7 @@ piRadar/
   - En iOS cada `Element` trae el recuadro de **su línea** (todas las palabras de una línea comparten X/Y/Width/Height); en Android trae el recuadro **por palabra**. El agrupador de filas debe funcionar con ambos.
   - `Confidence` no es fiable (iOS devuelve siempre 1.0).
   - Errores típicos a tolerar en el parser: `0`↔`O` ("M0LIDO"), `İ` en lugar de `Í`, palabras partidas ("ELECTRÓNI CA"), tildes perdidas.
-  - El plugin también arrastra la variante de ML Kit de Play Services (advertencia `XA4301` por `.so` duplicado); no bloquea, revisar tamaño del APK más adelante.
+  - El paquete `Xamarin.Google.MLKit.TextRecognition` (modelo empaquetado) depende él mismo de la variante de Play Services: de ahí la advertencia `XA4301` (`.so` duplicado). En el APK queda una sola copia; quitar la variante arriesga romper el OCR en tiempo de ejecución, así que se deja.
   - ML Kit intenta enviar telemetría de uso a Google (`com.google.android.datatransport`, visto en logcat el 2026-09-25); el texto del recibo no sale del teléfono. En Release se quitan `INTERNET` y `ACCESS_NETWORK_STATE` de todos los manifiestos (`ReleaseManifestOverlay.xml`, verificado con `aapt dump permissions`); Debug los conserva para el depurador.
   - Si el plugin deja de funcionar en una versión futura de .NET/MAUI → implementación propia con `Xamarin.Google.MLKit.TextRecognition` (Android) y `VNRecognizeTextRequest` (iOS). `ReceiptParser` no depende del motor.
   - **ML Kit (Android) ignora la orientación EXIF** y lee de lado las fotos de cámara (`Orientation = 6` en fotos verticales); Vision (iOS) sí la respeta. `PluginOcrService` rota los píxeles antes del OCR (`ImageOrientation`, que lee la etiqueta con `JpegOrientation` de Core; `Android.Media.ExifInterface` devolvió 0 con fotos del iPhone).
