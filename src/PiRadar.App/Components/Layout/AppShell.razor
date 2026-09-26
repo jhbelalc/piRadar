@@ -1,0 +1,42 @@
+@inject ThemeState ThemeState
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+@* Estructura de la app una vez abierta la BD: menú lateral en pantallas anchas, barra inferior en el teléfono. *@
+<MudLayout Class="@(_isPhone ? "has-bottom-nav" : null)">
+    <MudHidden Breakpoint="Breakpoint.Xs" @bind-Hidden="_isPhone">
+        <MudDrawer Open="true" Variant="DrawerVariant.Persistent" ClipMode="DrawerClipMode.Never" Elevation="1">
+            <DrawerNav />
+        </MudDrawer>
+    </MudHidden>
+
+    <MudMainContent>
+        @ChildContent
+    </MudMainContent>
+
+    @if (_isPhone)
+    {
+        <BottomNav />
+    }
+</MudLayout>
+
+@code {
+    // Hasta que MudHidden mida la pantalla se asume teléfono (el caso más común).
+    private bool _isPhone = true;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    protected override Task OnInitializedAsync() => ThemeState.LoadAsync();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+#if DEBUG
+        if (firstRender)
+        {
+            await UiScript.RunIfRequestedAsync(Navigation, JS, ThemeState);
+        }
+#else
+        await Task.CompletedTask;
+#endif
+    }
+}

@@ -1,0 +1,178 @@
+@inject IPaymentMethodRepository PaymentMethodRepository
+@inject IDialogService Dialogs
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudStack Spacing="3">
+                @if (_error is not null)
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true">@_error</MudAlert>
+                }
+                @if (PaymentMethod?.IsArchived == true)
+                {
+                    <MudAlert Severity="Severity.Info" Dense="true">Está archivado: no aparece al registrar movimientos.</MudAlert>
+                }
+                <div class="d-flex align-center gap-3">
+                    <IconAvatar Icon="@_icon" Size="Size.Large" />
+                    <MudTextField T="string" @bind-Value="_name" Label="Nombre" Required="true"
+                                  RequiredError="Escribe un nombre." MaxLength="40" Variant="Variant.Outlined" />
+                </div>
+                <MudSelect T="PaymentMethodKind" Value="_kind" ValueChanged="SetKind" Label="Tipo" Variant="Variant.Outlined"
+                           ToStringFunc="PaymentMethodText.Kind">
+                    @foreach (var kind in Enum.GetValues<PaymentMethodKind>())
+                    {
+                        <MudSelectItem Value="kind">@PaymentMethodText.Kind(kind)</MudSelectItem>
+                    }
+                </MudSelect>
+                @if (HasDigits(_kind))
+                {
+                    <MudTextField T="string" @bind-Value="_lastFour" Label="Últimos 4 dígitos (opcional)" MaxLength="4"
+                                  InputMode="InputMode.numeric" Pattern="[0-9]*" Variant="Variant.Outlined"
+                                  Validation="@((Func<string?, string?>)ValidateDigits)"
+                                  HelperText="Solo para distinguir tarjetas o cuentas; no se guarda el número completo." />
+                }
+                <IconPicker Value="@_icon" ValueChanged="icon => { _icon = icon; _iconTouched = true; }" />
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        @if (PaymentMethod is { IsArchived: true })
+        {
+            <MudButton Color="Color.Primary" OnClick="RestoreAsync" Disabled="_busy">Restaurar</MudButton>
+        }
+        else if (PaymentMethod is not null)
+        {
+            <MudButton Color="Color.Error" OnClick="DeleteAsync" Disabled="_busy">Eliminar</MudButton>
+        }
+        <MudSpacer />
+        <MudButton OnClick="() => MudDialog.Cancel()">Cancelar</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync" Disabled="_busy">Guardar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private MudForm? _form;
+    private string? _name;
+    private PaymentMethodKind _kind = PaymentMethodKind.DebitCard;
+    private string? _lastFour;
+    private string _icon = DefaultIcon(PaymentMethodKind.DebitCard);
+    private bool _iconTouched;
+    private string? _error;
+    private bool _busy;
+
+    [CascadingParameter] public required IMudDialogInstance MudDialog { get; set; }
+
+    /// <summary>El medio de pago a editar, o <c>null</c> para crear uno.</summary>
+    [Parameter] public PaymentMethod? PaymentMethod { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (PaymentMethod is { } p)
+        {
+            (_name, _kind, _lastFour, _icon, _iconTouched) = (p.Name, p.Kind, p.LastFourDigits, p.Icon, true);
+        }
+    }
+
+    private static bool HasDigits(PaymentMethodKind kind) =>
+        kind is PaymentMethodKind.DebitCard or PaymentMethodKind.CreditCard or PaymentMethodKind.BankAccount;
+
+    private static string DefaultIcon(PaymentMethodKind kind) => kind switch
+    {
+        PaymentMethodKind.Cash => "payments",
+        PaymentMethodKind.DebitCard or PaymentMethodKind.CreditCard => "credit_card",
+        PaymentMethodKind.BankAccount => "account_balance",
+        PaymentMethodKind.DigitalWallet => "smartphone",
+        _ => "account_balance_wallet",
+    };
+
+    private void SetKind(PaymentMethodKind kind)
+    {
+        _kind = kind;
+        if (!_iconTouched)
+        {
+            _icon = DefaultIcon(kind);
+        }
+    }
+
+    private static string? ValidateDigits(string? value) =>
+        string.IsNullOrEmpty(value) || (value.Length == 4 && value.All(char.IsAsciiDigit))
+            ? null
+            : "Deben ser 4 números.";
+
+    private async Task SaveAsync()
+    {
+        await _form!.ValidateAsync();
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
+        await RunAsync(async () =>
+        {
+            if (PaymentMethod is null)
+            {
+                await PaymentMethodRepository.AddAsync(Edited(archived: false));
+                return "Medio de pago creado.";
+            }
+
+            await PaymentMethodRepository.UpdateAsync(Edited(PaymentMethod.IsArchived));
+            return "Medio de pago guardado.";
+        });
+    }
+
+    private Task RestoreAsync() => RunAsync(async () =>
+    {
+        await PaymentMethodRepository.UpdateAsync(Edited(archived: false));
+        return "Medio de pago restaurado.";
+    });
+
+    private async Task DeleteAsync()
+    {
+        var confirmed = await Dialogs.ConfirmAsync("Eliminar medio de pago",
+            $"¿Eliminar «{PaymentMethod!.Name}»? Si tiene movimientos se archivará para conservar el historial.",
+            "Eliminar");
+        if (!confirmed)
+        {
+            return;
+        }
+
+        await RunAsync(async () => await PaymentMethodRepository.DeleteOrArchiveAsync(PaymentMethod.Id) == RemovalResult.Deleted
+            ? "Medio de pago eliminado."
+            : "Se archivó porque tiene movimientos.");
+    }
+
+    private PaymentMethod Edited(bool archived) => new()
+    {
+        Id = PaymentMethod?.Id ?? 0,
+        Name = _name ?? string.Empty,
+        Kind = _kind,
+        Icon = _icon,
+        LastFourDigits = HasDigits(_kind) && !string.IsNullOrEmpty(_lastFour) ? _lastFour : null,
+        SortOrder = PaymentMethod?.SortOrder ?? 0,
+        IsArchived = archived,
+        IsSystem = PaymentMethod?.IsSystem ?? false,
+    };
+
+    private async Task RunAsync(Func<Task<string>> action)
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            MudDialog.Close(DialogResult.Ok(await action()));
+        }
+        catch (DomainValidationException ex)
+        {
+            _error = ex.Message;
+        }
+        catch (KeyNotFoundException)
+        {
+            _error = "El medio de pago ya no existe.";
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

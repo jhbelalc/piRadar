@@ -1,0 +1,14 @@
+<MudToggleGroup T="Currency" Value="Value" ValueChanged="ValueChanged" SelectionMode="SelectionMode.SingleSelection"
+                Color="Color.Primary" Size="Size" CheckMark="false" Disabled="Disabled" Style="width: fit-content">
+    @foreach (var currency in Enum.GetValues<Currency>())
+    {
+        <MudToggleItem Value="currency" Text="@currency.ToString()" />
+    }
+</MudToggleGroup>
+
+@code {
+    [Parameter] public Currency Value { get; set; }
+    [Parameter] public EventCallback<Currency> ValueChanged { get; set; }
+    [Parameter] public Size Size { get; set; } = Size.Small;
+    [Parameter] public bool Disabled { get; set; }
+}

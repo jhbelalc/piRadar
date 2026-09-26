@@ -27,17 +27,23 @@ App personal de finanzas para Android e iPhone: registrar gastos e ingresos (man
 ## Comandos
 ```sh
 dotnet build src/PiRadar.App -f net10.0-android              # compilar Android
-dotnet build src/PiRadar.App -f net10.0-ios26.0 -t:Run -p:_DeviceName=:v2:udid=<UDID>   # simulador iOS 18.1 (xcrun simctl list devices)
+dotnet build src/PiRadar.App -f net10.0-ios26.0             # compilar iOS; luego instalar en el simulador:
+xcrun simctl install <UDID> src/PiRadar.App/bin/Debug/net10.0-ios26.0/iossimulator-x64/PiRadar.App.app
+dotnet build src/PiRadar.App -f net10.0-android -t:Install   # compilar e instalar en el emulador Android
 dotnet test                                                  # todos los tests (net10.0 puro, sin MAUI)
 dotnet test --project tests/PiRadar.Data.Tests              # un proyecto de tests
 ```
 
+`-t:Run` **no** recompila (lanza lo que ya está en `bin/`), y `dotnet build` a secas no regenera el `-Signed.apk`: usar los comandos de arriba.
+
 Simuladores/emuladores probados en este Mac Intel:
 - iOS: usar el runtime **iOS 18.1** (p. ej. iPhone 16). El simulador iOS 26.3 no arranca de forma fiable en Intel. La app compilada para `net10.0-ios26.0` corre en 18.1 (mínimo iOS 15).
-- Android: AVD `piRadar_API35` (android-35, google_apis, x86_64). Instalar/lanzar: `dotnet build src/PiRadar.App -f net10.0-android -t:Run`.
+- Android: AVD `piRadar_API35` (android-35, google_apis, x86_64). Instalar: `dotnet build src/PiRadar.App -f net10.0-android -t:Install`.
   - Arrancar con `emulator -avd piRadar_API35 -gpu swiftshader_indirect -no-audio`: con la GPU del host, `adb exec-out screencap` da capturas negras.
   - El emulador en este Mac es inestable: el stack de Bluetooth se cae en bucle y aparece "System UI isn't responding", que se come los toques de `adb shell input tap`. `uiautomator dump` no funciona. Para verificar, que la app escriba un archivo en `AppDataDirectory` y leerlo con `run-as`.
-  - Los logs de `ILogger` (proveedor Debug) no aparecen en logcat.
+  - Los logs de `ILogger` (proveedor Debug) no aparecen en logcat ni en la consola del simulador. En Debug, advertencias y errores van a `AppDataDirectory/app-log.txt` (`FileLoggerProvider`).
+- El primer arranque en el simulador iOS tarda varios minutos (pantalla en blanco); no es un error.
+- **Capturas sin tocar la pantalla** (solo Debug, `UiScript`): escribir `ui-script.txt` en `AppDataDirectory` (iOS: `$(xcrun simctl get_app_container <UDID> com.jhbelalc.piradar data)/Library`; Android: `files/` vía `run-as`) y abrir la app. Una orden por línea: `go /ruta`, `click selector-css`, `theme Dark|Light|System`, `wait ms`, `js expresión` (resultado en `ui-out.txt`). El archivo se borra al leerlo. Corre dentro de `AppShell`, o sea después de abrir la BD (la pantalla de error del gate se toca con `adb shell input tap`).
 ```sh
 # leer archivos de la app (build Debug)
 adb shell run-as com.jhbelalc.piradar ls files
@@ -55,11 +61,13 @@ piRadar/
 ├─ Directory.Build.props
 ├─ src/
 │  ├─ PiRadar.App/
-│  │  ├─ Components/Layout/     # MainLayout (nav inferior en móvil / drawer en tablet)
+│  │  ├─ Components/Layout/     # MainLayout (tema + gate), AppShell (barra inferior < 600 px / menú lateral), NavItems
 │  │  ├─ Components/Pages/      # Dashboard, Transactions, TransactionEdit, ScanReceipt, Categories,
 │  │  │                         # PaymentMethods, Analytics, ExchangeRates, Backup, Settings
-│  │  ├─ Components/Shared/     # MoneyInput, CategoryPicker, PaymentMethodPicker, PeriodSelector, CurrencyToggle
-│  │  ├─ Services/              # DatabaseKeyProvider, PluginOcrService, ImageOrientation, OcrLab (Debug), CameraService, BackupFileService
+│  │  ├─ Components/Shared/     # PageBar, MoneyInput, CategoryPicker, PaymentMethodPicker, PeriodSelector, CurrencyToggle,
+│  │  │                         # IconAvatar, IconPicker, ColorSwatches
+│  │  ├─ Services/              # DatabaseKeyProvider, PluginOcrService, ImageOrientation, AppTheme, ThemeState, IconCatalog,
+│  │  │                         # SpanishMudLocalizer, OcrLab/UiScript/FileLoggerProvider (Debug), CameraService, BackupFileService
 │  │  ├─ Platforms/Android/     # allowBackup=false
 │  │  ├─ Platforms/iOS/         # exclusión de backup de la BD
 │  │  └─ MauiProgram.cs         # DI, MudBlazor, Batteries_V2.Init(), inicialización BD
@@ -102,6 +110,9 @@ piRadar/
 - **Repositorios**: interfaces en `PiRadar.Core/Abstractions`, implementaciones `internal` en `PiRadar.Data/Repositories`, registradas con `services.AddPiRadarData()`. Toman la conexión de `DatabaseHost.Database` en cada llamada (siguen sirviendo tras `ResetAsync`). Cada escritura valida y escribe dentro de una misma transacción de BD. Las reglas de negocio lanzan `DomainValidationException` con un mensaje en español que se puede mostrar al usuario. Las categorías y los medios de pago con movimientos (o con subcategorías) se archivan en vez de borrarse; uno archivado no se puede elegir en movimientos nuevos, pero los movimientos viejos lo conservan. `CreatedAt`/`UpdatedAt` los fija el repositorio con `IClock`.
 - **Tabla de movimientos**: `[Table("Transactions")]`, porque `TRANSACTION` es palabra reservada en SQLite.
 - **Monedas**: totales siempre separados por moneda; vista consolidada opcional en la moneda base usando tasas ingresadas manualmente (tabla `ExchangeRate`).
+- **UI** (MudBlazor 9, sin Bootstrap): tema en `AppTheme` con la fuente del sistema (nada se descarga; la app funciona sin red). Cultura `es-CO` fijada en `MauiProgram`; textos internos de MudBlazor en `SpanishMudLocalizer`. En `MudText`, `Color.Secondary` es el color de acento (ámbar): para texto atenuado usar `Class="mud-text-secondary"`. Cada página pone su `PageBar` (título, atrás, acciones); los formularios de edición son `MudDialog` que llaman al repositorio y devuelven el mensaje para el snackbar. Tema Sistema/Claro/Oscuro en `AppSetting` (`Theme`), aplicado por `ThemeState` también a la parte nativa (`UserAppTheme`, íconos de la barra de estado en Android).
+- **Áreas seguras**: en iOS el WebView ocupa toda la pantalla (`ContentInsetAdjustmentBehavior = Never`, si no la barra inferior flota) y el CSS usa `env(safe-area-inset-*)`. En Android 15 (edge-to-edge) el WebView no informa esas variables: `MainPage` usa `SafeAreaEdges="All"` solo en Android.
+- **Íconos** de categorías y medios de pago: la BD guarda el nombre Material (`shopping_cart`); `IconCatalog` lo traduce al SVG. Nunca quitar nombres del catálogo.
 
 ## Modelo de datos
 | Tabla | Campos | Notas |

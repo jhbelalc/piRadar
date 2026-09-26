@@ -1,0 +1,84 @@
+@* Monto en formato colombiano. Interpreta con MoneyParser y reformatea al salir del campo. *@
+<MudTextField T="string" @ref="_field" Label="@Label" Value="_text" ValueChanged="OnTextChanged"
+              Validation="@((Func<string?, string?>)Validate)" Required="Required" RequiredError="Ingresa un monto."
+              Adornment="Adornment.Start" AdornmentText="@Currency.Symbol()" InputMode="@(InputMode.@decimal)"
+              OnBlur="Reformat" Variant="Variant" Disabled="Disabled" HelperText="@HelperText" />
+
+@code {
+    private MudTextField<string>? _field;
+    private string? _text;
+    private Money? _parsed;
+    private Currency _lastCurrency;
+
+    [Parameter] public Money? Value { get; set; }
+    [Parameter] public EventCallback<Money?> ValueChanged { get; set; }
+    [Parameter] public Currency Currency { get; set; } = Currency.COP;
+    [Parameter] public string Label { get; set; } = "Monto";
+    [Parameter] public string? HelperText { get; set; }
+    [Parameter] public bool Required { get; set; } = true;
+
+    /// <summary>Si el cero es un monto válido (en movimientos no lo es).</summary>
+    [Parameter] public bool AllowZero { get; set; }
+
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public Variant Variant { get; set; } = Variant.Outlined;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Value != _parsed)
+        {
+            // Cambio desde afuera (p. ej. el OCR propuso un total): mostrarlo formateado.
+            _parsed = Value;
+            _text = Value is { } money ? MoneyParser.FormatForInput(money) : null;
+        }
+        else if (Currency != _lastCurrency && !string.IsNullOrWhiteSpace(_text))
+        {
+            // Cambió la moneda: el mismo texto se interpreta en la nueva (12,50 deja de ser válido en COP).
+            await OnTextChanged(_text);
+        }
+
+        _lastCurrency = Currency;
+    }
+
+    private async Task OnTextChanged(string? text)
+    {
+        _text = text;
+        Money? parsed = MoneyParser.TryParse(text, Currency, out var money, out _) && (AllowZero || !money.IsZero)
+            ? money
+            : null;
+        if (parsed != _parsed)
+        {
+            _parsed = parsed;
+            await ValueChanged.InvokeAsync(parsed);
+        }
+
+        // El campo no es inmediato: esto corre al salir de él, así que validar aquí no molesta mientras se escribe.
+        if (_field is not null)
+        {
+            await _field.ValidateAsync();
+        }
+    }
+
+    private string? Validate(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return Required ? "Ingresa un monto." : null;
+        }
+
+        if (!MoneyParser.TryParse(text, Currency, out var money, out var error))
+        {
+            return error;
+        }
+
+        return !AllowZero && money.IsZero ? "El monto debe ser mayor que cero." : null;
+    }
+
+    private void Reformat()
+    {
+        if (_parsed is { } money)
+        {
+            _text = MoneyParser.FormatForInput(money);
+        }
+    }
+}

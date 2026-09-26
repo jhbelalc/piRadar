@@ -3,7 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:PiRadar.App"
              xmlns:components="clr-namespace:PiRadar.App.Components"
-             x:Class="PiRadar.App.MainPage">
+             x:Class="PiRadar.App.MainPage"
+             SafeAreaEdges="{OnPlatform Android=All, iOS=None}"
+             BackgroundColor="{AppThemeBinding Light=#F6F7F8, Dark=#121416}">
+
+    <!-- iOS: el WebView ocupa toda la pantalla y el CSS usa env(safe-area-inset-*).
+         Android 15 es edge-to-edge y su WebView no informa esas variables: la página nativa deja libres
+         la barra de estado, la de gestos y el teclado. -->
 
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>

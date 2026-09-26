@@ -1,0 +1,36 @@
+@using PiRadar.Core.Analytics
+
+@* Día / semana / mes / año con flechas para moverse. No deja pasar del periodo actual. *@
+<MudStack Spacing="1" AlignItems="AlignItems.Center">
+    <MudToggleGroup T="PeriodGranularity" Value="Value.Granularity" ValueChanged="ChangeGranularity"
+                    SelectionMode="SelectionMode.SingleSelection" Color="Color.Primary" Size="Size.Small" CheckMark="false">
+        <MudToggleItem Value="PeriodGranularity.Day" Text="Día" />
+        <MudToggleItem Value="PeriodGranularity.Week" Text="Semana" />
+        <MudToggleItem Value="PeriodGranularity.Month" Text="Mes" />
+        <MudToggleItem Value="PeriodGranularity.Year" Text="Año" />
+    </MudToggleGroup>
+    <div class="d-flex align-center justify-space-between" style="width: 100%; max-width: 360px">
+        <MudIconButton Icon="@Icons.Material.Rounded.ChevronLeft" aria-label="Periodo anterior"
+                       OnClick="() => ValueChanged.InvokeAsync(Value.Previous())" />
+        <MudText Typo="Typo.subtitle1" Align="Align.Center">@Value.Label</MudText>
+        <MudIconButton Icon="@Icons.Material.Rounded.ChevronRight" aria-label="Periodo siguiente"
+                       Disabled="IsCurrent" OnClick="() => ValueChanged.InvokeAsync(Value.Next())" />
+    </div>
+</MudStack>
+
+@code {
+    [Parameter, EditorRequired] public Period Value { get; set; }
+    [Parameter] public EventCallback<Period> ValueChanged { get; set; }
+
+    /// <summary>Fecha de hoy (local); se inyecta para poder fijarla.</summary>
+    [Parameter] public DateTime Today { get; set; } = DateTime.Today;
+
+    private bool IsCurrent => Value.Contains(Today) || Value.Start > Today;
+
+    // Al cambiar la granularidad se conserva la fecha de referencia: la de hoy si está en el periodo, si no su inicio.
+    private Task ChangeGranularity(PeriodGranularity granularity)
+    {
+        var anchor = Value.Contains(Today) ? Today : Value.Start;
+        return ValueChanged.InvokeAsync(Period.Containing(anchor, granularity));
+    }
+}

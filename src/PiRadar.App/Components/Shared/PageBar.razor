@@ -1,0 +1,20 @@
+@* Barra superior de cada página: título, botón atrás opcional y acciones. *@
+<MudAppBar Fixed="true" Elevation="0">
+    @if (BackHref is not null)
+    {
+        <MudIconButton Icon="@Icons.Material.Rounded.ArrowBack" Color="Color.Inherit" Edge="Edge.Start"
+                       Href="@BackHref" aria-label="Volver" />
+    }
+    <MudText Typo="Typo.h6" Class="ml-2" Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">@Title</MudText>
+    <MudSpacer />
+    @Actions
+</MudAppBar>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Página a la que vuelve la flecha; sin flecha si es <c>null</c>.</summary>
+    [Parameter] public string? BackHref { get; set; }
+
+    [Parameter] public RenderFragment? Actions { get; set; }
+}

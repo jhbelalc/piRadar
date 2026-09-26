@@ -7,7 +7,11 @@
 @switch (_state)
 {
     case GateState.Loading:
-        <p>Abriendo tus datos…</p>
+        <div class="d-flex flex-column align-center justify-center gap-4" style="min-height: 100vh">
+            <MudIcon Icon="@Icons.Material.Rounded.Radar" Color="Color.Primary" Style="font-size: 4rem" />
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small" />
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">Abriendo tus datos…</MudText>
+        </div>
         break;
 
     case GateState.Ready:
@@ -15,19 +19,28 @@
         break;
 
     case GateState.Failed:
-        <h1>No se pudieron abrir tus datos</h1>
-        <p>@_message</p>
-        <p>Si tienes un respaldo, podrás importarlo después de empezar de cero.</p>
-        @if (_confirmReset)
-        {
-            <p><strong>Se borrarán todos los datos de este dispositivo. Esta acción no se puede deshacer.</strong></p>
-            <button class="btn btn-danger" @onclick="ResetAsync">Borrar y empezar de cero</button>
-            <button class="btn btn-secondary" @onclick="() => _confirmReset = false">Cancelar</button>
-        }
-        else
-        {
-            <button class="btn btn-primary" @onclick="() => _confirmReset = true">Empezar de cero…</button>
-        }
+        <MudContainer MaxWidth="MaxWidth.Small" Class="py-8" Style="padding-top: calc(32px + env(safe-area-inset-top)) !important">
+            <MudStack Spacing="3">
+                <MudIcon Icon="@Icons.Material.Rounded.LockReset" Color="Color.Error" Style="font-size: 3rem" />
+                <MudText Typo="Typo.h5">No se pudieron abrir tus datos</MudText>
+                <MudText>@_message</MudText>
+                <MudText Typo="Typo.body2">Si tienes un respaldo, podrás importarlo después de empezar de cero.</MudText>
+                @if (_confirmReset)
+                {
+                    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+                        Se borrarán todos los datos de este dispositivo. Esta acción no se puede deshacer.
+                    </MudAlert>
+                    <MudStack Row="true" Justify="Justify.FlexEnd">
+                        <MudButton Variant="Variant.Text" OnClick="() => _confirmReset = false">Cancelar</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="ResetAsync">Borrar y empezar de cero</MudButton>
+                    </MudStack>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => _confirmReset = true">Empezar de cero…</MudButton>
+                }
+            </MudStack>
+        </MudContainer>
         break;
 }
 

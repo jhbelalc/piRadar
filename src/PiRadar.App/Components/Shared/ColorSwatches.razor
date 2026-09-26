@@ -1,0 +1,20 @@
+<MudText Typo="Typo.subtitle2" Class="mb-1">@Label</MudText>
+<div class="d-flex flex-wrap gap-2">
+    @foreach (var color in IconCatalog.Colors)
+    {
+        var selected = string.Equals(color, Value, StringComparison.OrdinalIgnoreCase);
+        <button type="button" class="swatch @(selected ? "selected" : null)" style="background-color: @color"
+                aria-label="@color" aria-pressed="@(selected ? "true" : "false")" @onclick="() => ValueChanged.InvokeAsync(color)">
+            @if (selected)
+            {
+                <MudIcon Icon="@Icons.Material.Rounded.Check" Size="Size.Small" Style="color: #fff" />
+            }
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Label { get; set; } = "Color";
+}

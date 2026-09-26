@@ -1,0 +1,30 @@
+@page "/more"
+
+<PageBar Title="Más" />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <MudPaper Elevation="0" Outlined="true">
+        <MudList T="string">
+            @foreach (var item in NavItems.MoreItems)
+            {
+                <MudListItem T="string" Href="@(item.Enabled ? item.Href : null)" Icon="@item.Icon" Disabled="!item.Enabled">
+                    <div class="d-flex align-center justify-space-between">
+                        <span>@item.Label</span>
+                        @if (item.Enabled)
+                        {
+                            <MudIcon Icon="@Icons.Material.Rounded.ChevronRight" Color="Color.Default" />
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.caption">Próximamente</MudText>
+                        }
+                    </div>
+                </MudListItem>
+            }
+            @if (BuildInfo.IsDebug)
+            {
+                <MudListItem T="string" Href="diagnostics" Icon="@Icons.Material.Rounded.BugReport" Text="Diagnóstico (Debug)" />
+            }
+        </MudList>
+    </MudPaper>
+</MudContainer>

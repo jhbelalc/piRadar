@@ -1,12 +1,15 @@
-@page "/"
+@page "/diagnostics"
 @using System.Text
 @using PiRadar.Data
 @inject DatabaseHost Host
 @inject PiRadar.Core.Abstractions.IOcrService Ocr
 
-@* TEMPORAL: diagnóstico de la BD cifrada en el dispositivo. Se reemplaza por el Dashboard. *@
-<h1>piRadar</h1>
-<pre style="white-space: pre-wrap; font-size: 12px">@_output</pre>
+@* Diagnóstico de la BD cifrada en el dispositivo (enlazado desde "Más" solo en Debug). También escribe
+   db-check.txt en AppDataDirectory para leerlo con run-as/simctl, y corre OcrLab si hay fotos en ocr-in. *@
+<PageBar Title="Diagnóstico" BackHref="more" />
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <pre style="white-space: pre-wrap; font-size: 12px">@_output</pre>
+</MudContainer>
 
 @code {
     private string _output = string.Empty;

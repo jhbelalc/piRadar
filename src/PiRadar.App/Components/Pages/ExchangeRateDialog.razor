@@ -1,0 +1,116 @@
+@inject IExchangeRateRepository ExchangeRateRepository
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudStack Spacing="3">
+                @if (_error is not null)
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true">@_error</MudAlert>
+                }
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudSelect T="Currency" @bind-Value="_from" Label="De" Variant="Variant.Outlined">
+                        @foreach (var currency in Enum.GetValues<Currency>())
+                        {
+                            <MudSelectItem Value="currency">@currency</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudIconButton Icon="@Icons.Material.Rounded.SwapHoriz" aria-label="Invertir monedas" OnClick="Swap" />
+                    <MudSelect T="Currency" @bind-Value="_to" Label="A" Variant="Variant.Outlined">
+                        @foreach (var currency in Enum.GetValues<Currency>())
+                        {
+                            <MudSelectItem Value="currency">@currency</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudStack>
+                <MudTextField T="string" @bind-Value="_rateText" Label="@($"1 {_from} equivale a ({_to})")"
+                              InputMode="@(InputMode.@decimal)" Variant="Variant.Outlined" Required="true"
+                              RequiredError="Escribe la tasa." Validation="@((Func<string?, string?>)ValidateRate)" />
+                <MudDatePicker @bind-Date="_date" Label="Aplica desde" Variant="Variant.Outlined" DateFormat="dd/MM/yyyy"
+                               PickerVariant="PickerVariant.Dialog" AutoClose="true" Required="true"
+                               RequiredError="Elige la fecha." ShowToolbar="false"
+                               HelperText="Si ya hay una tasa de ese par para ese día, se reemplaza." />
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => MudDialog.Cancel()">Cancelar</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync" Disabled="_busy">Guardar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    /// <summary>Hasta micras: <c>RateMicros</c> guarda la tasa × 10⁶.</summary>
+    private const int MaxRateDecimals = 6;
+
+    private MudForm? _form;
+    private Currency _from;
+    private Currency _to;
+    private string? _rateText;
+    private DateTime? _date;
+    private string? _error;
+    private bool _busy;
+
+    [CascadingParameter] public required IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter, EditorRequired] public required ExchangeRate Rate { get; set; }
+
+    /// <summary>Si es nueva; al editar, un cambio de par o fecha guarda otra tasa y borra la original.</summary>
+    [Parameter] public bool IsNew { get; set; }
+
+    protected override void OnInitialized()
+    {
+        (_from, _to, _date) = (Rate.From, Rate.To, Rate.EffectiveDate);
+        _rateText = Rate.RateMicros > 0 ? MoneyParser.FormatDecimal(Rate.Rate) : null;
+    }
+
+    private void Swap() => (_from, _to) = (_to, _from);
+
+    private static string? ValidateRate(string? text)
+    {
+        if (!MoneyParser.TryParseDecimal(text, out var value))
+        {
+            return "La tasa no es válida.";
+        }
+
+        if (value <= 0)
+        {
+            return "La tasa debe ser mayor que cero.";
+        }
+
+        return decimal.Round(value, MaxRateDecimals) != value ? $"Máximo {MaxRateDecimals} decimales." : null;
+    }
+
+    private async Task SaveAsync()
+    {
+        await _form!.ValidateAsync();
+        if (!_form.IsValid || !MoneyParser.TryParseDecimal(_rateText, out var value) || _date is not { } date)
+        {
+            return;
+        }
+
+        _busy = true;
+        _error = null;
+        try
+        {
+            var saved = await ExchangeRateRepository.UpsertAsync(new ExchangeRate
+            {
+                From = _from, To = _to, Rate = value, EffectiveDate = date.Date,
+            });
+            if (!IsNew && saved.Id != Rate.Id)
+            {
+                await ExchangeRateRepository.DeleteAsync(Rate.Id);
+            }
+
+            MudDialog.Close(DialogResult.Ok("Tasa guardada."));
+        }
+        catch (DomainValidationException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

@@ -1,0 +1,110 @@
+@page "/categories"
+@inject ICategoryRepository CategoryRepository
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<PageBar Title="Categorías" BackHref="more">
+    <Actions>
+        <MudIconButton id="add-category" Icon="@Icons.Material.Rounded.Add" Color="Color.Inherit" aria-label="Nueva categoría"
+                       OnClick="AddAsync" />
+    </Actions>
+</PageBar>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <MudStack Spacing="2">
+        <MudToggleGroup T="TransactionType" Value="_kind" ValueChanged="SetKindAsync" SelectionMode="SelectionMode.SingleSelection"
+                        Color="Color.Primary" CheckMark="false" Style="width: 100%">
+            <MudToggleItem Value="TransactionType.Expense" Text="Gastos" />
+            <MudToggleItem Value="TransactionType.Income" Text="Ingresos" />
+        </MudToggleGroup>
+
+        <MudSwitch T="bool" Value="_showArchived" ValueChanged="SetShowArchivedAsync" Color="Color.Primary" Label="Mostrar archivadas" />
+
+        @if (_items is null)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+        }
+        else if (_items.Count == 0)
+        {
+            <MudText Class="mud-text-secondary py-8" Align="Align.Center" >No hay categorías. Crea una con +.</MudText>
+        }
+        else
+        {
+            <MudPaper Elevation="0" Outlined="true">
+                <MudList T="Category" Dense="false">
+                    @foreach (var category in _items)
+                    {
+                        <MudListItem T="Category" OnClick="() => EditAsync(category)" Class="category-item"
+                                     Style="@(category.ParentId is null ? null : "padding-left: 40px")">
+                            <div class="d-flex align-center gap-3">
+                                <IconAvatar Icon="@category.Icon" Color="@category.Color"
+                                            Size="@(category.ParentId is null ? Size.Medium : Size.Small)" />
+                                <MudText Class="@(category.IsArchived ? "mud-text-disabled" : null)">@category.Name</MudText>
+                                <MudSpacer />
+                                @if (category.IsArchived)
+                                {
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">Archivada</MudChip>
+                                }
+                            </div>
+                        </MudListItem>
+                    }
+                </MudList>
+            </MudPaper>
+            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                Las categorías con movimientos se archivan en vez de borrarse: no se ofrecen para movimientos nuevos,
+                pero los anteriores las conservan.
+            </MudText>
+        }
+    </MudStack>
+</MudContainer>
+
+@code {
+    private TransactionType _kind = TransactionType.Expense;
+    private bool _showArchived;
+    private IReadOnlyList<Category>? _all;
+    private IReadOnlyList<Category>? _items;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _all = await CategoryRepository.GetAllAsync(_kind, includeArchived: true);
+        _items = CategoryPicker.Order(_showArchived ? _all : _all.Where(c => !c.IsArchived).ToList());
+    }
+
+    private Task SetKindAsync(TransactionType kind)
+    {
+        _kind = kind;
+        return LoadAsync();
+    }
+
+    private Task SetShowArchivedAsync(bool value)
+    {
+        _showArchived = value;
+        return LoadAsync();
+    }
+
+    private Task AddAsync() => ShowDialogAsync(null);
+
+    private Task EditAsync(Category category) => ShowDialogAsync(category);
+
+    private async Task ShowDialogAsync(Category? category)
+    {
+        var all = _all ?? [];
+        var parameters = new DialogParameters<CategoryDialog>
+        {
+            { d => d.Category, category },
+            { d => d.Kind, _kind },
+            { d => d.Parents, all.Where(c => c.ParentId is null && !c.IsArchived && c.Id != category?.Id).ToList() },
+            { d => d.HasChildren, category is not null && all.Any(c => c.ParentId == category.Id) },
+        };
+        var title = category is null ? "Nueva categoría" : "Editar categoría";
+        var dialog = await Dialogs.ShowAsync<CategoryDialog>(title, parameters, DialogExtensions.FormOptions);
+        var result = await dialog.Result;
+        if (result is { Canceled: false, Data: string message })
+        {
+            Snackbar.Add(message, Severity.Success);
+            await LoadAsync();
+        }
+    }
+}

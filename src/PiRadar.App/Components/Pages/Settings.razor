@@ -1,0 +1,60 @@
+@page "/settings"
+@inject ISettingsRepository SettingsRepository
+@inject ThemeState ThemeState
+
+<PageBar Title="Ajustes" BackHref="more" />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <MudStack Spacing="3">
+        <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+            <MudText Typo="Typo.subtitle1">Moneda base</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary mb-3" >
+                Los totales siempre se muestran separados por moneda. La moneda base se usa en la vista consolidada,
+                convirtiendo con las tasas de cambio que ingreses.
+            </MudText>
+            <CurrencyToggle Value="_baseCurrency" ValueChanged="SetBaseCurrencyAsync" Size="Size.Medium" />
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+            <MudText Typo="Typo.subtitle1" Class="mb-2">Tema</MudText>
+            <MudRadioGroup T="ThemePreference" Value="ThemeState.Preference" ValueChanged="ThemeState.SetAsync">
+                <MudStack Spacing="0">
+                    <MudRadio Value="ThemePreference.System" Color="Color.Primary">Igual que el sistema</MudRadio>
+                    <MudRadio Value="ThemePreference.Light" Color="Color.Primary">Claro</MudRadio>
+                    <MudRadio Value="ThemePreference.Dark" Color="Color.Primary">Oscuro</MudRadio>
+                </MudStack>
+            </MudRadioGroup>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+            <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start">
+                <MudIcon Icon="@Icons.Material.Rounded.Lock" Color="Color.Primary" />
+                <div>
+                    <MudText Typo="Typo.subtitle1">Privacidad</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                        Tus datos y las fotos de recibos se guardan cifrados solo en este dispositivo; nada se envía a
+                        internet y el reconocimiento de texto funciona sin conexión. Para pasarlos a otro teléfono usa
+                        el respaldo cifrado con contraseña.
+                    </MudText>
+                </div>
+            </MudStack>
+        </MudPaper>
+
+        <MudText Typo="Typo.caption" Class="mud-text-secondary" Align="Align.Center">
+            piRadar @AppInfo.Current.VersionString (@AppInfo.Current.BuildString)
+        </MudText>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private Currency _baseCurrency;
+
+    protected override async Task OnInitializedAsync() =>
+        _baseCurrency = await SettingsRepository.GetBaseCurrencyAsync();
+
+    private async Task SetBaseCurrencyAsync(Currency currency)
+    {
+        _baseCurrency = currency;
+        await SettingsRepository.SetBaseCurrencyAsync(currency);
+    }
+}

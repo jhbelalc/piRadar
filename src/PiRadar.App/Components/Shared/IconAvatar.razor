@@ -1,0 +1,16 @@
+@* Ícono de categoría o medio de pago sobre un círculo de color. *@
+<MudAvatar Size="Size" Style="@($"background-color: {Color ?? "var(--mud-palette-primary)"}; color: #fff")">
+    <MudIcon Icon="@IconCatalog.Svg(Icon)" Size="IconSize" />
+</MudAvatar>
+
+@code {
+    /// <summary>Nombre Material guardado en la BD (<c>shopping_cart</c>).</summary>
+    [Parameter] public string? Icon { get; set; }
+
+    /// <summary>Color <c>#RRGGBB</c>; sin color usa el primario del tema.</summary>
+    [Parameter] public string? Color { get; set; }
+
+    [Parameter] public Size Size { get; set; } = Size.Medium;
+
+    private Size IconSize => Size == Size.Large ? Size.Medium : Size.Small;
+}

@@ -1,0 +1,161 @@
+@inject ICategoryRepository CategoryRepository
+@inject IDialogService Dialogs
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudStack Spacing="3">
+                @if (_error is not null)
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true">@_error</MudAlert>
+                }
+                @if (Category?.IsArchived == true)
+                {
+                    <MudAlert Severity="Severity.Info" Dense="true">Está archivada: no aparece al registrar movimientos.</MudAlert>
+                }
+                <div class="d-flex align-center gap-3">
+                    <IconAvatar Icon="@_icon" Color="@_color" Size="Size.Large" />
+                    <MudTextField T="string" @bind-Value="_name" Label="Nombre" Required="true"
+                                  RequiredError="Escribe un nombre." MaxLength="40" Variant="Variant.Outlined" />
+                </div>
+                @if (!HasChildren && Parents.Count > 0)
+                {
+                    <MudSelect T="int?" @bind-Value="_parentId" Label="Dentro de" Variant="Variant.Outlined"
+                               ToStringFunc="@(id => id is null ? "Ninguna (categoría principal)" : Parents.FirstOrDefault(p => p.Id == id)?.Name)">
+                        <MudSelectItem T="int?" Value="null">Ninguna (categoría principal)</MudSelectItem>
+                        @foreach (var parent in Parents)
+                        {
+                            <MudSelectItem T="int?" Value="parent.Id">@parent.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+                <IconPicker @bind-Value="_icon" />
+                <ColorSwatches @bind-Value="_color" />
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        @if (Category is { IsArchived: true })
+        {
+            <MudButton Color="Color.Primary" OnClick="RestoreAsync" Disabled="_busy">Restaurar</MudButton>
+        }
+        else if (Category is not null)
+        {
+            <MudButton Color="Color.Error" OnClick="DeleteAsync" Disabled="_busy">Eliminar</MudButton>
+        }
+        <MudSpacer />
+        <MudButton OnClick="() => MudDialog.Cancel()">Cancelar</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync" Disabled="_busy">Guardar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private MudForm? _form;
+    private string? _name;
+    private int? _parentId;
+    private string _icon = IconCatalog.Fallback;
+    private string _color = "#00897B";
+    private string? _error;
+    private bool _busy;
+
+    [CascadingParameter] public required IMudDialogInstance MudDialog { get; set; }
+
+    /// <summary>La categoría a editar, o <c>null</c> para crear una.</summary>
+    [Parameter] public Category? Category { get; set; }
+
+    [Parameter] public TransactionType Kind { get; set; }
+
+    /// <summary>Categorías principales del mismo tipo que pueden contenerla.</summary>
+    [Parameter] public IReadOnlyList<Category> Parents { get; set; } = [];
+
+    /// <summary>Tiene subcategorías: no puede volverse subcategoría (solo hay un nivel).</summary>
+    [Parameter] public bool HasChildren { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Category is { } c)
+        {
+            (_name, _parentId, _icon, _color) = (c.Name, c.ParentId, c.Icon, c.Color);
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        await _form!.ValidateAsync();
+        if (!_form.IsValid)
+        {
+            return;
+        }
+
+        await RunAsync(async () =>
+        {
+            if (Category is null)
+            {
+                await CategoryRepository.AddAsync(new Category
+                {
+                    Name = _name!, Kind = Kind, Icon = _icon, Color = _color, ParentId = _parentId,
+                });
+                return "Categoría creada.";
+            }
+
+            await CategoryRepository.UpdateAsync(Edited(Category.IsArchived));
+            return "Categoría guardada.";
+        });
+    }
+
+    private Task RestoreAsync() => RunAsync(async () =>
+    {
+        await CategoryRepository.UpdateAsync(Edited(archived: false));
+        return "Categoría restaurada.";
+    });
+
+    private async Task DeleteAsync()
+    {
+        var confirmed = await Dialogs.ConfirmAsync("Eliminar categoría",
+            $"¿Eliminar «{Category!.Name}»? Si tiene movimientos o subcategorías se archivará para conservar el historial.",
+            "Eliminar");
+        if (!confirmed)
+        {
+            return;
+        }
+
+        await RunAsync(async () => await CategoryRepository.DeleteOrArchiveAsync(Category.Id) == RemovalResult.Deleted
+            ? "Categoría eliminada."
+            : "Se archivó porque tiene movimientos o subcategorías.");
+    }
+
+    private Category Edited(bool archived) => new()
+    {
+        Id = Category!.Id,
+        Name = _name ?? string.Empty,
+        Kind = Category.Kind,
+        Icon = _icon,
+        Color = _color,
+        ParentId = HasChildren ? null : _parentId,
+        SortOrder = Category.SortOrder,
+        IsArchived = archived,
+        IsSystem = Category.IsSystem,
+    };
+
+    private async Task RunAsync(Func<Task<string>> action)
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            MudDialog.Close(DialogResult.Ok(await action()));
+        }
+        catch (DomainValidationException ex)
+        {
+            _error = ex.Message;
+        }
+        catch (KeyNotFoundException)
+        {
+            _error = "La categoría ya no existe.";
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

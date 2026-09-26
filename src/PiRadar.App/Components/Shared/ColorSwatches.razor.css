@@ -1,0 +1,15 @@
+.swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.swatch.selected {
+    outline: 2px solid var(--mud-palette-text-primary);
+    outline-offset: 2px;
+}

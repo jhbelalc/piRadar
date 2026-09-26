@@ -1,0 +1,57 @@
+@implements IDisposable
+@inject NavigationManager Navigation
+
+<nav class="bottom-nav mud-elevation-4" aria-label="Navegación principal">
+    @Item(NavItems.Home)
+    @Item(NavItems.Transactions)
+    @if (NavItems.NewTransaction.Enabled)
+    {
+        <a href="@NavItems.NewTransaction.Href" class="bottom-nav-add" aria-label="Nuevo movimiento">
+            <MudIcon Icon="@NavItems.NewTransaction.Icon" />
+        </a>
+    }
+    else
+    {
+        <span class="bottom-nav-add disabled" aria-disabled="true" aria-label="Nuevo movimiento">
+            <MudIcon Icon="@NavItems.NewTransaction.Icon" />
+        </span>
+    }
+    @Item(NavItems.Analytics)
+    @Item(NavItems.More, IsMoreActive())
+</nav>
+
+@code {
+    private RenderFragment Item(NavItem item, bool? active = null) => __builder =>
+    {
+        var isActive = active ?? IsActive(item);
+        var css = "bottom-nav-item" + (isActive ? " active" : "") + (item.Enabled ? "" : " disabled");
+        if (item.Enabled)
+        {
+            <a href="@item.Href" class="@css" aria-current="@(isActive ? "page" : null)">
+                <MudIcon Icon="@item.Icon" />
+                <span>@item.Label</span>
+            </a>
+        }
+        else
+        {
+            <span class="@css" aria-disabled="true">
+                <MudIcon Icon="@item.Icon" />
+                <span>@item.Label</span>
+            </span>
+        }
+    };
+
+    private string CurrentPath => Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0];
+
+    private bool IsActive(NavItem item) => item.Href.Length == 0
+        ? CurrentPath.Length == 0
+        : CurrentPath == item.Href || CurrentPath.StartsWith(item.Href + "/", StringComparison.Ordinal);
+
+    private bool IsMoreActive() => IsActive(NavItems.More) || NavItems.MoreItems.Any(IsActive);
+
+    protected override void OnInitialized() => Navigation.LocationChanged += OnLocationChanged;
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
+}

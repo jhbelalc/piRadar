@@ -1,0 +1,46 @@
+@inject IPaymentMethodRepository PaymentMethods
+
+<MudSelect T="int?" Label="@Label" Value="Value" ValueChanged="ValueChanged" Variant="Variant"
+           AnchorOrigin="Origin.BottomCenter" Disabled="Disabled"
+           ToStringFunc="@(id => id is null ? NoneText : _items.FirstOrDefault(p => p.Id == id)?.Name ?? string.Empty)">
+    <MudSelectItem T="int?" Value="null">
+        <span class="mud-text-secondary">@NoneText</span>
+    </MudSelectItem>
+    @foreach (var method in _items)
+    {
+        <MudSelectItem T="int?" Value="method.Id" Disabled="method.IsArchived && method.Id != Value">
+            <div class="d-flex align-center gap-3">
+                <IconAvatar Icon="@method.Icon" Size="Size.Small" />
+                <span>@PaymentMethodText.Display(method)</span>
+            </div>
+        </MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    private const string NoneText = "Sin especificar";
+    private IReadOnlyList<PaymentMethod> _items = [];
+    private bool _loaded;
+
+    [Parameter] public int? Value { get; set; }
+    [Parameter] public EventCallback<int?> ValueChanged { get; set; }
+    [Parameter] public string Label { get; set; } = "Medio de pago";
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public Variant Variant { get; set; } = Variant.Outlined;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var missing = Value is { } id && _items.All(p => p.Id != id);
+        if (_loaded && !missing)
+        {
+            return;
+        }
+
+        _loaded = true;
+        _items = await PaymentMethods.GetAllAsync();
+        if (Value is { } current && _items.All(p => p.Id != current) && await PaymentMethods.GetAsync(current) is { } archived)
+        {
+            _items = [.. _items, archived];
+        }
+    }
+}

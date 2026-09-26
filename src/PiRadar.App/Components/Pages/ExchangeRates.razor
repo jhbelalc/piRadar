@@ -1,0 +1,107 @@
+@page "/exchange-rates"
+@using PiRadar.Core.Analytics
+@inject IExchangeRateRepository ExchangeRateRepository
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<PageBar Title="Tasas de cambio" BackHref="more">
+    <Actions>
+        <MudIconButton id="add-rate" Icon="@Icons.Material.Rounded.Add" Color="Color.Inherit" aria-label="Nueva tasa"
+                       OnClick="AddAsync" />
+    </Actions>
+</PageBar>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <MudStack Spacing="2">
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">
+            Se usan solo para la vista consolidada. Cada movimiento se convierte con la última tasa cuya fecha no sea
+            posterior a la del movimiento; si no hay ninguna, queda fuera del consolidado.
+        </MudText>
+
+        @if (_rates is null)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+        }
+        else if (_rates.Count == 0)
+        {
+            <MudText Class="mud-text-secondary py-8" Align="Align.Center" >Aún no has ingresado tasas.</MudText>
+        }
+        else
+        {
+            @foreach (var pair in _rates.GroupBy(r => (r.From, r.To)))
+            {
+                <MudText Typo="Typo.subtitle2" Class="mt-2">@pair.Key.From → @pair.Key.To</MudText>
+                <MudPaper Elevation="0" Outlined="true">
+                    <MudList T="ExchangeRate">
+                        @foreach (var rate in pair)
+                        {
+                            <MudListItem T="ExchangeRate" OnClick="() => EditAsync(rate)" Class="rate-item">
+                                <div class="d-flex align-center gap-2">
+                                    <div>
+                                        <MudText>1 @rate.From = @MoneyParser.FormatDecimal(rate.Rate, 2) @rate.To</MudText>
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                            Desde el @Period.Containing(rate.EffectiveDate, PeriodGranularity.Day).Label
+                                        </MudText>
+                                    </div>
+                                    <MudSpacer />
+                                    @* Sin stopPropagation el clic también abriría la edición del ítem. *@
+                                    <span @onclick:stopPropagation="true">
+                                        <MudIconButton Icon="@Icons.Material.Rounded.DeleteOutline" aria-label="Eliminar tasa"
+                                                       OnClick="() => DeleteAsync(rate)" />
+                                    </span>
+                                </div>
+                            </MudListItem>
+                        }
+                    </MudList>
+                </MudPaper>
+            }
+        }
+    </MudStack>
+</MudContainer>
+
+@code {
+    private IReadOnlyList<ExchangeRate>? _rates;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync() => _rates = await ExchangeRateRepository.GetAllAsync();
+
+    // Por defecto se propone el par más usado en Colombia y la última tasa ingresada como punto de partida.
+    private Task AddAsync()
+    {
+        var last = _rates?.FirstOrDefault(r => r.From == Currency.USD && r.To == Currency.COP);
+        return ShowDialogAsync(new ExchangeRate
+        {
+            From = Currency.USD,
+            To = Currency.COP,
+            RateMicros = last?.RateMicros ?? 0,
+            EffectiveDate = DateTime.Today,
+        }, isNew: true);
+    }
+
+    private Task EditAsync(ExchangeRate rate) => ShowDialogAsync(rate, isNew: false);
+
+    private async Task ShowDialogAsync(ExchangeRate rate, bool isNew)
+    {
+        var parameters = new DialogParameters<ExchangeRateDialog> { { d => d.Rate, rate }, { d => d.IsNew, isNew } };
+        var dialog = await Dialogs.ShowAsync<ExchangeRateDialog>(isNew ? "Nueva tasa" : "Editar tasa", parameters,
+            DialogExtensions.FormOptions);
+        if (await dialog.Result is { Canceled: false, Data: string message })
+        {
+            Snackbar.Add(message, Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteAsync(ExchangeRate rate)
+    {
+        var confirmed = await Dialogs.ConfirmAsync("Eliminar tasa",
+            $"¿Eliminar la tasa {rate.From} → {rate.To} del {Period.Containing(rate.EffectiveDate, PeriodGranularity.Day).Label}?",
+            "Eliminar");
+        if (confirmed && await ExchangeRateRepository.DeleteAsync(rate.Id))
+        {
+            Snackbar.Add("Tasa eliminada.", Severity.Success);
+            await LoadAsync();
+        }
+    }
+}

@@ -1,17 +1,44 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject ThemeState ThemeState
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudThemeProvider @ref="_themeProvider" Theme="AppTheme.Theme" IsDarkMode="IsDarkMode" ObserveSystemDarkModeChange="false" />
+<MudPopoverProvider />
+<MudDialogProvider CloseOnEscapeKey="true" BackdropClick="true" />
+<MudSnackbarProvider />
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+<DatabaseGate>
+    <AppShell>@Body</AppShell>
+</DatabaseGate>
 
-        <article class="content px-4">
-            <DatabaseGate>@Body</DatabaseGate>
-        </article>
-    </main>
-</div>
+@code {
+    private MudThemeProvider? _themeProvider;
+    private bool _systemDark;
+
+    private bool IsDarkMode => ThemeState.Preference switch
+    {
+        ThemePreference.Dark => true,
+        ThemePreference.Light => false,
+        _ => _systemDark,
+    };
+
+    protected override void OnInitialized() => ThemeState.Changed += OnThemeChanged;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _themeProvider is not null)
+        {
+            _systemDark = await _themeProvider.GetSystemDarkModeAsync();
+            await _themeProvider.WatchSystemDarkModeAsync(dark =>
+            {
+                _systemDark = dark;
+                return InvokeAsync(StateHasChanged);
+            });
+            StateHasChanged();
+        }
+    }
+
+    private void OnThemeChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => ThemeState.Changed -= OnThemeChanged;
+}

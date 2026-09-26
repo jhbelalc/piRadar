@@ -1,0 +1,73 @@
+@inject ICategoryRepository Categories
+
+<MudSelect T="int?" Label="@Label" Value="Value" ValueChanged="ValueChanged" Required="Required"
+           RequiredError="Elige una categoría." Variant="Variant" AnchorOrigin="Origin.BottomCenter"
+           ToStringFunc="@(id => _items.FirstOrDefault(c => c.Id == id)?.Name ?? string.Empty)" Disabled="Disabled">
+    @foreach (var category in _items)
+    {
+        var disabled = category.IsArchived && category.Id != Value;
+        <MudSelectItem T="int?" Value="category.Id" Disabled="disabled">
+            <div class="d-flex align-center gap-3 @(category.ParentId is null ? "" : "pl-6")">
+                <IconAvatar Icon="@category.Icon" Color="@category.Color" Size="Size.Small" />
+                <span>@category.Name</span>
+                @if (category.IsArchived)
+                {
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">Archivada</MudChip>
+                }
+            </div>
+        </MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    private IReadOnlyList<Category> _items = [];
+    private TransactionType? _loadedKind;
+
+    [Parameter] public int? Value { get; set; }
+    [Parameter] public EventCallback<int?> ValueChanged { get; set; }
+
+    /// <summary>Solo se ofrecen categorías de este tipo.</summary>
+    [Parameter, EditorRequired] public TransactionType Kind { get; set; }
+
+    [Parameter] public string Label { get; set; } = "Categoría";
+    [Parameter] public bool Required { get; set; } = true;
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public Variant Variant { get; set; } = Variant.Outlined;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var missing = Value is { } id && _items.All(c => c.Id != id);
+        if (_loadedKind == Kind && !missing)
+        {
+            return;
+        }
+
+        _loadedKind = Kind;
+        _items = Order(await Categories.GetAllAsync(Kind));
+
+        // Un movimiento viejo puede tener una categoría archivada: se muestra, pero no se ofrece para otros.
+        if (Value is { } current && _items.All(c => c.Id != current)
+            && await Categories.GetAsync(current) is { Kind: var kind } archived && kind == Kind)
+        {
+            _items = Order([.. _items, archived]);
+        }
+    }
+
+    /// <summary>Padres en su orden y, debajo de cada uno, sus subcategorías.</summary>
+    internal static IReadOnlyList<Category> Order(IReadOnlyList<Category> categories)
+    {
+        var byParent = categories.Where(c => c.ParentId is not null).ToLookup(c => c.ParentId);
+        var ids = categories.Select(c => c.Id).ToHashSet();
+        var result = new List<Category>();
+        foreach (var parent in categories.Where(c => c.ParentId is null || !ids.Contains(c.ParentId.Value)))
+        {
+            result.Add(parent);
+            if (parent.ParentId is null)
+            {
+                result.AddRange(byParent[parent.Id]);
+            }
+        }
+
+        return result;
+    }
+}

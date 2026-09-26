@@ -1,0 +1,16 @@
+<MudText Typo="Typo.subtitle2" Class="mb-1">@Label</MudText>
+<div class="d-flex flex-wrap gap-1">
+    @foreach (var name in IconCatalog.Names)
+    {
+        var selected = name == Value;
+        <MudIconButton Icon="@IconCatalog.Svg(name)" aria-label="@name" aria-pressed="@(selected ? "true" : "false")"
+                       Variant="@(selected ? Variant.Filled : Variant.Text)" Color="@(selected ? Color.Primary : Color.Default)"
+                       Size="Size.Medium" OnClick="() => ValueChanged.InvokeAsync(name)" />
+    }
+</div>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    [Parameter] public string Label { get; set; } = "Ícono";
+}

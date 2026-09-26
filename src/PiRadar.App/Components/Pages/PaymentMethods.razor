@@ -1,0 +1,80 @@
+@page "/payment-methods"
+@inject IPaymentMethodRepository PaymentMethodRepository
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<PageBar Title="Medios de pago" BackHref="more">
+    <Actions>
+        <MudIconButton id="add-payment-method" Icon="@Icons.Material.Rounded.Add" Color="Color.Inherit"
+                       aria-label="Nuevo medio de pago" OnClick="() => ShowDialogAsync(null)" />
+    </Actions>
+</PageBar>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <MudStack Spacing="2">
+        <MudSwitch T="bool" Value="_showArchived" ValueChanged="SetShowArchivedAsync" Color="Color.Primary" Label="Mostrar archivados" />
+
+        @if (_items is null)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+        }
+        else if (_items.Count == 0)
+        {
+            <MudText Class="mud-text-secondary py-8" Align="Align.Center" >No hay medios de pago. Crea uno con +.</MudText>
+        }
+        else
+        {
+            <MudPaper Elevation="0" Outlined="true">
+                <MudList T="PaymentMethod">
+                    @foreach (var method in _items)
+                    {
+                        <MudListItem T="PaymentMethod" OnClick="() => ShowDialogAsync(method)" Class="payment-method-item">
+                            <div class="d-flex align-center gap-3">
+                                <IconAvatar Icon="@method.Icon" />
+                                <div>
+                                    <MudText Class="@(method.IsArchived ? "mud-text-disabled" : null)">@PaymentMethodText.Display(method)</MudText>
+                                    @if (PaymentMethodText.Kind(method.Kind) != method.Name)
+                                    {
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@PaymentMethodText.Kind(method.Kind)</MudText>
+                                    }
+                                </div>
+                                <MudSpacer />
+                                @if (method.IsArchived)
+                                {
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">Archivado</MudChip>
+                                }
+                            </div>
+                        </MudListItem>
+                    }
+                </MudList>
+            </MudPaper>
+        }
+    </MudStack>
+</MudContainer>
+
+@code {
+    private bool _showArchived;
+    private IReadOnlyList<PaymentMethod>? _items;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync() => _items = await PaymentMethodRepository.GetAllAsync(_showArchived);
+
+    private Task SetShowArchivedAsync(bool value)
+    {
+        _showArchived = value;
+        return LoadAsync();
+    }
+
+    private async Task ShowDialogAsync(PaymentMethod? method)
+    {
+        var parameters = new DialogParameters<PaymentMethodDialog> { { d => d.PaymentMethod, method } };
+        var title = method is null ? "Nuevo medio de pago" : "Editar medio de pago";
+        var dialog = await Dialogs.ShowAsync<PaymentMethodDialog>(title, parameters, DialogExtensions.FormOptions);
+        if (await dialog.Result is { Canceled: false, Data: string message })
+        {
+            Snackbar.Add(message, Severity.Success);
+            await LoadAsync();
+        }
+    }
+}
