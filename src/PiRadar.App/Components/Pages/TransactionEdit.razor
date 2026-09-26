@@ -7,8 +7,10 @@
 @inject NavigationManager Navigation
 @inject IDialogService Dialogs
 @inject ISnackbar Snackbar
+@inject ScanState ScanState
+@using PiRadar.Core.Receipts
 
-<PageBar Title="@(IsNew ? "Nuevo movimiento" : "Editar movimiento")" BackHref="transactions">
+<PageBar Title="@PageTitle" BackHref="@(_scan is null ? "transactions" : "scan")">
     <Actions>
         @if (!IsNew && _loaded)
         {
@@ -36,6 +38,23 @@
                     <MudAlert Severity="Severity.Error" Dense="true">@_error</MudAlert>
                 }
 
+                @if (IsNew && _scan is null)
+                {
+                    <MudButton id="scan-receipt" Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true"
+                               StartIcon="@Icons.Material.Rounded.DocumentScanner" Href="scan">Escanear recibo</MudButton>
+                }
+
+                @if (_scan is not null)
+                {
+                    <MudAlert Severity="Severity.Info" Dense="true" Icon="@Icons.Material.Rounded.DocumentScanner">
+                        Valores leídos del recibo: revísalos antes de guardar.
+                        @foreach (var hint in _scanHints)
+                        {
+                            <br />@hint
+                        }
+                    </MudAlert>
+                }
+
                 <MudToggleGroup T="TransactionType" Value="_type" ValueChanged="SetTypeAsync" SelectionMode="SelectionMode.SingleSelection"
                                 Color="@(_type == TransactionType.Expense ? Color.Error : Color.Success)" CheckMark="false" Style="width: 100%">
                     <MudToggleItem Value="TransactionType.Expense" Text="Gasto" />
@@ -50,6 +69,18 @@
                         <CurrencyToggle @bind-Value="_currency" Size="Size.Medium" />
                     </div>
                 </div>
+
+                @if (_totalChoices.Count > 0)
+                {
+                    <div class="d-flex align-center flex-wrap gap-1">
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary mr-1">¿Otro total?</MudText>
+                        @foreach (var total in _totalChoices)
+                        {
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
+                                     Class="total-choice" OnClick="() => ChooseTotal(total)">@total</MudChip>
+                        }
+                    </div>
+                }
 
                 <CategoryPicker @bind-Value="_categoryId" Kind="_type" />
 
@@ -67,6 +98,18 @@
                 <MudAutocomplete T="string" @bind-Value="_merchant" Label="Comercio (opcional)" Variant="Variant.Outlined"
                                  SearchFunc="SearchMerchantsAsync" CoerceText="false" CoerceValue="true" MaxLength="80"
                                  MaxItems="8" MinCharacters="1" ShowProgressIndicator="false" OpenIcon="@string.Empty" />
+
+                @if (_merchantChoices.Count > 1)
+                {
+                    <div class="d-flex align-center flex-wrap gap-1" style="margin-top: -8px">
+                        @foreach (var merchant in _merchantChoices)
+                        {
+                            <MudChip T="string" Size="Size.Small" Class="merchant-choice"
+                                     Variant="@(merchant == _merchant ? Variant.Filled : Variant.Outlined)" Color="Color.Primary"
+                                     OnClick="() => _merchant = merchant">@merchant</MudChip>
+                        }
+                    </div>
+                }
 
                 <MudTextField T="string" @bind-Value="_description" Label="Descripción (opcional)" Variant="Variant.Outlined"
                               MaxLength="120" />
@@ -114,13 +157,22 @@
     private TransactionSource _source = TransactionSource.Manual;
     private string? _receiptImage;
     private IReadOnlyList<string> _merchants = [];
+    private PendingScan? _scan;
+    private IReadOnlyList<Money> _totalChoices = [];
+    private IReadOnlyList<string> _merchantChoices = [];
+    private List<string> _scanHints = [];
 
     [Parameter] public Guid? Id { get; set; }
 
     /// <summary><c>?type=Income</c> abre el formulario como ingreso.</summary>
     [SupplyParameterFromQuery(Name = "type")] public string? InitialType { get; set; }
 
+    /// <summary><c>?scan=1</c>: viene de ScanReceipt con un recibo leído en <see cref="ScanState"/>.</summary>
+    [SupplyParameterFromQuery(Name = "scan")] public string? FromScan { get; set; }
+
     private bool IsNew => Id is null;
+
+    private string PageTitle => _scan is not null ? "Nuevo desde recibo" : IsNew ? "Nuevo movimiento" : "Editar movimiento";
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,6 +180,10 @@
         if (IsNew)
         {
             await InitNewAsync();
+            if (FromScan == "1" && ScanState.Take() is { } scan)
+            {
+                await InitFromScanAsync(scan);
+            }
         }
         else if (await TransactionRepository.GetAsync(Id!.Value) is { } transaction)
         {
@@ -154,6 +210,62 @@
         _paymentMethodId = last?.PaymentMethodId;
         var now = DateTime.Now;
         (_date, _time) = (now.Date, new TimeSpan(now.Hour, now.Minute, 0));
+    }
+
+    // El parser solo propone: se prellena el formulario y el usuario confirma.
+    private async Task InitFromScanAsync(PendingScan scan)
+    {
+        _scan = scan;
+        var parsed = scan.Parsed;
+        _type = TransactionType.Expense;
+        _currency = parsed.Currency;
+        _amount = parsed.Total;
+        _totalChoices = parsed.TotalCandidates.Where(t => t != parsed.Total).ToList();
+        _receiptImage = "data:image/jpeg;base64," + Convert.ToBase64String(scan.Image.Jpeg);
+
+        if (parsed.Date is { } date)
+        {
+            _date = date.Date;
+            if (parsed.HasTime)
+            {
+                _time = new TimeSpan(date.Hour, date.Minute, 0);
+            }
+        }
+
+        // Lo que el usuario eligió la última vez para este NIT pesa más que lo que lee el parser.
+        var previous = parsed.TaxId is { } taxId ? await TransactionRepository.GetLatestForTaxIdAsync(taxId) : null;
+        _merchantChoices = MerchantSuggestions.Combine(previous?.Merchant, parsed.MerchantCandidates);
+        _merchant = _merchantChoices.FirstOrDefault();
+        if (previous is not null)
+        {
+            if (await CategoryRepository.GetAsync(previous.CategoryId) is { IsArchived: false, Kind: TransactionType.Expense })
+            {
+                _categoryId = previous.CategoryId;
+            }
+
+            _paymentMethodId = previous.PaymentMethodId ?? _paymentMethodId;
+        }
+
+        if (parsed.Total is null)
+        {
+            _scanHints.Add("No se encontró el total: escríbelo.");
+        }
+        else if (!parsed.TotalConfirmed)
+        {
+            _scanHints.Add("Revisa el total: no cuadró con otra parte del recibo.");
+        }
+
+        if (parsed.Date is null)
+        {
+            _scanHints.Add("No se encontró la fecha: se dejó la de hoy.");
+        }
+    }
+
+    private void ChooseTotal(Money total)
+    {
+        var current = _amount;
+        (_amount, _currency) = (total, total.Currency);
+        _totalChoices = _totalChoices.Where(t => t != total).Concat(current is { } c ? [c] : []).ToList();
     }
 
     private async Task InitEditAsync(Transaction t)
@@ -226,7 +338,22 @@
                 Notes = _notes,
             };
 
-            if (IsNew)
+            if (_scan is { } scan)
+            {
+                var parsed = scan.Parsed;
+                var receipt = new Receipt
+                {
+                    OcrText = string.Join('\n', parsed.Rows),
+                    ParsedTotal = parsed.Total,
+                    ParsedDate = parsed.Date,
+                    ParsedMerchant = parsed.Merchant,
+                    ParsedTaxId = parsed.TaxId,
+                    OcrEngine = scan.OcrEngine,
+                };
+                await TransactionRepository.AddWithReceiptAsync(transaction, receipt, scan.Image);
+                Snackbar.Add("Movimiento y recibo guardados.", Severity.Success);
+            }
+            else if (IsNew)
             {
                 await TransactionRepository.AddAsync(transaction);
                 Snackbar.Add("Movimiento guardado.", Severity.Success);

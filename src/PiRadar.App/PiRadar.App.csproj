@@ -52,6 +52,11 @@
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
+    <!-- Release sin permisos de red en Android (la app funciona 100 % sin conexión). -->
+    <ItemGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('-android'))">
+        <AndroidManifestOverlay Include="Platforms\Android\ReleaseManifestOverlay.xml" />
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />

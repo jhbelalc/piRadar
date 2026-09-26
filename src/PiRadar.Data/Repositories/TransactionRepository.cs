@@ -85,6 +85,20 @@ internal sealed class TransactionRepository(DatabaseHost host, IClock clock)
         return merchants.Where(seen.Add).Take(take).ToList();
     }
 
+    public async Task<Transaction?> GetLatestForTaxIdAsync(string taxId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(taxId);
+        var records = await Connection.QueryAsync<TransactionRecord>(
+            """
+            SELECT t.* FROM "Transactions" t
+            JOIN "Receipt" r ON r."Id" = t."ReceiptId"
+            WHERE r."ParsedTaxId" = ?
+            ORDER BY t."OccurredAt" DESC, t."CreatedAt" DESC
+            LIMIT 1
+            """, taxId);
+        return records.Count > 0 ? records[0].ToDomain() : null;
+    }
+
     /// <summary>Sin distinguir mayúsculas ni tildes: "Éxito", "éxito" y "EXITO" son el mismo comercio.</summary>
     private static readonly StringComparer MerchantComparer = StringComparer.Create(
         CultureInfo.InvariantCulture, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace);

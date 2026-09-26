@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>NSCameraUsageDescription</key>
+    <string>piRadar usa la cámara para fotografiar tus recibos. La foto se procesa y guarda cifrada solo en este dispositivo.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>piRadar abre tus fotos para leer recibos. La foto se procesa y guarda cifrada solo en este dispositivo.</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>UIDeviceFamily</key>

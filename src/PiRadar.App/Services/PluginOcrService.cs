@@ -16,7 +16,9 @@ public sealed class PluginOcrService(PluginOcr ocr) : Core.Abstractions.IOcrServ
         var upright = await Task.Run(() => ImageOrientation.Normalize(image), cancellationToken);
 
         // tryHard: en iOS el modo rápido parte palabras y montos ("$82. 150").
-        var result = await ocr.RecognizeTextAsync(upright, tryHard: true, cancellationToken);
+        // Desde un hilo de fondo: el plugin decodifica la imagen al llamarlo y en el hilo de la interfaz eso
+        // congela la app (ANR en Android con fotos de 12 MP).
+        var result = await Task.Run(() => ocr.RecognizeTextAsync(upright, tryHard: true, cancellationToken), cancellationToken);
         if (!result.Success)
         {
             return new OcrPage([], Engine);

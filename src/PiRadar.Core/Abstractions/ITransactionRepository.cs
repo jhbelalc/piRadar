@@ -15,6 +15,12 @@ public interface ITransactionRepository
     Task<IReadOnlyList<string>> GetRecentMerchantsAsync(int take = 200);
 
     /// <summary>
+    /// El movimiento más reciente registrado desde un recibo con ese NIT (<c>Receipt.ParsedTaxId</c>), para proponer
+    /// el comercio y la categoría que el usuario eligió la última vez. <c>null</c> si nunca se escaneó ese NIT.
+    /// </summary>
+    Task<Transaction?> GetLatestForTaxIdAsync(string taxId);
+
+    /// <summary>
     /// Guarda un movimiento manual. Genera el <c>Id</c> si viene vacío y fija <c>CreatedAt</c>/<c>UpdatedAt</c>.
     /// Devuelve el movimiento tal como quedó guardado.
     /// </summary>

@@ -9,7 +9,8 @@ namespace PiRadar.App.Services;
 /// simulador/emulador sin tocar la pantalla (en este Mac los toques de adb no son fiables y simctl no toca).
 /// Una orden por línea: <c>go /ruta</c>, <c>click selector-css</c>, <c>theme Dark|Light|System</c>,
 /// <c>wait ms</c>, <c>js expresión</c> (agrega el resultado a <c>ui-out.txt</c>),
-/// <c>fill Etiqueta=valor</c> (campo de texto) y <c>pick Etiqueta=texto</c> (opción de un MudSelect). El archivo se copia con simctl/adb y se borra después de leerlo.
+/// <c>fill Etiqueta=valor</c> (campo de texto) y <c>pick Etiqueta=texto</c> (opción de un MudSelect),
+/// <c>waitfor condición-js</c> (espera y anota los segundos). El archivo se copia con simctl/adb y se borra después de leerlo.
 /// </summary>
 public static class UiScript
 {
@@ -90,6 +91,18 @@ public static class UiScript
                         var outcome = await js.InvokeAsync<string>("eval", call);
                         await File.AppendAllTextAsync(Path.Combine(FileSystem.AppDataDirectory, "ui-out.txt"), outcome + Environment.NewLine);
                         await Task.Delay(400);
+                        break;
+                    case "waitfor":
+                        // Espera hasta 10 minutos a que la condición JS sea verdadera y anota cuánto tardó.
+                        var started = DateTime.UtcNow;
+                        while (!await js.InvokeAsync<bool>("eval", $"!!({argument})")
+                            && DateTime.UtcNow - started < TimeSpan.FromMinutes(10))
+                        {
+                            await Task.Delay(500);
+                        }
+
+                        await File.AppendAllTextAsync(Path.Combine(FileSystem.AppDataDirectory, "ui-out.txt"),
+                            $"waitfor {(DateTime.UtcNow - started).TotalSeconds:F0} s{Environment.NewLine}");
                         break;
                     case "wait":
                         await Task.Delay(int.Parse(argument, System.Globalization.CultureInfo.InvariantCulture));

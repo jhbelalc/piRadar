@@ -1,0 +1,187 @@
+@page "/scan"
+@using PiRadar.Core.Receipts
+@implements IDisposable
+@inject IOcrService Ocr
+@inject ScanState ScanState
+@inject NavigationManager Navigation
+
+<PageBar Title="Escanear recibo" BackHref="transactions/new" />
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="page-content">
+    <MudStack Spacing="3">
+        @if (_preview is not null)
+        {
+            <img src="@_preview" alt="Recibo" style="max-height: 45vh; object-fit: contain; border-radius: 8px" />
+        }
+
+        @if (_busy)
+        {
+            <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="py-4">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                <MudText>@_status</MudText>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">Se lee en el teléfono, sin internet.</MudText>
+                <MudButton Variant="Variant.Text" OnClick="Cancel">Cancelar</MudButton>
+            </MudStack>
+        }
+        else
+        {
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Warning">@_error</MudAlert>
+            }
+            else if (_preview is null)
+            {
+                <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="py-4">
+                    <MudIcon Icon="@Icons.Material.Rounded.DocumentScanner" Color="Color.Primary" Style="font-size: 4rem" />
+                    <MudText Align="Align.Center">
+                        Toma una foto del recibo completo, derecho y con buena luz. Propondremos el total, la fecha y el
+                        comercio para que los confirmes.
+                    </MudText>
+                </MudStack>
+            }
+
+            @if (MediaPicker.Default.IsCaptureSupported)
+            {
+                <MudButton id="take-photo" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                           StartIcon="@Icons.Material.Rounded.PhotoCamera" OnClick="TakePhotoAsync">Tomar foto</MudButton>
+            }
+            <MudButton id="pick-photo" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                       StartIcon="@Icons.Material.Rounded.PhotoLibrary" OnClick="PickPhotoAsync">Elegir de la galería</MudButton>
+            @if (BuildInfo.IsDebug && File.Exists(DebugPhotoPath))
+            {
+                <MudButton id="debug-photo" Variant="Variant.Text" FullWidth="true" OnClick="UseDebugPhotoAsync">
+                    Foto de prueba (Debug)
+                </MudButton>
+            }
+            <MudButton Variant="Variant.Text" FullWidth="true" Href="transactions/new">Registrar a mano</MudButton>
+        }
+    </MudStack>
+</MudContainer>
+
+@code {
+    private CancellationTokenSource? _cts;
+    private bool _busy;
+    private string? _status;
+    private string? _error;
+    private string? _preview;
+
+    /// <summary>Solo Debug: foto copiada con simctl/adb para probar sin cámara ni galería.</summary>
+    private static string DebugPhotoPath => Path.Combine(FileSystem.AppDataDirectory, "scan-in.jpg");
+
+    private Task TakePhotoAsync() => FromPickerAsync(() => MediaPicker.Default.CapturePhotoAsync(
+        new MediaPickerOptions { Title = "Recibo" }));
+
+    private Task PickPhotoAsync() => FromPickerAsync(async () => (await MediaPicker.Default.PickPhotosAsync(
+        new MediaPickerOptions { Title = "Recibo", SelectionLimit = 1 })).FirstOrDefault());
+
+    private async Task UseDebugPhotoAsync() => await ProcessAsync(await File.ReadAllBytesAsync(DebugPhotoPath));
+
+    private async Task FromPickerAsync(Func<Task<FileResult?>> pick)
+    {
+        _error = null;
+        FileResult? file;
+        try
+        {
+            file = await pick();
+        }
+        catch (PermissionException)
+        {
+            _error = "piRadar no tiene permiso para usar la cámara o las fotos. Actívalo en los ajustes del teléfono.";
+            return;
+        }
+
+        if (file is null)
+        {
+            return;
+        }
+
+        _busy = true;
+        _status = "Abriendo la foto…";
+        StateHasChanged();
+
+        // Fuera del hilo de la interfaz: una foto de 6 MB leída ahí congela la app (ANR en Android).
+        byte[] bytes;
+        try
+        {
+            bytes = await Task.Run(async () =>
+            {
+                await using var stream = await file.OpenReadAsync();
+                using var memory = new MemoryStream();
+                await stream.CopyToAsync(memory);
+                return memory.ToArray();
+            });
+        }
+        catch (IOException)
+        {
+            _busy = false;
+            _error = "No se pudo abrir la foto. Prueba con otra.";
+            return;
+        }
+
+        // La cámara deja la foto en la caché de la app: no se dejan fotos de recibos como archivos sueltos.
+        DeleteIfInAppCache(file.FullPath);
+        await ProcessAsync(bytes);
+    }
+
+    private async Task ProcessAsync(byte[] photo)
+    {
+        _cts = new CancellationTokenSource();
+        _busy = true;
+        _error = null;
+        try
+        {
+            _status = "Preparando la foto…";
+            StateHasChanged();
+            var image = await Task.Run(() => ReceiptPhoto.Prepare(photo), _cts.Token);
+            _preview = "data:image/jpeg;base64," + Convert.ToBase64String(image.Jpeg);
+
+            _status = "Leyendo el recibo…";
+            StateHasChanged();
+            var page = await Ocr.RecognizeAsync(photo, _cts.Token);
+            if (page.Elements.Count == 0)
+            {
+                _error = "No se encontró texto en la foto. Intenta de nuevo con el recibo completo, derecho y con más luz.";
+                return;
+            }
+
+            var parsed = ReceiptParser.Parse(page, DateOnly.FromDateTime(DateTime.Today));
+            ScanState.Pending = new PendingScan(image, page.Engine, parsed);
+            Navigation.NavigateTo("transactions/new?scan=1");
+        }
+        catch (OperationCanceledException)
+        {
+            _preview = null;
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or IOException)
+        {
+            _error = "No se pudo leer la imagen. Prueba con otra foto.";
+        }
+        finally
+        {
+            _busy = false;
+            _cts.Dispose();
+            _cts = null;
+        }
+    }
+
+    private void Cancel() => _cts?.Cancel();
+
+    private static void DeleteIfInAppCache(string? path)
+    {
+        if (string.IsNullOrEmpty(path) || !path.StartsWith(FileSystem.CacheDirectory, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        try
+        {
+            File.Delete(path);
+        }
+        catch (IOException)
+        {
+            // No es grave: el sistema limpia la caché.
+        }
+    }
+
+    public void Dispose() => _cts?.Cancel();
+}

@@ -293,6 +293,30 @@ public class TransactionRepositoryTests
         Assert.Equal(["Carulla"], await repo.GetRecentMerchantsAsync(take: 1));
     }
 
+    [Fact]
+    public async Task GetLatestForTaxId_ReturnsMostRecentTransactionFromThatTaxId()
+    {
+        await using var temp = await TempHost.OpenAsync();
+        var (repo, market, _) = await SetupAsync(temp);
+        var older = TestData.Expense(market.Id, occurredAt: new DateTime(2026, 8, 1, 10, 0, 0, DateTimeKind.Local));
+        older.Merchant = "Éxito";
+        var newer = TestData.Expense(market.Id, occurredAt: new DateTime(2026, 9, 1, 10, 0, 0, DateTimeKind.Local));
+        newer.Merchant = "Éxito Laureles";
+        var otherTaxId = NewReceipt();
+        otherTaxId.ParsedTaxId = "800000000-1";
+
+        await repo.AddWithReceiptAsync(older, NewReceipt(), NewImage());
+        await repo.AddWithReceiptAsync(newer, NewReceipt(), NewImage());
+        await repo.AddWithReceiptAsync(TestData.Expense(market.Id, occurredAt: new DateTime(2026, 9, 20, 10, 0, 0, DateTimeKind.Local)),
+            otherTaxId, NewImage());
+        await repo.AddAsync(TestData.Expense(market.Id, occurredAt: new DateTime(2026, 9, 21, 10, 0, 0, DateTimeKind.Local)));
+
+        var latest = await repo.GetLatestForTaxIdAsync("900123456-7");
+
+        Assert.Equal("Éxito Laureles", latest?.Merchant);
+        Assert.Null(await repo.GetLatestForTaxIdAsync("811111111-1"));
+    }
+
     private static async Task<(TransactionRepository Repo, Category Market, Category Salary)> SetupAsync(TempHost temp)
     {
         var categories = await new CategoryRepository(temp.Host).GetAllAsync();
