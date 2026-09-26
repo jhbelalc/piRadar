@@ -1,0 +1,13 @@
+.totals-grid {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr 1fr;
+    column-gap: 12px;
+    row-gap: 4px;
+    align-items: baseline;
+}
+
+.totals-grid ::deep > *:not(:nth-child(4n + 1)) {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}

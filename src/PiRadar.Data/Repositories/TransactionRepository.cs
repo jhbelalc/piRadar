@@ -1,3 +1,4 @@
+using System.Globalization;
 using PiRadar.Core.Abstractions;
 using PiRadar.Core.Domain;
 using PiRadar.Data.Records;
@@ -67,6 +68,26 @@ internal sealed class TransactionRepository(DatabaseHost host, IClock clock)
         var records = await query.ToListAsync();
         return records.Select(r => r.ToDomain()).ToList();
     }
+
+    public async Task<IReadOnlyList<string>> GetRecentMerchantsAsync(int take = 200)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(take);
+
+        // COLLATE NOCASE de SQLite solo pliega ASCII ("Éxito" ≠ "éxito"): se agrupa exacto y se deduplica aquí.
+        var merchants = await Connection.QueryScalarsAsync<string>(
+            """
+            SELECT "Merchant" FROM "Transactions"
+            WHERE "Merchant" IS NOT NULL
+            GROUP BY "Merchant"
+            ORDER BY max("OccurredAt") DESC
+            """);
+        var seen = new HashSet<string>(MerchantComparer);
+        return merchants.Where(seen.Add).Take(take).ToList();
+    }
+
+    /// <summary>Sin distinguir mayúsculas ni tildes: "Éxito", "éxito" y "EXITO" son el mismo comercio.</summary>
+    private static readonly StringComparer MerchantComparer = StringComparer.Create(
+        CultureInfo.InvariantCulture, CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace);
 
     public Task<Transaction> AddAsync(Transaction transaction) => InTransactionAsync(db =>
     {

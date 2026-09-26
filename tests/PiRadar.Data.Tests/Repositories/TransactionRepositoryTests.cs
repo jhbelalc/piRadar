@@ -272,6 +272,27 @@ public class TransactionRepositoryTests
         Assert.Single(await repo.QueryAsync(TransactionFilter.All));
     }
 
+    [Fact]
+    public async Task GetRecentMerchants_IsDistinctIgnoringCase_MostRecentFirst()
+    {
+        await using var temp = await TempHost.OpenAsync();
+        var (repo, market, _) = await SetupAsync(temp);
+        var day = new DateTime(2026, 9, 1, 12, 0, 0, DateTimeKind.Local);
+        foreach (var (merchant, days) in new[] { ("EXITO", 0), ("D1", 1), ("éxito", 2), ("Carulla", 3) })
+        {
+            var t = TestData.Expense(market.Id, occurredAt: day.AddDays(days));
+            t.Merchant = merchant;
+            await repo.AddAsync(t);
+        }
+
+        var noMerchant = TestData.Expense(market.Id, occurredAt: day.AddDays(4));
+        noMerchant.Merchant = "  ";
+        await repo.AddAsync(noMerchant);
+
+        Assert.Equal(["Carulla", "éxito", "D1"], await repo.GetRecentMerchantsAsync());
+        Assert.Equal(["Carulla"], await repo.GetRecentMerchantsAsync(take: 1));
+    }
+
     private static async Task<(TransactionRepository Repo, Category Market, Category Salary)> SetupAsync(TempHost temp)
     {
         var categories = await new CategoryRepository(temp.Host).GetAllAsync();

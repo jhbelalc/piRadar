@@ -1,0 +1,270 @@
+@page "/transactions/new"
+@page "/transactions/{Id:guid}"
+@inject ITransactionRepository TransactionRepository
+@inject IReceiptRepository ReceiptRepository
+@inject ICategoryRepository CategoryRepository
+@inject ISettingsRepository SettingsRepository
+@inject NavigationManager Navigation
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<PageBar Title="@(IsNew ? "Nuevo movimiento" : "Editar movimiento")" BackHref="transactions">
+    <Actions>
+        @if (!IsNew && _loaded)
+        {
+            <MudIconButton id="delete-transaction" Icon="@Icons.Material.Rounded.DeleteOutline" Color="Color.Inherit"
+                           aria-label="Eliminar movimiento" OnClick="DeleteAsync" />
+        }
+    </Actions>
+</PageBar>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="page-content">
+    @if (!_loaded)
+    {
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+    }
+    else if (_notFound)
+    {
+        <MudText Class="mud-text-secondary">Este movimiento ya no existe.</MudText>
+    }
+    else
+    {
+        <MudForm @ref="_form">
+            <MudStack Spacing="3">
+                @if (_error is not null)
+                {
+                    <MudAlert Severity="Severity.Error" Dense="true">@_error</MudAlert>
+                }
+
+                <MudToggleGroup T="TransactionType" Value="_type" ValueChanged="SetTypeAsync" SelectionMode="SelectionMode.SingleSelection"
+                                Color="@(_type == TransactionType.Expense ? Color.Error : Color.Success)" CheckMark="false" Style="width: 100%">
+                    <MudToggleItem Value="TransactionType.Expense" Text="Gasto" />
+                    <MudToggleItem Value="TransactionType.Income" Text="Ingreso" />
+                </MudToggleGroup>
+
+                <div class="d-flex align-start gap-3">
+                    <div style="flex: 1">
+                        <MoneyInput @bind-Value="_amount" Currency="_currency" Label="Monto" />
+                    </div>
+                    <div class="pt-2">
+                        <CurrencyToggle @bind-Value="_currency" Size="Size.Medium" />
+                    </div>
+                </div>
+
+                <CategoryPicker @bind-Value="_categoryId" Kind="_type" />
+
+                <div class="d-flex gap-3">
+                    <MudDatePicker @bind-Date="_date" Label="Fecha" Variant="Variant.Outlined" DateFormat="dd/MM/yyyy"
+                                   PickerVariant="PickerVariant.Dialog" AutoClose="true" Required="true"
+                                   RequiredError="Elige la fecha." ShowToolbar="false" />
+                    <MudTimePicker @bind-Time="_time" Label="Hora" Variant="Variant.Outlined" TimeFormat="HH:mm"
+                                   PickerVariant="PickerVariant.Dialog" AutoClose="true" AmPm="false" Required="true"
+                                   RequiredError="Elige la hora." Style="max-width: 130px" />
+                </div>
+
+                <PaymentMethodPicker @bind-Value="_paymentMethodId" />
+
+                <MudAutocomplete T="string" @bind-Value="_merchant" Label="Comercio (opcional)" Variant="Variant.Outlined"
+                                 SearchFunc="SearchMerchantsAsync" CoerceText="false" CoerceValue="true" MaxLength="80"
+                                 MaxItems="8" MinCharacters="1" ShowProgressIndicator="false" OpenIcon="@string.Empty" />
+
+                <MudTextField T="string" @bind-Value="_description" Label="Descripción (opcional)" Variant="Variant.Outlined"
+                              MaxLength="120" />
+
+                <MudTextField T="string" @bind-Value="_notes" Label="Notas (opcional)" Variant="Variant.Outlined"
+                              Lines="3" MaxLength="500" />
+
+                @if (_receiptImage is not null)
+                {
+                    <MudPaper Elevation="0" Outlined="true" Class="pa-2">
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">Recibo</MudText>
+                        <img src="@_receiptImage" alt="Foto del recibo" style="width: 100%; border-radius: 8px" />
+                    </MudPaper>
+                }
+                else if (_source == TransactionSource.Ocr)
+                {
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Registrado desde un recibo.</MudText>
+                }
+
+                <MudButton id="save-transaction" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
+                           FullWidth="true" OnClick="SaveAsync" Disabled="_busy">Guardar</MudButton>
+            </MudStack>
+        </MudForm>
+    }
+</MudContainer>
+
+@code {
+    private MudForm? _form;
+    private bool _loaded;
+    private bool _notFound;
+    private bool _busy;
+    private string? _error;
+
+    private Transaction? _original;
+    private TransactionType _type = TransactionType.Expense;
+    private Money? _amount;
+    private Currency _currency;
+    private int? _categoryId;
+    private DateTime? _date;
+    private TimeSpan? _time;
+    private int? _paymentMethodId;
+    private string? _merchant;
+    private string? _description;
+    private string? _notes;
+    private TransactionSource _source = TransactionSource.Manual;
+    private string? _receiptImage;
+    private IReadOnlyList<string> _merchants = [];
+
+    [Parameter] public Guid? Id { get; set; }
+
+    /// <summary><c>?type=Income</c> abre el formulario como ingreso.</summary>
+    [SupplyParameterFromQuery(Name = "type")] public string? InitialType { get; set; }
+
+    private bool IsNew => Id is null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _merchants = await TransactionRepository.GetRecentMerchantsAsync();
+        if (IsNew)
+        {
+            await InitNewAsync();
+        }
+        else if (await TransactionRepository.GetAsync(Id!.Value) is { } transaction)
+        {
+            await InitEditAsync(transaction);
+        }
+        else
+        {
+            _notFound = true;
+        }
+
+        _loaded = true;
+    }
+
+    // Moneda y medio de pago del último movimiento: lo más probable es que se repitan.
+    private async Task InitNewAsync()
+    {
+        if (string.Equals(InitialType, nameof(TransactionType.Income), StringComparison.OrdinalIgnoreCase))
+        {
+            _type = TransactionType.Income;
+        }
+
+        var last = (await TransactionRepository.QueryAsync(TransactionFilter.All with { Take = 1 })).FirstOrDefault();
+        _currency = last?.Amount.Currency ?? await SettingsRepository.GetBaseCurrencyAsync();
+        _paymentMethodId = last?.PaymentMethodId;
+        var now = DateTime.Now;
+        (_date, _time) = (now.Date, new TimeSpan(now.Hour, now.Minute, 0));
+    }
+
+    private async Task InitEditAsync(Transaction t)
+    {
+        _original = t;
+        (_type, _amount, _currency, _categoryId) = (t.Type, t.Amount, t.Amount.Currency, t.CategoryId);
+        (_date, _time) = (t.OccurredAt.Date, new TimeSpan(t.OccurredAt.Hour, t.OccurredAt.Minute, 0));
+        (_paymentMethodId, _merchant, _description, _notes, _source) =
+            (t.PaymentMethodId, t.Merchant, t.Description, t.Notes, t.Source);
+
+        if (t.ReceiptId is { } receiptId && await ReceiptRepository.GetImageAsync(receiptId) is { } image)
+        {
+            _receiptImage = "data:image/jpeg;base64," + Convert.ToBase64String(image.Jpeg);
+        }
+    }
+
+    private async Task SetTypeAsync(TransactionType type)
+    {
+        _type = type;
+
+        // Las categorías son de gastos o de ingresos: la elegida deja de servir al cambiar el tipo.
+        if (_categoryId is { } id && await CategoryRepository.GetAsync(id) is { } category && category.Kind != type)
+        {
+            _categoryId = null;
+        }
+    }
+
+    // Sin distinguir tildes ni mayúsculas, con los que empiezan por el texto primero.
+    private Task<IEnumerable<string>> SearchMerchantsAsync(string? text, CancellationToken _)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return Task.FromResult(Enumerable.Empty<string>());
+        }
+
+        var compare = System.Globalization.CultureInfo.InvariantCulture.CompareInfo;
+        const System.Globalization.CompareOptions options =
+            System.Globalization.CompareOptions.IgnoreCase | System.Globalization.CompareOptions.IgnoreNonSpace;
+        var query = text.Trim();
+        var matches = _merchants
+            .Where(m => compare.IndexOf(m, query, options) >= 0)
+            .OrderBy(m => compare.IsPrefix(m, query, options) ? 0 : 1);
+        return Task.FromResult<IEnumerable<string>>(matches.ToList());
+    }
+
+    private async Task SaveAsync()
+    {
+        await _form!.ValidateAsync();
+        if (!_form.IsValid || _amount is not { } amount || _categoryId is not { } categoryId
+            || _date is not { } date || _time is not { } time)
+        {
+            _error = _categoryId is null ? "Elige una categoría." : null;
+            return;
+        }
+
+        _busy = true;
+        _error = null;
+        try
+        {
+            var transaction = new Transaction
+            {
+                Id = _original?.Id ?? Guid.Empty,
+                Type = _type,
+                Amount = amount,
+                OccurredAt = DateTime.SpecifyKind(date.Date + time, DateTimeKind.Local),
+                CategoryId = categoryId,
+                PaymentMethodId = _paymentMethodId,
+                Merchant = _merchant,
+                Description = _description,
+                Notes = _notes,
+            };
+
+            if (IsNew)
+            {
+                await TransactionRepository.AddAsync(transaction);
+                Snackbar.Add("Movimiento guardado.", Severity.Success);
+            }
+            else
+            {
+                await TransactionRepository.UpdateAsync(transaction);
+                Snackbar.Add("Cambios guardados.", Severity.Success);
+            }
+
+            Navigation.NavigateTo("transactions");
+        }
+        catch (DomainValidationException ex)
+        {
+            _error = ex.Message;
+        }
+        catch (KeyNotFoundException)
+        {
+            _error = "Este movimiento ya no existe.";
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        var message = _original?.ReceiptId is null
+            ? "¿Eliminar este movimiento? Esta acción no se puede deshacer."
+            : "¿Eliminar este movimiento y la foto de su recibo? Esta acción no se puede deshacer.";
+        if (!await Dialogs.ConfirmAsync("Eliminar movimiento", message, "Eliminar"))
+        {
+            return;
+        }
+
+        await TransactionRepository.DeleteAsync(Id!.Value);
+        Snackbar.Add("Movimiento eliminado.", Severity.Success);
+        Navigation.NavigateTo("transactions");
+    }
+}

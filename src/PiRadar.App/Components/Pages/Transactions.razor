@@ -1,0 +1,151 @@
+@page "/transactions"
+@using PiRadar.Core.Analytics
+@inject ITransactionRepository TransactionRepository
+@inject ICategoryRepository CategoryRepository
+@inject IPaymentMethodRepository PaymentMethodRepository
+@inject TransactionsViewState State
+
+<PageBar Title="Movimientos" />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <MudStack Spacing="3">
+        <PeriodSelector Value="State.Period" ValueChanged="SetPeriodAsync" />
+
+        @if (_totals.Count > 0)
+        {
+            <MudPaper Elevation="0" Outlined="true" Class="pa-3">
+                <div class="totals-grid">
+                    <span></span>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Gastos</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Ingresos</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Balance</MudText>
+                    @foreach (var totals in _totals)
+                    {
+                        <MudText Typo="Typo.subtitle2">@totals.Currency</MudText>
+                        <MudText Typo="Typo.body2" Class="money-expense">@totals.Expenses</MudText>
+                        <MudText Typo="Typo.body2" Class="money-income">@totals.Income</MudText>
+                        <MudText Typo="Typo.body2" Style="font-weight: 600">@totals.Balance</MudText>
+                    }
+                </div>
+            </MudPaper>
+        }
+
+        <MudChipSet T="string" SelectedValue="@(State.Type?.ToString() ?? AllTypes)" SelectedValueChanged="SetTypeAsync"
+                    SelectionMode="SelectionMode.SingleSelection" CheckMark="false" Color="Color.Primary" Variant="Variant.Text">
+            <MudChip T="string" Value="AllTypes" Text="Todos" id="filter-all" />
+            <MudChip T="string" Value="@nameof(TransactionType.Expense)" Text="Gastos" id="filter-expense" />
+            <MudChip T="string" Value="@nameof(TransactionType.Income)" Text="Ingresos" id="filter-income" />
+        </MudChipSet>
+
+        @if (_transactions is null)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+        }
+        else if (_transactions.Count == 0)
+        {
+            <MudStack AlignItems="AlignItems.Center" Class="py-8" Spacing="3">
+                <MudIcon Icon="@Icons.Material.Rounded.ReceiptLong" Size="Size.Large" Class="mud-text-secondary" />
+                <MudText Class="mud-text-secondary">No hay movimientos en este periodo.</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="transactions/new"
+                           StartIcon="@Icons.Material.Rounded.Add">Registrar movimiento</MudButton>
+            </MudStack>
+        }
+        else
+        {
+            @foreach (var day in _transactions.GroupBy(t => t.OccurredAt.Date))
+            {
+                <div>
+                    <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">
+                        @DateLabels.Day(day.Key, DateTime.Today)
+                    </MudText>
+                    <MudPaper Elevation="0" Outlined="true">
+                        <MudList T="Transaction" Dense="true">
+                            @foreach (var t in day)
+                            {
+                                var category = _categories.GetValueOrDefault(t.CategoryId);
+                                <MudListItem T="Transaction" Href="@($"transactions/{t.Id}")" Class="transaction-item">
+                                    <div class="d-flex align-center gap-3">
+                                        <IconAvatar Icon="@category?.Icon" Color="@category?.Color" />
+                                        <div style="min-width: 0; flex: 1">
+                                            <MudText Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">
+                                                @Title(t, category)
+                                            </MudText>
+                                            <MudText Typo="Typo.caption" Class="mud-text-secondary"
+                                                     Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block">
+                                                @Subtitle(t, category)
+                                            </MudText>
+                                        </div>
+                                        @if (t.ReceiptId is not null)
+                                        {
+                                            <MudIcon Icon="@Icons.Material.Rounded.Receipt" Size="Size.Small" Class="mud-text-secondary"
+                                                     aria-label="Con recibo" />
+                                        }
+                                        <SignedAmount Amount="t.Amount" Type="t.Type" />
+                                    </div>
+                                </MudListItem>
+                            }
+                        </MudList>
+                    </MudPaper>
+                </div>
+            }
+        }
+    </MudStack>
+</MudContainer>
+
+@code {
+    private IReadOnlyList<Transaction>? _transactions;
+    private IReadOnlyList<CurrencyTotals> _totals = [];
+    private Dictionary<int, Category> _categories = [];
+    private Dictionary<int, PaymentMethod> _paymentMethods = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Con archivados: los movimientos viejos pueden usarlos.
+        _categories = (await CategoryRepository.GetAllAsync(includeArchived: true)).ToDictionary(c => c.Id);
+        _paymentMethods = (await PaymentMethodRepository.GetAllAsync(includeArchived: true)).ToDictionary(p => p.Id);
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var all = await TransactionRepository.QueryAsync(
+            TransactionFilter.Between(State.Period.Start, State.Period.End));
+        _totals = CurrencyTotals.ByCurrency(all);
+        _transactions = State.Type is { } type ? all.Where(t => t.Type == type).ToList() : all;
+    }
+
+    private Task SetPeriodAsync(Period period)
+    {
+        State.Period = period;
+        return LoadAsync();
+    }
+
+    private const string AllTypes = "All";
+
+    private Task SetTypeAsync(string? value)
+    {
+        State.Type = Enum.TryParse<TransactionType>(value, out var type) ? type : null;
+        return LoadAsync();
+    }
+
+    private static string Title(Transaction t, Category? category) =>
+        t.Merchant ?? t.Description ?? category?.Name ?? "Sin categoría";
+
+    // Lo que no está en el título: categoría (si el título es otro), medio de pago y hora.
+    private string Subtitle(Transaction t, Category? category)
+    {
+        var parts = new List<string>();
+        if ((t.Merchant is not null || t.Description is not null) && category is not null)
+        {
+            parts.Add(category.Name);
+        }
+
+        if (t.PaymentMethodId is { } id && _paymentMethods.GetValueOrDefault(id) is { } method)
+        {
+            parts.Add(PaymentMethodText.Display(method));
+        }
+
+        parts.Add(DateLabels.Time(t.OccurredAt));
+        return string.Join(" · ", parts);
+    }
+}

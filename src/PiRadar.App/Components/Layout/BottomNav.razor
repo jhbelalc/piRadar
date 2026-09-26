@@ -43,9 +43,11 @@
 
     private string CurrentPath => Navigation.ToBaseRelativePath(Navigation.Uri).Split('?', '#')[0];
 
+    // "transactions/new" es el botón (+), no la pestaña Movimientos.
     private bool IsActive(NavItem item) => item.Href.Length == 0
         ? CurrentPath.Length == 0
-        : CurrentPath == item.Href || CurrentPath.StartsWith(item.Href + "/", StringComparison.Ordinal);
+        : CurrentPath != NavItems.NewTransaction.Href
+            && (CurrentPath == item.Href || CurrentPath.StartsWith(item.Href + "/", StringComparison.Ordinal));
 
     private bool IsMoreActive() => IsActive(NavItems.More) || NavItems.MoreItems.Any(IsActive);
 

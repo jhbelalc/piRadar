@@ -1,8 +1,8 @@
-@* Monto en formato colombiano. Interpreta con MoneyParser y reformatea al salir del campo. *@
+@* Monto en formato colombiano. Interpreta con MoneyParser y reformatea al salir del campo (el cambio llega al salir). *@
 <MudTextField T="string" @ref="_field" Label="@Label" Value="_text" ValueChanged="OnTextChanged"
               Validation="@((Func<string?, string?>)Validate)" Required="Required" RequiredError="Ingresa un monto."
               Adornment="Adornment.Start" AdornmentText="@Currency.Symbol()" InputMode="@(InputMode.@decimal)"
-              OnBlur="Reformat" Variant="Variant" Disabled="Disabled" HelperText="@HelperText" />
+              Variant="Variant" Disabled="Disabled" HelperText="@HelperText" />
 
 @code {
     private MudTextField<string>? _field;
@@ -46,6 +46,11 @@
         Money? parsed = MoneyParser.TryParse(text, Currency, out var money, out _) && (AllowZero || !money.IsZero)
             ? money
             : null;
+        if (parsed is { } valid)
+        {
+            _text = MoneyParser.FormatForInput(valid);
+        }
+
         if (parsed != _parsed)
         {
             _parsed = parsed;
@@ -72,13 +77,5 @@
         }
 
         return !AllowZero && money.IsZero ? "El monto debe ser mayor que cero." : null;
-    }
-
-    private void Reformat()
-    {
-        if (_parsed is { } money)
-        {
-            _text = MoneyParser.FormatForInput(money);
-        }
     }
 }

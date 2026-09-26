@@ -14,8 +14,8 @@ public sealed record NavItem(string Label, string Icon, string Href, bool Enable
 public static class NavItems
 {
     public static NavItem Home { get; } = new("Inicio", Icons.Material.Rounded.Home, "");
-    public static NavItem Transactions { get; } = new("Movimientos", Icons.Material.Rounded.ReceiptLong, "transactions", Enabled: false);
-    public static NavItem NewTransaction { get; } = new("Nuevo", Icons.Material.Rounded.Add, "transactions/new", Enabled: false);
+    public static NavItem Transactions { get; } = new("Movimientos", Icons.Material.Rounded.ReceiptLong, "transactions");
+    public static NavItem NewTransaction { get; } = new("Nuevo", Icons.Material.Rounded.Add, "transactions/new");
     public static NavItem Analytics { get; } = new("Análisis", Icons.Material.Rounded.Insights, "analytics", Enabled: false);
     public static NavItem More { get; } = new("Más", Icons.Material.Rounded.Menu, "more");
 

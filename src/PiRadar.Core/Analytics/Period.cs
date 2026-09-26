@@ -1,3 +1,5 @@
+using PiRadar.Core.Domain;
+
 namespace PiRadar.Core.Analytics;
 
 public enum PeriodGranularity
@@ -14,19 +16,6 @@ public enum PeriodGranularity
 /// </summary>
 public readonly record struct Period
 {
-    // Nombres fijos: ICU cambia entre plataformas ("sept." en unas, "sep" en otras).
-    private static readonly string[] MonthNames =
-    [
-        "enero", "febrero", "marzo", "abril", "mayo", "junio",
-        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre",
-    ];
-
-    private static readonly string[] MonthAbbreviations =
-        ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-
-    private static readonly string[] DayNames =
-        ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
-
     private Period(PeriodGranularity granularity, DateTime start)
     {
         Granularity = granularity;
@@ -76,9 +65,9 @@ public readonly record struct Period
     /// <summary>Etiqueta en español: "jueves 25 sep 2026", "22 – 28 sep 2026", "Septiembre 2026", "2026".</summary>
     public string Label => Granularity switch
     {
-        PeriodGranularity.Day => $"{DayNames[(int)Start.DayOfWeek]} {Start.Day} {Abbrev(Start)} {Start.Year}",
+        PeriodGranularity.Day => $"{DateLabels.DayName(Start.DayOfWeek)} {DateLabels.Short(Start)}",
         PeriodGranularity.Week => WeekLabel(),
-        PeriodGranularity.Month => $"{Capitalize(MonthNames[Start.Month - 1])} {Start.Year}",
+        PeriodGranularity.Month => $"{Capitalize(DateLabels.MonthName(Start.Month))} {Start.Year}",
         _ => Start.Year.ToString(System.Globalization.CultureInfo.InvariantCulture),
     };
 
@@ -87,15 +76,13 @@ public readonly record struct Period
         var last = End.AddDays(-1);
         if (Start.Year != last.Year)
         {
-            return $"{Start.Day} {Abbrev(Start)} {Start.Year} – {last.Day} {Abbrev(last)} {last.Year}";
+            return $"{DateLabels.Short(Start)} – {DateLabels.Short(last)}";
         }
 
         return Start.Month == last.Month
-            ? $"{Start.Day} – {last.Day} {Abbrev(last)} {last.Year}"
-            : $"{Start.Day} {Abbrev(Start)} – {last.Day} {Abbrev(last)} {last.Year}";
+            ? $"{Start.Day} – {DateLabels.Short(last)}"
+            : $"{Start.Day} {DateLabels.MonthAbbreviation(Start.Month)} – {DateLabels.Short(last)}";
     }
-
-    private static string Abbrev(DateTime date) => MonthAbbreviations[date.Month - 1];
 
     private static string Capitalize(string text) => char.ToUpperInvariant(text[0]) + text[1..];
 }

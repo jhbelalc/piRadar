@@ -9,6 +9,12 @@ public interface ITransactionRepository
     Task<IReadOnlyList<Transaction>> QueryAsync(TransactionFilter filter);
 
     /// <summary>
+    /// Comercios usados antes, sin repetir (sin distinguir mayúsculas), del uso más reciente al más antiguo.
+    /// Para autocompletar el campo al registrar un movimiento.
+    /// </summary>
+    Task<IReadOnlyList<string>> GetRecentMerchantsAsync(int take = 200);
+
+    /// <summary>
     /// Guarda un movimiento manual. Genera el <c>Id</c> si viene vacío y fija <c>CreatedAt</c>/<c>UpdatedAt</c>.
     /// Devuelve el movimiento tal como quedó guardado.
     /// </summary>
