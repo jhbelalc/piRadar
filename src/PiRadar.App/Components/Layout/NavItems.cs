@@ -25,7 +25,7 @@ public static class NavItems
         new("Categorías", Icons.Material.Rounded.Category, "categories"),
         new("Medios de pago", Icons.Material.Rounded.CreditCard, "payment-methods"),
         new("Tasas de cambio", Icons.Material.Rounded.CurrencyExchange, "exchange-rates"),
-        new("Respaldo", Icons.Material.Rounded.CloudUpload, "backup", Enabled: false),
+        new("Respaldo", Icons.Material.Rounded.CloudUpload, "backup"),
         new("Ajustes", Icons.Material.Rounded.Settings, "settings"),
     ];
 }

@@ -264,6 +264,9 @@ Generated_Code/
 # because we have git ;-)
 _UpgradeReport_Files/
 Backup*/
+# ...pero no las carpetas de código del respaldo cifrado de piRadar (la regla de arriba es para las copias de VS).
+!src/**/Backup/
+!tests/**/Backup/
 UpgradeLog*.XML
 UpgradeLog*.htm
 ServiceFabricBackup/

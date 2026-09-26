@@ -1,0 +1,214 @@
+@page "/backup"
+@using Microsoft.Extensions.Logging
+@using PiRadar.Core.Backup
+@inject IBackupService BackupService
+@inject ISettingsRepository SettingsRepository
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+@inject ThemeState ThemeState
+@inject NavigationManager Navigation
+@inject ILogger<Backup> Logger
+
+<PageBar Title="Respaldo" BackHref="more" />
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="page-content">
+    <MudStack Spacing="3">
+        <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+            <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start">
+                <MudIcon Icon="@Icons.Material.Rounded.Lock" Color="Color.Primary" />
+                <div>
+                    <MudText Typo="Typo.subtitle1">Respaldo cifrado</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                        Un archivo <b>.piradar</b> con todos tus movimientos, categorías, medios de pago, tasas y fotos
+                        de recibos, cifrado con una contraseña que eliges. Guárdalo donde quieras (Drive, correo, tu
+                        computador) y restáuralo en este u otro teléfono. Sin la contraseña no se puede abrir.
+                    </MudText>
+                </div>
+            </MudStack>
+        </MudPaper>
+
+        <MudText Typo="Typo.body2" Class="mud-text-secondary ml-1" id="last-backup">
+            @(_lastBackup is { } last ? $"Último respaldo: {DateLabels.Day(last.ToLocalTime(), DateTime.Today)} {last.ToLocalTime():HH:mm}" : "Aún no has hecho ningún respaldo.")
+        </MudText>
+
+        <MudButton id="backup-export" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                   StartIcon="@Icons.Material.Rounded.CloudUpload" OnClick="ExportAsync" Disabled="_busy">Crear respaldo</MudButton>
+        <MudButton id="backup-import" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                   StartIcon="@Icons.Material.Rounded.SettingsBackupRestore" OnClick="PickAndRestoreAsync" Disabled="_busy">
+            Restaurar un respaldo
+        </MudButton>
+        @if (BuildInfo.IsDebug && File.Exists(DebugBackupPath))
+        {
+            <MudButton id="debug-backup" Variant="Variant.Text" FullWidth="true" OnClick="RestoreDebugFileAsync" Disabled="_busy">
+                Restaurar archivo de prueba (Debug)
+            </MudButton>
+        }
+
+        @if (_busy)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+        }
+
+        <MudAlert Severity="Severity.Warning" Dense="true" Icon="@Icons.Material.Rounded.Warning">
+            Restaurar reemplaza <b>todos</b> los datos de este teléfono por los del respaldo.
+        </MudAlert>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private DateTime? _lastBackup;
+    private bool _busy;
+
+    /// <summary>Solo Debug: respaldo copiado con adb/simctl para probar la restauración sin el selector de archivos.</summary>
+    private static string DebugBackupPath => Path.Combine(FileSystem.AppDataDirectory, "backup-in" + BackupCrypto.FileExtension);
+
+    protected override async Task OnInitializedAsync()
+    {
+        DeleteExportedFiles();
+        _lastBackup = await SettingsRepository.GetLastBackupAtAsync();
+    }
+
+    private async Task ExportAsync()
+    {
+        var dialog = await Dialogs.ShowAsync<BackupPasswordDialog>("Crear respaldo", DialogExtensions.FormOptions);
+        if (await dialog.Result is not { Canceled: false, Data: byte[] file })
+        {
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            // El archivo queda en la caché mientras se comparte (está cifrado igual); se borra en una próxima visita.
+            var path = Path.Combine(FileSystem.CacheDirectory, $"piradar-{DateTime.Now:yyyy-MM-dd-HHmm}{BackupCrypto.FileExtension}");
+            await File.WriteAllBytesAsync(path, file);
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "Respaldo de piRadar",
+                File = new ShareFile(path, "application/octet-stream"),
+            });
+
+            _lastBackup = DateTime.UtcNow;
+            await SettingsRepository.SetLastBackupAtAsync(_lastBackup.Value);
+            Snackbar.Add("Respaldo creado. Guárdalo en un lugar seguro junto con su contraseña.", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "No se pudo compartir el respaldo");
+            Snackbar.Add("No se pudo guardar el respaldo. Intenta de nuevo.", Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task PickAndRestoreAsync()
+    {
+        FileResult? picked;
+        try
+        {
+            // .piradar no es un tipo conocido por el sistema: se aceptan todos y el formato se valida al abrir.
+            picked = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = "Elige el respaldo (.piradar)",
+                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    [DevicePlatform.Android] = ["*/*"],
+                    [DevicePlatform.iOS] = ["public.data"],
+                }),
+            });
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Falló el selector de archivos");
+            Snackbar.Add("No se pudo abrir el selector de archivos.", Severity.Error);
+            return;
+        }
+
+        if (picked is null)
+        {
+            return;
+        }
+
+        byte[] file;
+        await using (var stream = await picked.OpenReadAsync())
+        using (var memory = new MemoryStream())
+        {
+            await stream.CopyToAsync(memory);
+            file = memory.ToArray();
+        }
+
+        await RestoreAsync(file);
+    }
+
+    private async Task RestoreDebugFileAsync() => await RestoreAsync(await File.ReadAllBytesAsync(DebugBackupPath));
+
+    private async Task RestoreAsync(byte[] file)
+    {
+        var parameters = new DialogParameters<BackupPasswordDialog> { { d => d.File, file } };
+        var dialog = await Dialogs.ShowAsync<BackupPasswordDialog>("Restaurar respaldo", parameters, DialogExtensions.FormOptions);
+        if (await dialog.Result is not { Canceled: false, Data: BackupContents contents })
+        {
+            return;
+        }
+
+        if (!await Dialogs.ConfirmAsync("¿Reemplazar todos los datos?", Describe(contents.Summary), "Reemplazar"))
+        {
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            await BackupService.RestoreAsync(contents);
+            await ThemeState.LoadAsync();
+            Snackbar.Add("Respaldo restaurado.", Severity.Success);
+            Navigation.NavigateTo("");
+        }
+        catch (Exception ex)
+        {
+            // La restauración es una sola transacción: si falla, los datos anteriores quedan intactos.
+            Logger.LogError(ex, "Falló la restauración del respaldo");
+            Snackbar.Add("No se pudo restaurar el respaldo. Tus datos no cambiaron.", Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private static string Describe(BackupSummary summary)
+    {
+        var created = summary.CreatedAt.ToLocalTime();
+        var movements = summary.TransactionCount == 1 ? "1 movimiento" : $"{summary.TransactionCount} movimientos";
+        var range = summary is { FirstTransaction: { } first, LastTransaction: { } last }
+            ? $" (del {DateLabels.Short(first)} al {DateLabels.Short(last)})"
+            : "";
+        var receipts = summary.ReceiptCount == 1 ? "1 recibo" : $"{summary.ReceiptCount} recibos";
+        return $"El respaldo del {DateLabels.Short(created)} a las {created:HH:mm} tiene {movements}{range} y {receipts}. " +
+            "Todo lo que hay ahora en este teléfono se borra y se reemplaza. No se puede deshacer.";
+    }
+
+    /// <summary>
+    /// Borra de la caché los respaldos creados hace más de una hora: la app que lo recibió (p. ej. Drive) puede seguir
+    /// leyéndolo en segundo plano un rato después de compartir.
+    /// </summary>
+    private static void DeleteExportedFiles()
+    {
+        foreach (var old in Directory.EnumerateFiles(FileSystem.CacheDirectory, "*" + BackupCrypto.FileExtension))
+        {
+            try
+            {
+                if (File.GetLastWriteTimeUtc(old) < DateTime.UtcNow.AddHours(-1))
+                {
+                    File.Delete(old);
+                }
+            }
+            catch (IOException)
+            {
+                // Otra app puede estar leyéndolo todavía; se intenta la próxima vez.
+            }
+        }
+    }
+}

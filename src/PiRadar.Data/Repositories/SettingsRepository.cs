@@ -45,6 +45,9 @@ internal sealed class SettingsRepository(DatabaseHost host) : RepositoryBase(hos
             : null;
     }
 
-    public Task SetLastBackupAtAsync(DateTime utc) =>
-        SetAsync(AppSettingKeys.LastBackupAt, RecordMapping.ToUtcForStorage(utc).ToString("O", CultureInfo.InvariantCulture));
+    public Task SetLastBackupAtAsync(DateTime utc) => SetAsync(AppSettingKeys.LastBackupAt, FormatBackupDate(utc));
+
+    /// <summary>Formato ISO 8601 en UTC con que se guarda <see cref="AppSettingKeys.LastBackupAt"/>.</summary>
+    internal static string FormatBackupDate(DateTime utc) =>
+        RecordMapping.ToUtcForStorage(utc).ToString("O", CultureInfo.InvariantCulture);
 }

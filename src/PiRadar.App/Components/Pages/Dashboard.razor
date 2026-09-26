@@ -1,8 +1,10 @@
 @page "/"
 @using PiRadar.Core.Analytics
+@using PiRadar.Core.Backup
 @inject ITransactionRepository TransactionRepository
 @inject ICategoryRepository CategoryRepository
 @inject IPaymentMethodRepository PaymentMethodRepository
+@inject ISettingsRepository SettingsRepository
 @inject TransactionsViewState TransactionsState
 @inject NavigationManager Navigation
 
@@ -41,6 +43,16 @@
         }
         else
         {
+            @if (_backupDue)
+            {
+                <MudAlert Severity="Severity.Info" Dense="true" Icon="@Icons.Material.Rounded.CloudUpload" id="backup-reminder">
+                    @(_lastBackup is { } last
+                        ? $"Tu último respaldo es del {DateLabels.Short(last.ToLocalTime())}."
+                        : "Aún no has hecho un respaldo de tus datos.")
+                    <MudLink Href="backup" Typo="Typo.body2">Hacer respaldo</MudLink>
+                </MudAlert>
+            }
+
             @if (_totals.Count == 0)
             {
                 <MudPaper Class="pa-4" Elevation="0" Outlined="true">
@@ -130,6 +142,8 @@
     private IReadOnlyList<ExpenseComparison> _comparisons = [];
     private List<(Currency Currency, IReadOnlyList<ShareRow> Shares)> _shares = [];
     private string _previousLabel = "";
+    private DateTime? _lastBackup;
+    private bool _backupDue;
     private Dictionary<int, Category> _categories = [];
     private Dictionary<int, PaymentMethod> _paymentMethods = [];
 
@@ -153,6 +167,8 @@
             .ToList();
 
         _recent = await TransactionRepository.QueryAsync(new TransactionFilter { Take = RecentCount });
+        _lastBackup = await SettingsRepository.GetLastBackupAtAsync();
+        _backupDue = BackupReminder.IsDue(_lastBackup, DateTime.UtcNow);
     }
 
     /// <summary>"1–26 ago", "1 ago" o, para el mes completo, "mes de agosto".</summary>

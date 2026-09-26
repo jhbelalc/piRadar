@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using PiRadar.Core.Abstractions;
+using PiRadar.Data.Backup;
 using PiRadar.Data.Repositories;
 
 namespace PiRadar.Data;
@@ -20,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IReceiptRepository, ReceiptRepository>();
         services.AddSingleton<IExchangeRateRepository, ExchangeRateRepository>();
         services.AddSingleton<ISettingsRepository, SettingsRepository>();
+        services.AddSingleton<IBackupService, BackupService>();
         return services;
     }
 }

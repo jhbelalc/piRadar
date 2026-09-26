@@ -41,6 +41,7 @@ Simuladores/emuladores probados en este Mac Intel:
 - Android: AVD `piRadar_API35` (android-35, google_apis, x86_64). Instalar: `dotnet build src/PiRadar.App -f net10.0-android -t:Install`.
   - Arrancar con `emulator -avd piRadar_API35 -gpu swiftshader_indirect -no-audio`: con la GPU del host, `adb exec-out screencap` da capturas negras.
   - El emulador en este Mac es inestable: el stack de Bluetooth se cae en bucle y aparece "System UI isn't responding", que se come los toques de `adb shell input tap`. `uiautomator dump` no funciona. Para verificar, que la app escriba un archivo en `AppDataDirectory` y leerlo con `run-as`.
+  - **Debug en Android corre con el intérprete de Mono** (`UseInterpreter=true`; Release usa AOT): el código de cálculo intenso es 10–30× más lento (crear un respaldo tarda ~90 s). Medir rendimiento solo en Release (`-c Release`, `adb install -r bin/Release/.../*-Signed.apk`; misma firma, conserva los datos, pero sin `run-as`).
   - Los logs de `ILogger` (proveedor Debug) no aparecen en logcat ni en la consola del simulador. En Debug, advertencias y errores van a `AppDataDirectory/app-log.txt` (`FileLoggerProvider`).
 - El primer arranque en el simulador iOS tarda varios minutos (pantalla en blanco); no es un error.
 - **Probar el escaneo sin cámara** (solo Debug): copiar una foto de recibo como `scan-in.jpg` en `AppDataDirectory` (Android: `adb push` a `/data/local/tmp` y `run-as ... sh -c 'cat ... > files/scan-in.jpg'`) y usar el botón "Foto de prueba (Debug)" de `/scan` (`click #debug-photo`, luego `waitfor location.search.includes('scan=1')`). Las fotos del usuario están en `~/Desarrollos/Recibos/`: nunca copiarlas al repo. En el emulador Debug el primer OCR tarda minutos (verificación de clases de ML Kit + render por software); si la app deja de arrancar tras horas de uso, reiniciar el emulador en frío (`adb emu kill`, `-no-snapshot-load`).
@@ -68,7 +69,8 @@ piRadar/
 │  │  ├─ Components/Shared/     # PageBar, MoneyInput, CategoryPicker, PaymentMethodPicker, PeriodSelector, CurrencyToggle,
 │  │  │                         # IconAvatar, IconPicker, ColorSwatches, TransactionListItem, SignedAmount, ShareList, BarChart
 │  │  ├─ Services/              # DatabaseKeyProvider, PluginOcrService, ImageOrientation, AppTheme, ThemeState, IconCatalog,
-│  │  │                         # SpanishMudLocalizer, OcrLab/UiScript/FileLoggerProvider (Debug), CameraService, BackupFileService
+│  │  │                         # SpanishMudLocalizer, OcrLab/UiScript/FileLoggerProvider (Debug), ReceiptPhoto, ScanState,
+│  │  │                         # TransactionsViewState, AnalyticsViewState, ChartFormat
 │  │  ├─ Platforms/Android/     # allowBackup=false
 │  │  ├─ Platforms/iOS/         # exclusión de backup de la BD
 │  │  └─ MauiProgram.cs         # DI, MudBlazor, Batteries_V2.Init(), inicialización BD
@@ -138,10 +140,13 @@ Versión de esquema en `PRAGMA user_version`.
 - Las barras son `BarChart` (HTML/CSS): el gráfico de barras de `MudChart` se aplasta en el WebView de iOS (el área de dibujo queda arriba y el eje X muy abajo, también con `MatchBoundsToSize`). La dona de `MudChart` sí funciona en ambas plataformas.
 
 ## Respaldo exportable/importable
-- Archivo `.piradar`: cabecera `PIRADAR` + versión de formato + versión de esquema + salt (16 B) + iteraciones + nonce (12 B); cuerpo = JSON de todas las tablas (imágenes en base64), comprimido con GZip y cifrado con **AES-256-GCM**. Clave derivada de la contraseña del usuario con **PBKDF2-SHA256** (≥ 600 000 iteraciones). Solo `System.Security.Cryptography`.
-- Es independiente de la clave de la BD, así que se puede restaurar en otro dispositivo.
-- **Exportar**: contraseña + confirmación (mín. 8 caracteres) → archivo en caché → `Share.RequestAsync`. Guarda la fecha en `AppSetting`; recordatorio si pasan > 30 días sin respaldo.
-- **Importar**: `FilePicker` → contraseña → descifrar (tag GCM inválido ⇒ "contraseña incorrecta o archivo dañado") → validar versión de esquema (migrar si es anterior, rechazar si es más nueva) → confirmación explícita "reemplaza todos los datos" → reemplazo total en una transacción.
+- Archivo `.piradar` (`BackupCrypto`, Core): `PIRADAR` (7 B) + versión de formato (1 B) + versión de esquema (int32) + iteraciones (int32) + salt (16 B) + nonce (12 B) + cuerpo cifrado con **AES-256-GCM** + tag (16 B); la cabecera va como datos asociados (si se altera, el tag no cuadra). Cuerpo = JSON de todas las tablas (`{app, schemaVersion, createdAt, tables: {Tabla: {columns, rows}}}`, BLOB en base64) comprimido con GZip. Clave: **PBKDF2-SHA256** con 600 000 iteraciones sobre la contraseña en UTF-8 normalizada a NFC (el mismo texto con tildes llega distinto según el teclado).
+  - En **Android** PBKDF2 es la implementación propia `Pbkdf2Sha256` (código `unsafe`, por eso `AllowUnsafeBlocks` en Core): la del sistema pasa cada HMAC por Java (~12 s en el emulador en Release, contra ~2,7 s la propia). En iOS se usa `Rfc2898DeriveBytes` (CommonCrypto). Los tests verifican que ambas dan lo mismo (vectores de RFC 7914 y comparación con .NET).
+  - AES-GCM nativo de Android **aborta el proceso** (SIGABRT en `CipherUpdate`) con cuerpo vacío: `BackupCrypto` no cifra cuerpos vacíos y rechaza archivos sin bytes cifrados.
+- Es independiente de la clave de la BD, así que se puede restaurar en otro dispositivo (probado Android ↔ iOS).
+- **Exportar** (`BackupService`, Data): lee todas las tablas en una transacción (`TableDump`, SQL genérico, sin records) → JSON → GZip → cifrado → archivo en la caché → `Share.RequestAsync`. Luego guarda `LastBackupAt`. Los `.piradar` de la caché se borran al volver a la página si tienen más de 1 hora (la app que lo recibió puede seguir leyéndolo). Recordatorio en Inicio si no hay respaldo o pasaron > 30 días (`BackupReminder`).
+- **Importar**: `FilePicker` (todos los tipos; se valida al abrir) → contraseña → descifrar (tag inválido ⇒ "Contraseña incorrecta o archivo dañado.") → versión de esquema más nueva ⇒ rechazo → se recrea el esquema de esa versión en una BD **en memoria** (`Migrator.MigrateTo`), se cargan las filas con las claves foráneas validadas y se aplican las mismas migraciones que a la BD real → resumen (movimientos, fechas, recibos) y confirmación "Reemplazar" → borrado y carga en **una transacción** (`defer_foreign_keys`), con `LastBackupAt` = fecha del respaldo restaurado. Nombres de tabla y columna del archivo se validan contra el esquema antes de armar el SQL.
+- Probar sin selector de archivos (solo Debug): copiar el archivo como `backup-in.piradar` en `AppDataDirectory` y usar "Restaurar archivo de prueba (Debug)" (`#debug-backup`).
 
 ## Convenciones
 - Identificadores de código en inglés; textos de UI en español con cultura `es-CO`.
