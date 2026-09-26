@@ -66,7 +66,7 @@ piRadar/
 │  │  ├─ Components/Pages/      # Dashboard, Transactions, TransactionEdit, ScanReceipt, Categories,
 │  │  │                         # PaymentMethods, Analytics, ExchangeRates, Backup, Settings
 │  │  ├─ Components/Shared/     # PageBar, MoneyInput, CategoryPicker, PaymentMethodPicker, PeriodSelector, CurrencyToggle,
-│  │  │                         # IconAvatar, IconPicker, ColorSwatches
+│  │  │                         # IconAvatar, IconPicker, ColorSwatches, TransactionListItem, SignedAmount
 │  │  ├─ Services/              # DatabaseKeyProvider, PluginOcrService, ImageOrientation, AppTheme, ThemeState, IconCatalog,
 │  │  │                         # SpanishMudLocalizer, OcrLab/UiScript/FileLoggerProvider (Debug), CameraService, BackupFileService
 │  │  ├─ Platforms/Android/     # allowBackup=false
@@ -131,6 +131,8 @@ piRadar/
 Versión de esquema en `PRAGMA user_version`.
 
 **Flujo OCR**: `/scan` (`MediaPicker`: cámara o galería; la foto de la caché se borra al leerla) → `ReceiptPhoto.Prepare` (orientada, lado mayor 1600 px, JPEG 80 %) → `IOcrService.RecognizeAsync` (foto completa) → `ReceiptParser` → `ScanState` (solo en memoria) → `TransactionEdit?scan=1` pre-llenado, con chips de otros totales y comercios y avisos si el total no cuadró o no hay fecha. Si el NIT ya se escaneó, `GetLatestForTaxIdAsync` propone el comercio y la categoría de la última vez (`MerchantSuggestions.Combine`) → confirmación del usuario → `ITransactionRepository.AddWithReceiptAsync` (`Receipt` con las filas en `OcrText` + `ReceiptImage` + `Transactions`, en una sola transacción de BD). Permisos: `CAMERA` (y `READ_EXTERNAL_STORAGE` hasta API 32) en Android; `NSCameraUsageDescription` y `NSPhotoLibraryUsageDescription` en iOS.
+
+**Inicio** (`Dashboard`): mes en curso con totales por moneda (`CurrencyTotals`), variación del gasto frente al mismo tramo del mes anterior (`ExpenseComparison`: del 1 al día de hoy), "En qué gastas" por categoría principal (`CategoryShare`, las subcategorías suman en su padre; top 4 + "Otras") y los últimos 5 movimientos.
 
 **Análisis**: `SpendingAnalyzer` agrega en memoria por día/semana/mes/año, categoría y medio de pago; series por moneda y consolidada opcional. Gráficos con `MudChart`.
 

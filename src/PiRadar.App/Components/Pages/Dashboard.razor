@@ -1,28 +1,225 @@
 @page "/"
+@using PiRadar.Core.Analytics
+@inject ITransactionRepository TransactionRepository
+@inject ICategoryRepository CategoryRepository
+@inject IPaymentMethodRepository PaymentMethodRepository
+@inject TransactionsViewState TransactionsState
+@inject NavigationManager Navigation
 
 <PageBar Title="piRadar" />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
     <MudStack Spacing="3">
-        <MudPaper Class="pa-4" Elevation="0" Outlined="true">
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                <MudIcon Icon="@Icons.Material.Rounded.Radar" Color="Color.Primary" Style="font-size: 2.5rem" />
-                <div>
-                    <MudText Typo="Typo.h6">Hola</MudText>
-                    <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                        Aquí verás el resumen de tus gastos e ingresos del mes. Tus datos se guardan cifrados solo en este dispositivo.
-                    </MudText>
-                </div>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Wrap="Wrap.Wrap">
+            <MudText Typo="Typo.h6" id="dashboard-period">@_month.Label</MudText>
+            <MudStack Row="true" Spacing="2">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="transactions/new"
+                           StartIcon="@Icons.Material.Rounded.Add">Registrar</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" Href="scan"
+                           StartIcon="@Icons.Material.Rounded.DocumentScanner">Escanear</MudButton>
             </MudStack>
-        </MudPaper>
-        <MudText Typo="Typo.subtitle2" Class="mud-text-secondary">Para empezar, revisa</MudText>
-        <MudPaper Elevation="0" Outlined="true">
-            <MudList T="string">
-                @foreach (var item in NavItems.MoreItems.Where(i => i.Enabled && i.Href != "settings"))
-                {
-                    <MudListItem T="string" Href="@item.Href" Icon="@item.Icon" Text="@item.Label" />
-                }
-            </MudList>
-        </MudPaper>
+        </MudStack>
+
+        @if (_recent is null)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+        }
+        else if (_recent.Count == 0)
+        {
+            <MudPaper Class="pa-4" Elevation="0" Outlined="true" id="dashboard-welcome">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                    <MudIcon Icon="@Icons.Material.Rounded.Radar" Color="Color.Primary" Style="font-size: 2.5rem" />
+                    <div>
+                        <MudText Typo="Typo.h6">Hola</MudText>
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                            Registra tu primer gasto o ingreso, o escanea un recibo. Aquí verás el resumen del mes.
+                            Tus datos se guardan cifrados solo en este dispositivo.
+                        </MudText>
+                    </div>
+                </MudStack>
+            </MudPaper>
+        }
+        else
+        {
+            @if (_totals.Count == 0)
+            {
+                <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+                    <MudText Class="mud-text-secondary">No hay movimientos este mes.</MudText>
+                </MudPaper>
+            }
+            else
+            {
+                <MudGrid Spacing="3">
+                    @foreach (var totals in _totals)
+                    {
+                        var comparison = _comparisons.FirstOrDefault(c => c.Currency == totals.Currency);
+                        <MudItem xs="12" sm="@(_totals.Count > 1 ? 6 : 12)">
+                            <MudPaper Class="pa-4" Elevation="0" Outlined="true" id="@($"summary-{totals.Currency}")">
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">Gastos del mes · @totals.Currency</MudText>
+                                <MudText Typo="Typo.h5" Class="money-expense" Style="font-variant-numeric: tabular-nums">
+                                    @totals.Expenses
+                                </MudText>
+                                @if (comparison?.Change is { } change)
+                                {
+                                    <MudText Typo="Typo.caption" Class="@(change > 0 ? "money-expense" : "money-income")">
+                                        @(change > 0 ? "▲" : change < 0 ? "▼" : "=") @Math.Abs(change).ToString("P0")
+                                        <span class="mud-text-secondary">frente al @_previousLabel</span>
+                                    </MudText>
+                                }
+                                <MudDivider Class="my-3" />
+                                <div class="d-flex justify-space-between gap-3">
+                                    <div>
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Ingresos</MudText>
+                                        <MudText Typo="Typo.body2" Class="money-income" Style="font-variant-numeric: tabular-nums">
+                                            @totals.Income
+                                        </MudText>
+                                    </div>
+                                    <div style="text-align: right">
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Balance</MudText>
+                                        <MudText Typo="Typo.body2" Style="font-weight: 600; font-variant-numeric: tabular-nums">
+                                            @totals.Balance
+                                        </MudText>
+                                    </div>
+                                </div>
+                            </MudPaper>
+                        </MudItem>
+                    }
+                </MudGrid>
+            }
+
+            @foreach (var (currency, shares) in _shares)
+            {
+                <div id="@($"categories-{currency}")">
+                    <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">
+                        En qué gastas@(_shares.Count > 1 ? $" · {currency}" : "")
+                    </MudText>
+                    <MudPaper Elevation="0" Outlined="true" Class="pa-3">
+                        <MudStack Spacing="3">
+                            @foreach (var share in shares)
+                            {
+                                var category = share.CategoryId is { } id ? _categories.GetValueOrDefault(id) : null;
+                                <div class="d-flex align-center gap-3">
+                                    <IconAvatar Icon="@(category?.Icon ?? "more_horiz")" Color="@(category?.Color ?? OtherColor)" Size="Size.Small" />
+                                    <div style="min-width: 0; flex: 1">
+                                        <div class="d-flex justify-space-between gap-2">
+                                            <MudText Typo="Typo.body2" Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">
+                                                @(category?.Name ?? (share.CategoryId is null ? "Otras" : "Sin categoría"))
+                                            </MudText>
+                                            <MudText Typo="Typo.body2" Style="white-space: nowrap; font-variant-numeric: tabular-nums">
+                                                @share.Total
+                                                <span class="mud-text-secondary">· @share.Share.ToString("P0")</span>
+                                            </MudText>
+                                        </div>
+                                        <div class="category-track mt-1">
+                                            <div class="category-fill" style="@BarStyle(share, category)"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </MudStack>
+                    </MudPaper>
+                </div>
+            }
+
+            <div>
+                <div class="d-flex align-center justify-space-between">
+                    <MudText Typo="Typo.subtitle2" Class="mud-text-secondary ml-1">Últimos movimientos</MudText>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="ShowAll" id="dashboard-all">
+                        Ver todos
+                    </MudButton>
+                </div>
+                <MudPaper Elevation="0" Outlined="true">
+                    <MudList T="Transaction" Dense="true">
+                        @foreach (var t in _recent)
+                        {
+                            <TransactionListItem Transaction="t" Category="_categories.GetValueOrDefault(t.CategoryId)"
+                                                 PaymentMethod="PaymentMethodOf(t)" ShowDay="true" />
+                        }
+                    </MudList>
+                </MudPaper>
+            </div>
+        }
     </MudStack>
 </MudContainer>
+
+@code {
+    private const int TopCategories = 5;
+    private const int RecentCount = 5;
+
+    /// <summary>Gris de "Otras" (el mismo de la categoría "Otros gastos" de la semilla).</summary>
+    private const string OtherColor = "#757575";
+
+    private readonly Period _month = Period.Containing(DateTime.Today, PeriodGranularity.Month);
+    private IReadOnlyList<Transaction>? _recent;
+    private IReadOnlyList<CurrencyTotals> _totals = [];
+    private IReadOnlyList<ExpenseComparison> _comparisons = [];
+    private List<(Currency Currency, List<ShareRow> Shares)> _shares = [];
+    private string _previousLabel = "";
+    private Dictionary<int, Category> _categories = [];
+    private Dictionary<int, PaymentMethod> _paymentMethods = [];
+
+    /// <summary>Fila de "En qué gastas"; <c>CategoryId</c> <c>null</c> = el resto sumado ("Otras").</summary>
+    private sealed record ShareRow(int? CategoryId, Money Total, decimal Share);
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Con archivados: los movimientos viejos pueden usarlos.
+        _categories = (await CategoryRepository.GetAllAsync(includeArchived: true)).ToDictionary(c => c.Id);
+        _paymentMethods = (await PaymentMethodRepository.GetAllAsync(includeArchived: true)).ToDictionary(p => p.Id);
+
+        var now = DateTime.Now;
+        var (previousStart, previousEnd) = ExpenseComparison.PreviousSpan(_month, now);
+        _previousLabel = SpanLabel(previousStart, previousEnd);
+
+        var twoMonths = await TransactionRepository.QueryAsync(TransactionFilter.Between(previousStart, _month.End));
+        var month = twoMonths.Where(t => _month.Contains(t.OccurredAt)).ToList();
+        _totals = CurrencyTotals.ByCurrency(month);
+        _comparisons = ExpenseComparison.ByCurrency(twoMonths, _month, now);
+        _shares = _totals
+            .Where(t => !t.Expenses.IsZero)
+            .Select(t => (t.Currency, Top(CategoryShare.Expenses(month, t.Currency, _categories))))
+            .ToList();
+
+        _recent = await TransactionRepository.QueryAsync(new TransactionFilter { Take = RecentCount });
+    }
+
+    /// <summary>Las primeras categorías y, si hay más, una fila "Otras" con el resto.</summary>
+    private static List<ShareRow> Top(IReadOnlyList<CategoryShare> shares)
+    {
+        if (shares.Count <= TopCategories)
+        {
+            return shares.Select(s => new ShareRow(s.CategoryId, s.Total, s.Share)).ToList();
+        }
+
+        var top = shares.Take(TopCategories - 1).Select(s => new ShareRow(s.CategoryId, s.Total, s.Share)).ToList();
+        var rest = shares.Skip(TopCategories - 1).ToList();
+        top.Add(new ShareRow(null, new Money(rest.Sum(s => s.Total.AmountMinor), rest[0].Total.Currency), rest.Sum(s => s.Share)));
+        return top;
+    }
+
+    /// <summary>"1–26 ago", "1 ago" o, para el mes completo, "mes de agosto".</summary>
+    private static string SpanLabel(DateTime start, DateTime end)
+    {
+        var last = end.AddDays(-1);
+        if (end == start.AddMonths(1))
+        {
+            return $"mes de {DateLabels.MonthName(start.Month)}";
+        }
+
+        var month = DateLabels.MonthAbbreviation(last.Month);
+        return last.Day == start.Day ? $"{start.Day} {month}" : $"{start.Day}–{last.Day} {month}";
+    }
+
+    private static string BarStyle(ShareRow share, Category? category) =>
+        FormattableString.Invariant($"width: {share.Share * 100:0.#}%; background-color: {category?.Color ?? OtherColor}");
+
+    private PaymentMethod? PaymentMethodOf(Transaction t) =>
+        t.PaymentMethodId is { } id ? _paymentMethods.GetValueOrDefault(id) : null;
+
+    private void ShowAll()
+    {
+        TransactionsState.Period = _month;
+        TransactionsState.Type = null;
+        Navigation.NavigateTo("transactions");
+    }
+}

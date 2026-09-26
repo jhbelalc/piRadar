@@ -1,0 +1,69 @@
+@* Fila de un movimiento en una MudList: ícono de la categoría, título, detalle y monto con signo. *@
+<MudListItem T="Transaction" Href="@($"transactions/{Transaction.Id}")">
+    <div class="d-flex align-center gap-3">
+        <IconAvatar Icon="@Category?.Icon" Color="@Category?.Color" />
+        <div style="min-width: 0; flex: 1">
+            <MudText Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">@Title</MudText>
+            <MudText Typo="Typo.caption" Class="mud-text-secondary"
+                     Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block">
+                @Subtitle
+            </MudText>
+        </div>
+        @if (Transaction.ReceiptId is not null)
+        {
+            <MudIcon Icon="@Icons.Material.Rounded.Receipt" Size="Size.Small" Class="mud-text-secondary" aria-label="Con recibo" />
+        }
+        <SignedAmount Amount="Transaction.Amount" Type="Transaction.Type" />
+    </div>
+</MudListItem>
+
+@code {
+    [Parameter, EditorRequired] public Transaction Transaction { get; set; } = default!;
+    [Parameter] public Category? Category { get; set; }
+    [Parameter] public PaymentMethod? PaymentMethod { get; set; }
+
+    /// <summary>Empieza por el día ("Ayer 18:42", "16 sep 17:22"), para listas que no agrupan por día.</summary>
+    [Parameter] public bool ShowDay { get; set; }
+
+    private string Title => Transaction.Merchant ?? Transaction.Description ?? Category?.Name ?? "Sin categoría";
+
+    // Lo que no está en el título: día (si se pide), categoría (si el título es otro), medio de pago y hora.
+    private string Subtitle
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (ShowDay)
+            {
+                parts.Add($"{DayLabel(Transaction.OccurredAt)} {DateLabels.Time(Transaction.OccurredAt)}");
+            }
+
+            if ((Transaction.Merchant is not null || Transaction.Description is not null) && Category is not null)
+            {
+                parts.Add(Category.Name);
+            }
+
+            if (PaymentMethod is not null)
+            {
+                parts.Add(PaymentMethodText.Display(PaymentMethod));
+            }
+
+            if (!ShowDay)
+            {
+                parts.Add(DateLabels.Time(Transaction.OccurredAt));
+            }
+
+            return string.Join(" · ", parts);
+        }
+    }
+
+    /// <summary>"Hoy", "Ayer", "16 sep" o, de otro año, "29 dic 2025".</summary>
+    private static string DayLabel(DateTime date)
+    {
+        var today = DateTime.Today;
+        return date.Date == today ? "Hoy"
+            : date.Date == today.AddDays(-1) ? "Ayer"
+            : date.Year == today.Year ? $"{date.Day} {DateLabels.MonthAbbreviation(date.Month)}"
+            : DateLabels.Short(date);
+    }
+}

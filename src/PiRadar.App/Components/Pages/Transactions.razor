@@ -62,27 +62,8 @@
                         <MudList T="Transaction" Dense="true">
                             @foreach (var t in day)
                             {
-                                var category = _categories.GetValueOrDefault(t.CategoryId);
-                                <MudListItem T="Transaction" Href="@($"transactions/{t.Id}")" Class="transaction-item">
-                                    <div class="d-flex align-center gap-3">
-                                        <IconAvatar Icon="@category?.Icon" Color="@category?.Color" />
-                                        <div style="min-width: 0; flex: 1">
-                                            <MudText Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">
-                                                @Title(t, category)
-                                            </MudText>
-                                            <MudText Typo="Typo.caption" Class="mud-text-secondary"
-                                                     Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; display: block">
-                                                @Subtitle(t, category)
-                                            </MudText>
-                                        </div>
-                                        @if (t.ReceiptId is not null)
-                                        {
-                                            <MudIcon Icon="@Icons.Material.Rounded.Receipt" Size="Size.Small" Class="mud-text-secondary"
-                                                     aria-label="Con recibo" />
-                                        }
-                                        <SignedAmount Amount="t.Amount" Type="t.Type" />
-                                    </div>
-                                </MudListItem>
+                                <TransactionListItem Transaction="t" Category="_categories.GetValueOrDefault(t.CategoryId)"
+                                                     PaymentMethod="PaymentMethodOf(t)" />
                             }
                         </MudList>
                     </MudPaper>
@@ -128,24 +109,6 @@
         return LoadAsync();
     }
 
-    private static string Title(Transaction t, Category? category) =>
-        t.Merchant ?? t.Description ?? category?.Name ?? "Sin categoría";
-
-    // Lo que no está en el título: categoría (si el título es otro), medio de pago y hora.
-    private string Subtitle(Transaction t, Category? category)
-    {
-        var parts = new List<string>();
-        if ((t.Merchant is not null || t.Description is not null) && category is not null)
-        {
-            parts.Add(category.Name);
-        }
-
-        if (t.PaymentMethodId is { } id && _paymentMethods.GetValueOrDefault(id) is { } method)
-        {
-            parts.Add(PaymentMethodText.Display(method));
-        }
-
-        parts.Add(DateLabels.Time(t.OccurredAt));
-        return string.Join(" · ", parts);
-    }
+    private PaymentMethod? PaymentMethodOf(Transaction t) =>
+        t.PaymentMethodId is { } id ? _paymentMethods.GetValueOrDefault(id) : null;
 }
