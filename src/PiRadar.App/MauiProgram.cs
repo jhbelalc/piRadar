@@ -21,11 +21,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
-			.UseOcr()
-			.ConfigureFonts(fonts =>
-			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-			});
+			.UseOcr();
 
 		builder.Services.AddMauiBlazorWebView();
 		builder.Services.AddMudServices(config =>

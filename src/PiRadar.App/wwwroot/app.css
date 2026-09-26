@@ -7,6 +7,18 @@ html, body {
     user-select: none;
 }
 
+/* Fondo mientras carga Blazor (antes de MudThemeProvider), igual al de AppTheme y MainPage: evita un destello
+   blanco en tema oscuro. Solo en html: después MudBlazor pinta el body con el tema elegido en Ajustes. */
+html {
+    background-color: #F6F7F8;
+}
+
+@media (prefers-color-scheme: dark) {
+    html {
+        background-color: #121416;
+    }
+}
+
 input, textarea {
     -webkit-user-select: text;
     user-select: text;

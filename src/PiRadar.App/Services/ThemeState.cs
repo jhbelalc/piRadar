@@ -17,6 +17,13 @@ public sealed class ThemeState(ISettingsRepository settings)
 
     public event Action? Changed;
 
+    // Copia fuera de la BD cifrada (no es un dato sensible) para pintar con el tema correcto antes de abrirla:
+    // sin ella, la pantalla "Abriendo tus datos…" sale con el tema del sistema y luego cambia.
+    private const string CachedKey = "theme";
+
+    /// <summary>Aplica la última preferencia conocida, antes de abrir la BD. <see cref="LoadAsync"/> la confirma.</summary>
+    public void ApplyCached() => Apply(Parse(Preferences.Default.Get<string?>(CachedKey, null)));
+
     /// <summary>Lee la preferencia guardada; solo con la BD abierta.</summary>
     public async Task LoadAsync()
     {
@@ -38,6 +45,7 @@ public sealed class ThemeState(ISettingsRepository settings)
         }
 
         Preference = preference;
+        Preferences.Default.Set(CachedKey, preference.ToString());
 
         // La parte nativa (fondo de las barras del sistema y color de sus íconos) sigue la misma preferencia.
         MainThread.BeginInvokeOnMainThread(() =>

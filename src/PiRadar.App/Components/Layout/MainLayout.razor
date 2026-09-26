@@ -22,7 +22,11 @@
         _ => _systemDark,
     };
 
-    protected override void OnInitialized() => ThemeState.Changed += OnThemeChanged;
+    protected override void OnInitialized()
+    {
+        ThemeState.Changed += OnThemeChanged;
+        ThemeState.ApplyCached();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
