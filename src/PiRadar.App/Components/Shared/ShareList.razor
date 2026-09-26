@@ -1,0 +1,49 @@
+@* Filas con ícono, nombre, monto, porcentaje y una barra proporcional en el color de cada fila. Si hay más de
+   MaxRows, las últimas se suman en "Otras". *@
+<MudStack Spacing="3">
+    @foreach (var row in Visible)
+    {
+        <div class="d-flex align-center gap-3">
+            <IconAvatar Icon="@row.Icon" Color="@row.Color" Size="Size.Small" />
+            <div style="min-width: 0; flex: 1">
+                <div class="d-flex justify-space-between gap-2">
+                    <MudText Typo="Typo.body2" Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">@row.Name</MudText>
+                    <MudText Typo="Typo.body2" Style="white-space: nowrap; font-variant-numeric: tabular-nums">
+                        @row.Total <span class="mud-text-secondary">· @row.Share.ToString("P0")</span>
+                    </MudText>
+                </div>
+                <div class="share-track mt-1">
+                    <div class="share-fill" style="@BarStyle(row)"></div>
+                </div>
+            </div>
+        </div>
+    }
+</MudStack>
+
+@code {
+    /// <summary>Gris de "Otras" (el mismo de la categoría "Otros gastos" de la semilla).</summary>
+    public const string OtherColor = "#757575";
+
+    [Parameter, EditorRequired] public IReadOnlyList<ShareRow> Rows { get; set; } = [];
+
+    [Parameter] public int MaxRows { get; set; } = int.MaxValue;
+
+    private IEnumerable<ShareRow> Visible
+    {
+        get
+        {
+            if (Rows.Count <= MaxRows)
+            {
+                return Rows;
+            }
+
+            var rest = Rows.Skip(MaxRows - 1).ToList();
+            var other = new ShareRow("more_horiz", OtherColor, "Otras",
+                new Money(rest.Sum(r => r.Total.AmountMinor), rest[0].Total.Currency), rest.Sum(r => r.Share));
+            return Rows.Take(MaxRows - 1).Append(other);
+        }
+    }
+
+    private static string BarStyle(ShareRow row) =>
+        FormattableString.Invariant($"width: {row.Share * 100:0.#}%; background-color: {row.Color}");
+}

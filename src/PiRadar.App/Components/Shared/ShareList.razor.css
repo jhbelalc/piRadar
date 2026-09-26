@@ -1,12 +1,12 @@
-/* Barra de "En qué gastas": ancho = proporción del gasto, color de la categoría. */
-.category-track {
+/* Ancho = proporción; color de la fila. */
+.share-track {
     height: 6px;
     border-radius: 3px;
     background-color: var(--mud-palette-action-disabled-background);
     overflow: hidden;
 }
 
-.category-fill {
+.share-fill {
     height: 100%;
     border-radius: 3px;
 }

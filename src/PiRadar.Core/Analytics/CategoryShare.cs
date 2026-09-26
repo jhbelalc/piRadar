@@ -2,7 +2,7 @@ using PiRadar.Core.Domain;
 
 namespace PiRadar.Core.Analytics;
 
-/// <summary>Gasto de una categoría principal en una moneda y su proporción (0–1) sobre el gasto total.</summary>
+/// <summary>Total de una categoría principal en una moneda y su proporción (0–1) sobre el total del tipo.</summary>
 public sealed record CategoryShare(int CategoryId, Money Total, decimal Share)
 {
     /// <summary>
@@ -10,13 +10,18 @@ public sealed record CategoryShare(int CategoryId, Money Total, decimal Share)
     /// Del mayor al menor. Una categoría que no está en <paramref name="categories"/> cuenta por sí sola.
     /// </summary>
     public static IReadOnlyList<CategoryShare> Expenses(IEnumerable<Transaction> transactions, Currency currency,
-        IReadOnlyDictionary<int, Category> categories)
+        IReadOnlyDictionary<int, Category> categories) =>
+        ByCategory(transactions, TransactionType.Expense, currency, categories);
+
+    /// <summary>Como <see cref="Expenses"/>, para gastos o ingresos.</summary>
+    public static IReadOnlyList<CategoryShare> ByCategory(IEnumerable<Transaction> transactions, TransactionType type,
+        Currency currency, IReadOnlyDictionary<int, Category> categories)
     {
         ArgumentNullException.ThrowIfNull(transactions);
         ArgumentNullException.ThrowIfNull(categories);
 
         var totals = transactions
-            .Where(t => t.Type == TransactionType.Expense && t.Amount.Currency == currency)
+            .Where(t => t.Type == type && t.Amount.Currency == currency)
             .GroupBy(t => RootId(t.CategoryId, categories))
             .Select(g => (Id: g.Key, Minor: g.Sum(t => t.Amount.AmountMinor)))
             .ToList();

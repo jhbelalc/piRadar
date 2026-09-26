@@ -94,29 +94,7 @@
                         En qué gastas@(_shares.Count > 1 ? $" · {currency}" : "")
                     </MudText>
                     <MudPaper Elevation="0" Outlined="true" Class="pa-3">
-                        <MudStack Spacing="3">
-                            @foreach (var share in shares)
-                            {
-                                var category = share.CategoryId is { } id ? _categories.GetValueOrDefault(id) : null;
-                                <div class="d-flex align-center gap-3">
-                                    <IconAvatar Icon="@(category?.Icon ?? "more_horiz")" Color="@(category?.Color ?? OtherColor)" Size="Size.Small" />
-                                    <div style="min-width: 0; flex: 1">
-                                        <div class="d-flex justify-space-between gap-2">
-                                            <MudText Typo="Typo.body2" Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">
-                                                @(category?.Name ?? (share.CategoryId is null ? "Otras" : "Sin categoría"))
-                                            </MudText>
-                                            <MudText Typo="Typo.body2" Style="white-space: nowrap; font-variant-numeric: tabular-nums">
-                                                @share.Total
-                                                <span class="mud-text-secondary">· @share.Share.ToString("P0")</span>
-                                            </MudText>
-                                        </div>
-                                        <div class="category-track mt-1">
-                                            <div class="category-fill" style="@BarStyle(share, category)"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </MudStack>
+                        <ShareList Rows="shares" MaxRows="TopCategories" />
                     </MudPaper>
                 </div>
             }
@@ -146,20 +124,14 @@
     private const int TopCategories = 5;
     private const int RecentCount = 5;
 
-    /// <summary>Gris de "Otras" (el mismo de la categoría "Otros gastos" de la semilla).</summary>
-    private const string OtherColor = "#757575";
-
     private readonly Period _month = Period.Containing(DateTime.Today, PeriodGranularity.Month);
     private IReadOnlyList<Transaction>? _recent;
     private IReadOnlyList<CurrencyTotals> _totals = [];
     private IReadOnlyList<ExpenseComparison> _comparisons = [];
-    private List<(Currency Currency, List<ShareRow> Shares)> _shares = [];
+    private List<(Currency Currency, IReadOnlyList<ShareRow> Shares)> _shares = [];
     private string _previousLabel = "";
     private Dictionary<int, Category> _categories = [];
     private Dictionary<int, PaymentMethod> _paymentMethods = [];
-
-    /// <summary>Fila de "En qué gastas"; <c>CategoryId</c> <c>null</c> = el resto sumado ("Otras").</summary>
-    private sealed record ShareRow(int? CategoryId, Money Total, decimal Share);
 
     protected override async Task OnInitializedAsync()
     {
@@ -177,24 +149,10 @@
         _comparisons = ExpenseComparison.ByCurrency(twoMonths, _month, now);
         _shares = _totals
             .Where(t => !t.Expenses.IsZero)
-            .Select(t => (t.Currency, Top(CategoryShare.Expenses(month, t.Currency, _categories))))
+            .Select(t => (t.Currency, ShareRow.FromCategories(CategoryShare.Expenses(month, t.Currency, _categories), _categories)))
             .ToList();
 
         _recent = await TransactionRepository.QueryAsync(new TransactionFilter { Take = RecentCount });
-    }
-
-    /// <summary>Las primeras categorías y, si hay más, una fila "Otras" con el resto.</summary>
-    private static List<ShareRow> Top(IReadOnlyList<CategoryShare> shares)
-    {
-        if (shares.Count <= TopCategories)
-        {
-            return shares.Select(s => new ShareRow(s.CategoryId, s.Total, s.Share)).ToList();
-        }
-
-        var top = shares.Take(TopCategories - 1).Select(s => new ShareRow(s.CategoryId, s.Total, s.Share)).ToList();
-        var rest = shares.Skip(TopCategories - 1).ToList();
-        top.Add(new ShareRow(null, new Money(rest.Sum(s => s.Total.AmountMinor), rest[0].Total.Currency), rest.Sum(s => s.Share)));
-        return top;
     }
 
     /// <summary>"1–26 ago", "1 ago" o, para el mes completo, "mes de agosto".</summary>
@@ -209,9 +167,6 @@
         var month = DateLabels.MonthAbbreviation(last.Month);
         return last.Day == start.Day ? $"{start.Day} {month}" : $"{start.Day}–{last.Day} {month}";
     }
-
-    private static string BarStyle(ShareRow share, Category? category) =>
-        FormattableString.Invariant($"width: {share.Share * 100:0.#}%; background-color: {category?.Color ?? OtherColor}");
 
     private PaymentMethod? PaymentMethodOf(Transaction t) =>
         t.PaymentMethodId is { } id ? _paymentMethods.GetValueOrDefault(id) : null;

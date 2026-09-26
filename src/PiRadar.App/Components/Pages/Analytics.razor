@@ -1,0 +1,264 @@
+@page "/analytics"
+@using PiRadar.Core.Analytics
+@inject ITransactionRepository TransactionRepository
+@inject ICategoryRepository CategoryRepository
+@inject IPaymentMethodRepository PaymentMethodRepository
+@inject IExchangeRateRepository ExchangeRateRepository
+@inject ISettingsRepository SettingsRepository
+@inject AnalyticsViewState State
+
+<PageBar Title="Análisis" />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <MudStack Spacing="3">
+        <PeriodSelector Value="State.Period" ValueChanged="SetPeriodAsync" />
+
+        @if (_views.Count > 1)
+        {
+            <MudChipSet T="string" SelectedValue="_view" SelectedValueChanged="SetViewAsync" SelectionMode="SelectionMode.SingleSelection"
+                        CheckMark="false" Color="Color.Primary" Variant="Variant.Text">
+                @foreach (var view in _views)
+                {
+                    <MudChip T="string" Value="view.Key" Text="@view.Label" id="@($"view-{view.Key}")" />
+                }
+            </MudChipSet>
+        }
+
+        @if (_transactions is null)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+        }
+        else if (_views.Count == 0)
+        {
+            <MudStack AlignItems="AlignItems.Center" Class="py-8" Spacing="3" id="analytics-empty">
+                <MudIcon Icon="@Icons.Material.Rounded.Insights" Size="Size.Large" Class="mud-text-secondary" />
+                <MudText Class="mud-text-secondary">No hay movimientos en este periodo.</MudText>
+            </MudStack>
+        }
+        else
+        {
+            @if (_missing.Count > 0)
+            {
+                <MudAlert Severity="Severity.Warning" Dense="true" id="analytics-missing-rates">
+                    @MissingText porque falta la tasa de cambio para su fecha.
+                    <MudLink Href="exchange-rates" Typo="Typo.body2">Agregar tasa</MudLink>
+                </MudAlert>
+            }
+
+            <MudPaper Elevation="0" Outlined="true" Class="pa-4" id="analytics-summary">
+                <div class="summary-grid">
+                    <div>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Gastos</MudText>
+                        <MudText Typo="Typo.subtitle1" Class="money-expense">@_totals.Expenses</MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Ingresos</MudText>
+                        <MudText Typo="Typo.subtitle1" Class="money-income">@_totals.Income</MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Balance</MudText>
+                        <MudText Typo="Typo.subtitle1" Style="font-weight: 600">@_totals.Balance</MudText>
+                    </div>
+                </div>
+                @if (_dailyAverage is { } average && State.Period.Granularity != PeriodGranularity.Day)
+                {
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary mt-2">
+                        Gasto promedio por día: <b>@average</b>
+                    </MudText>
+                }
+            </MudPaper>
+
+            <MudToggleGroup T="TransactionType" Value="State.Type" ValueChanged="SetTypeAsync" SelectionMode="SelectionMode.SingleSelection"
+                            Color="Color.Primary" CheckMark="false" Size="Size.Small" Style="width: 100%" id="analytics-type">
+                <MudToggleItem Value="TransactionType.Expense" Text="Gastos" />
+                <MudToggleItem Value="TransactionType.Income" Text="Ingresos" />
+            </MudToggleGroup>
+
+            <div>
+                <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">@SeriesTitle</MudText>
+                <MudPaper Elevation="0" Outlined="true" Class="pa-3" id="analytics-series">
+                    <BarChart Bars="_bars" Currency="_currency"
+                              Color="@(State.Type == TransactionType.Expense ? ExpenseColor : IncomeColor)" />
+                </MudPaper>
+            </div>
+
+            @if (_categoryRows.Count == 0)
+            {
+                <MudText Class="mud-text-secondary" Align="Align.Center">
+                    No hay @(State.Type == TransactionType.Expense ? "gastos" : "ingresos") en este periodo.
+                </MudText>
+            }
+            else
+            {
+                <MudGrid Spacing="3">
+                    <MudItem xs="12" md="6">
+                        <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">Por categoría</MudText>
+                        <MudPaper Elevation="0" Outlined="true" Class="pa-3" id="analytics-categories">
+                            <MudChart T="double" ChartType="ChartType.Donut" ChartSeries="_categorySeries"
+                                      ChartLabels="@(_categoryRows.Select(r => r.Name).ToArray())" ChartOptions="_categoryOptions"
+                                      Width="100%" Height="200px" />
+                            <div class="mt-3">
+                                <ShareList Rows="_categoryRows" />
+                            </div>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">Por medio de pago</MudText>
+                        <MudPaper Elevation="0" Outlined="true" Class="pa-3" id="analytics-payment-methods">
+                            <ShareList Rows="_paymentRows" />
+                        </MudPaper>
+                    </MudItem>
+                </MudGrid>
+            }
+        }
+    </MudStack>
+</MudContainer>
+
+@code {
+    private const string ExpenseColor = "var(--mud-palette-error)";
+    private const string IncomeColor = "var(--mud-palette-success)";
+    private const string ConsolidatedKey = "ALL";
+
+    private Dictionary<int, Category> _categories = [];
+    private Dictionary<int, PaymentMethod> _paymentMethods = [];
+    private CurrencyConverter _converter = new([]);
+    private Currency _baseCurrency;
+
+    private IReadOnlyList<Transaction>? _transactions;
+    private List<(string Key, string Label)> _views = [];
+    private string? _view;
+    private Currency _currency;
+    private IReadOnlyList<Transaction> _missing = [];
+    private CurrencyTotals _totals = new(Money.Zero(Currency.COP), Money.Zero(Currency.COP));
+    private Money? _dailyAverage;
+
+    private IReadOnlyList<BarChart.Bar> _bars = [];
+
+    private IReadOnlyList<ShareRow> _categoryRows = [];
+    private List<ChartSeries<double>> _categorySeries = [];
+    private DonutChartOptions _categoryOptions = new();
+    private IReadOnlyList<ShareRow> _paymentRows = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Con archivados: los movimientos viejos pueden usarlos.
+        _categories = (await CategoryRepository.GetAllAsync(includeArchived: true)).ToDictionary(c => c.Id);
+        _paymentMethods = (await PaymentMethodRepository.GetAllAsync(includeArchived: true)).ToDictionary(p => p.Id);
+        _converter = new CurrencyConverter(await ExchangeRateRepository.GetAllAsync());
+        _baseCurrency = await SettingsRepository.GetBaseCurrencyAsync();
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        var period = State.Period;
+        var all = await TransactionRepository.QueryAsync(TransactionFilter.Between(period.Start, period.End));
+
+        // Una opción por moneda con movimientos y, si hay más de una, todo convertido a la moneda base.
+        var currencies = all.Select(t => t.Amount.Currency).Distinct().Order().ToList();
+        _views = currencies.Select(c => (c.ToString(), c.ToString())).ToList();
+        if (currencies.Count > 1)
+        {
+            _views.Add((ConsolidatedKey, $"Todo en {_baseCurrency}"));
+        }
+
+        _view = State.Consolidated && currencies.Count > 1 ? ConsolidatedKey
+            : State.Currency is { } chosen && currencies.Contains(chosen) ? chosen.ToString()
+            : currencies.Contains(_baseCurrency) ? _baseCurrency.ToString()
+            : currencies.Count > 0 ? currencies[0].ToString() : null;
+
+        if (_view == ConsolidatedKey)
+        {
+            var consolidation = _converter.Consolidate(all, _baseCurrency);
+            (_currency, _transactions, _missing) = (_baseCurrency, consolidation.Converted, consolidation.Missing);
+        }
+        else
+        {
+            _currency = _view is null ? _baseCurrency : CurrencyExtensions.ParseCode(_view);
+            (_transactions, _missing) = (all.Where(t => t.Amount.Currency == _currency).ToList(), []);
+        }
+
+        _totals = CurrencyTotals.ByCurrency(_transactions).FirstOrDefault()
+            ?? new CurrencyTotals(Money.Zero(_currency), Money.Zero(_currency));
+        _dailyAverage = SpendingAnalyzer.DailyAverage(_totals.Expenses, period, DateTime.Today);
+        BuildSeries(period);
+        BuildBreakdowns();
+    }
+
+    private void BuildSeries(Period period)
+    {
+        var expense = State.Type == TransactionType.Expense;
+        _bars = SpendingAnalyzer.Series(_transactions!, period, _currency)
+            .Select(b => new BarChart.Bar(b.Label, BucketDetail(b.Start, period.Granularity), expense ? b.Expenses : b.Income))
+            .ToList();
+    }
+
+    /// <summary>Texto al tocar una barra: "14:00–15:00", "jueves 24 sep", "septiembre".</summary>
+    private static string BucketDetail(DateTime start, PeriodGranularity granularity) => granularity switch
+    {
+        PeriodGranularity.Day => $"{start:HH:mm}–{start.AddHours(1):HH:mm}",
+        PeriodGranularity.Year => DateLabels.MonthName(start.Month),
+        _ => $"{DateLabels.DayName(start.DayOfWeek)} {start.Day} {DateLabels.MonthAbbreviation(start.Month)}",
+    };
+
+    private string SeriesTitle => (State.Type == TransactionType.Expense ? "Gastos" : "Ingresos") + State.Period.Granularity switch
+    {
+        PeriodGranularity.Day => " por hora",
+        PeriodGranularity.Year => " por mes",
+        _ => " por día",
+    };
+
+    private void BuildBreakdowns()
+    {
+        var type = State.Type;
+        _categoryRows = ShareRow.FromCategories(CategoryShare.ByCategory(_transactions!, type, _currency, _categories), _categories);
+        _categorySeries = [new() { Name = "Categorías", Data = _categoryRows.Select(r => (double)r.Total.ToDecimal()).ToArray() }];
+        _categoryOptions = new DonutChartOptions { ChartPalette = _categoryRows.Select(r => r.Color).ToArray(), ShowLegend = false };
+
+        _paymentRows = SpendingAnalyzer.ByPaymentMethod(_transactions!, type, _currency)
+            .Select(s => s.PaymentMethodId is { } id && _paymentMethods.GetValueOrDefault(id) is { } method
+                ? new ShareRow(method.Icon, PaymentColor, PaymentMethodText.Display(method), s.Total, s.Share)
+                : new ShareRow("more_horiz", ShareList.OtherColor, "Sin medio de pago", s.Total, s.Share))
+            .ToList();
+    }
+
+    /// <summary>Los medios de pago no tienen color propio: todos con el primario del tema.</summary>
+    private const string PaymentColor = "var(--mud-palette-primary)";
+
+    // "1 movimiento en USD no se incluye" / "3 movimientos en USD no se incluyen".
+    private string MissingText
+    {
+        get
+        {
+            var currencies = string.Join(" y ", _missing.Select(t => t.Amount.Currency).Distinct().Order());
+            return _missing.Count == 1
+                ? $"1 movimiento en {currencies} no se incluye"
+                : $"{_missing.Count} movimientos en {currencies} no se incluyen";
+        }
+    }
+
+    private Task SetPeriodAsync(Period period)
+    {
+        State.Period = period;
+        return LoadAsync();
+    }
+
+    private Task SetViewAsync(string? view)
+    {
+        State.Consolidated = view == ConsolidatedKey;
+        if (view is not null && view != ConsolidatedKey)
+        {
+            State.Currency = CurrencyExtensions.ParseCode(view);
+        }
+
+        return LoadAsync();
+    }
+
+    private Task SetTypeAsync(TransactionType type)
+    {
+        State.Type = type;
+        BuildSeries(State.Period);
+        BuildBreakdowns();
+        return Task.CompletedTask;
+    }
+}

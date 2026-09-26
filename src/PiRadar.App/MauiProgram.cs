@@ -37,6 +37,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<MudLocalizer, SpanishMudLocalizer>();
 		builder.Services.AddSingleton<ThemeState>();
 		builder.Services.AddSingleton<TransactionsViewState>();
+		builder.Services.AddSingleton<AnalyticsViewState>();
 		builder.Services.AddSingleton<ScanState>();
 
 		builder.Services.AddSingleton<IClock, SystemClock>();

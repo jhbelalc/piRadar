@@ -1,0 +1,88 @@
+.bar-chart {
+    --axis-width: 64px;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.bar-chart-caption {
+    min-height: 1.5rem;
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+}
+
+.bar-chart-body {
+    display: flex;
+    height: 180px;
+}
+
+.bar-chart-axis {
+    width: var(--axis-width);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-right: 6px;
+    color: var(--mud-palette-text-secondary);
+    white-space: nowrap;
+    /* Centra cada etiqueta sobre su línea. */
+    margin: -0.5em 0;
+}
+
+.bar-chart-plot {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.bar-chart-grid {
+    border-top: 1px solid var(--mud-palette-lines-default);
+}
+
+.bar-chart-bars {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.bar-chart-slot {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    border-radius: 3px 3px 0 0;
+}
+
+.bar-chart-slot.selected {
+    background-color: var(--mud-palette-action-default-hover);
+}
+
+.bar-chart-bar {
+    width: 100%;
+    max-width: 28px;
+    border-radius: 3px 3px 0 0;
+}
+
+.bar-chart-labels {
+    display: flex;
+    gap: 2px;
+    margin-left: var(--axis-width);
+    margin-top: 4px;
+    color: var(--mud-palette-text-secondary);
+}
+
+.bar-chart-labels span {
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: visible;
+    width: 0;
+}

@@ -9,7 +9,7 @@ App personal de finanzas para Android e iPhone: registrar gastos e ingresos (man
 
 ## Stack
 - .NET 10 MAUI Blazor Hybrid, C#
-- MudBlazor (UI y gráficos con `MudChart`)
+- MudBlazor (UI; dona con `MudChart`, barras con el componente propio `BarChart`)
 - SQLite cifrado: `sqlite-net-base` + `SQLitePCLRaw.bundle_e_sqlite3mc` en modo compatible SQLCipher
 - OCR local en el dispositivo: ML Kit (Android) y Apple Vision (iOS) detrás de `IOcrService`
 - Tests: xunit.v3 sobre Microsoft.Testing.Platform (activado en `global.json`; no agregar `Microsoft.NET.Test.Sdk` ni `xunit.runner.visualstudio`)
@@ -66,7 +66,7 @@ piRadar/
 │  │  ├─ Components/Pages/      # Dashboard, Transactions, TransactionEdit, ScanReceipt, Categories,
 │  │  │                         # PaymentMethods, Analytics, ExchangeRates, Backup, Settings
 │  │  ├─ Components/Shared/     # PageBar, MoneyInput, CategoryPicker, PaymentMethodPicker, PeriodSelector, CurrencyToggle,
-│  │  │                         # IconAvatar, IconPicker, ColorSwatches, TransactionListItem, SignedAmount
+│  │  │                         # IconAvatar, IconPicker, ColorSwatches, TransactionListItem, SignedAmount, ShareList, BarChart
 │  │  ├─ Services/              # DatabaseKeyProvider, PluginOcrService, ImageOrientation, AppTheme, ThemeState, IconCatalog,
 │  │  │                         # SpanishMudLocalizer, OcrLab/UiScript/FileLoggerProvider (Debug), CameraService, BackupFileService
 │  │  ├─ Platforms/Android/     # allowBackup=false
@@ -134,7 +134,8 @@ Versión de esquema en `PRAGMA user_version`.
 
 **Inicio** (`Dashboard`): mes en curso con totales por moneda (`CurrencyTotals`), variación del gasto frente al mismo tramo del mes anterior (`ExpenseComparison`: del 1 al día de hoy), "En qué gastas" por categoría principal (`CategoryShare`, las subcategorías suman en su padre; top 4 + "Otras") y los últimos 5 movimientos.
 
-**Análisis**: `SpendingAnalyzer` agrega en memoria por día/semana/mes/año, categoría y medio de pago; series por moneda y consolidada opcional. Gráficos con `MudChart`.
+**Análisis** (`/analytics`): periodo (día/semana/mes/año), moneda (una opción por moneda con movimientos y "Todo en <base>" si hay varias) y Gastos/Ingresos, guardados en `AnalyticsViewState`. `SpendingAnalyzer` agrega en memoria: barras por hora/día/mes (`Series`), por categoría principal (`CategoryShare.ByCategory`) y por medio de pago; promedio diario sobre los días transcurridos. El consolidado usa `CurrencyConverter` (última tasa con fecha ≤ la del movimiento, o el inverso del par contrario); los movimientos sin tasa quedan fuera con aviso y enlace a Tasas de cambio.
+- Las barras son `BarChart` (HTML/CSS): el gráfico de barras de `MudChart` se aplasta en el WebView de iOS (el área de dibujo queda arriba y el eje X muy abajo, también con `MatchBoundsToSize`). La dona de `MudChart` sí funciona en ambas plataformas.
 
 ## Respaldo exportable/importable
 - Archivo `.piradar`: cabecera `PIRADAR` + versión de formato + versión de esquema + salt (16 B) + iteraciones + nonce (12 B); cuerpo = JSON de todas las tablas (imágenes en base64), comprimido con GZip y cifrado con **AES-256-GCM**. Clave derivada de la contraseña del usuario con **PBKDF2-SHA256** (≥ 600 000 iteraciones). Solo `System.Security.Cryptography`.

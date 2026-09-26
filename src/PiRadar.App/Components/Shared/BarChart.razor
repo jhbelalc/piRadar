@@ -1,0 +1,112 @@
+@* Gráfico de barras en HTML (el de MudChart se aplasta en el WebView de iOS). Tocar una barra muestra su valor. *@
+<div class="bar-chart">
+    <div class="bar-chart-caption">
+        @if (_selected is { } selected && selected < Bars.Count)
+        {
+            <span>@Bars[selected].Detail: <b>@Bars[selected].Value</b></span>
+        }
+        else
+        {
+            <span class="mud-text-secondary">Toca una barra para ver su valor</span>
+        }
+    </div>
+    <div class="bar-chart-body">
+        <div class="bar-chart-axis">
+            @foreach (var tick in Ticks.Reverse())
+            {
+                <span>@ChartFormat.Compact((double)tick, Currency)</span>
+            }
+        </div>
+        <div class="bar-chart-plot">
+            @foreach (var _ in Ticks)
+            {
+                <div class="bar-chart-grid"></div>
+            }
+            <div class="bar-chart-bars">
+                @for (var i = 0; i < Bars.Count; i++)
+                {
+                    var index = i;
+                    <button type="button" class="@(index == _selected ? "bar-chart-slot selected" : "bar-chart-slot")"
+                            aria-label="@($"{Bars[index].Detail}: {Bars[index].Value}")" @onclick="() => Select(index)">
+                        <span class="bar-chart-bar" style="@BarStyle(Bars[index])"></span>
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="bar-chart-labels">
+        @foreach (var bar in Bars)
+        {
+            <span>@bar.Label</span>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Barra: etiqueta del eje (puede ir vacía), texto al tocarla ("24 sep") y valor.</summary>
+    public sealed record Bar(string Label, string Detail, Money Value);
+
+    [Parameter, EditorRequired] public IReadOnlyList<Bar> Bars { get; set; } = [];
+    [Parameter, EditorRequired] public Currency Currency { get; set; }
+
+    /// <summary>Color <c>#RRGGBB</c> o variable CSS.</summary>
+    [Parameter] public string Color { get; set; } = "var(--mud-palette-primary)";
+
+    private int? _selected;
+    private IReadOnlyList<Bar>? _lastBars;
+
+    protected override void OnParametersSet()
+    {
+        // Otros datos (periodo, tipo, moneda): la selección anterior ya no aplica.
+        if (!ReferenceEquals(_lastBars, Bars))
+        {
+            _selected = null;
+            _lastBars = Bars;
+        }
+    }
+
+    private decimal Max => NiceMax(Bars.Count == 0 ? 0 : Bars.Max(b => b.Value.ToDecimal()));
+
+    /// <summary>0, la mitad y el máximo redondeado.</summary>
+    private IEnumerable<decimal> Ticks => [0, Max / 2, Max];
+
+    /// <summary>El siguiente valor "redondo" (1, 2, 2,5 o 5 × 10ⁿ) mayor o igual que <paramref name="value"/>.</summary>
+    private static decimal NiceMax(decimal value)
+    {
+        if (value <= 0)
+        {
+            return 1;
+        }
+
+        var magnitude = 1m;
+        while (magnitude * 10 <= value)
+        {
+            magnitude *= 10;
+        }
+
+        while (magnitude > value)
+        {
+            magnitude /= 10;
+        }
+
+        foreach (var step in (decimal[])[1, 2, 2.5m, 5, 10])
+        {
+            if (step * magnitude >= value)
+            {
+                return step * magnitude;
+            }
+        }
+
+        return 10 * magnitude;
+    }
+
+    private string BarStyle(Bar bar)
+    {
+        var percent = bar.Value.ToDecimal() / Max * 100;
+        // Un gasto pequeño sigue viéndose (mínimo 2 px); cero no dibuja nada.
+        var height = percent <= 0 ? "0" : FormattableString.Invariant($"max({percent:0.##}%, 2px)");
+        return $"height: {height}; background-color: {Color}";
+    }
+
+    private void Select(int index) => _selected = _selected == index ? null : index;
+}
