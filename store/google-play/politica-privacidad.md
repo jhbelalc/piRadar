@@ -36,4 +36,4 @@ piRadar no está dirigida a menores de 13 años y no recoge información de nadi
 Si esta política cambia, publicaremos la nueva versión en esta misma dirección con su fecha de actualización.
 
 ## Contacto
-Si tienes preguntas sobre esta política, escribe a `<correo de contacto>`.
+Si tienes preguntas sobre esta política, escribe a jhbelalc@gmail.com.
