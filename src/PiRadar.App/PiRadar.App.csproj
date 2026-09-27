@@ -28,8 +28,8 @@
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.1</ApplicationDisplayVersion>
-        <!-- Subir en cada APK que se entrega: Android no instala encima una versión con número menor. -->
-        <ApplicationVersion>2</ApplicationVersion>
+        <!-- Subir en cada APK o AAB que se entrega: Android no instala encima una versión con número menor. -->
+        <ApplicationVersion>3</ApplicationVersion>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
@@ -45,10 +45,14 @@
     </ItemGroup>
 
     <!-- Release para teléfonos (ARM64): sin x86_64, que solo sirve al emulador y duplicaba cada librería nativa (APK de
-         46,7 MB). Release en el emulador: -p:PiRadarEmulator=true (no -p:RuntimeIdentifiers, que se propaga a Core y Data). -->
+         46,7 MB). Release en el emulador: -p:PiRadarEmulator=true (no -p:RuntimeIdentifiers, que se propaga a Core y Data).
+         Google Play (-p:PiRadarPlayStore=true, tools/build-aab.sh): .aab con ARM64 y x86_64; Play entrega a cada
+         dispositivo solo su arquitectura, así que x86_64 (Chromebooks, emuladores) no engorda la descarga. -->
     <PropertyGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('-android'))">
-        <RuntimeIdentifiers Condition="'$(PiRadarEmulator)' != 'true'">android-arm64</RuntimeIdentifiers>
+        <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
         <RuntimeIdentifiers Condition="'$(PiRadarEmulator)' == 'true'">android-x64</RuntimeIdentifiers>
+        <RuntimeIdentifiers Condition="'$(PiRadarPlayStore)' == 'true'">android-arm64;android-x64</RuntimeIdentifiers>
+        <AndroidPackageFormat Condition="'$(PiRadarPlayStore)' == 'true'">aab</AndroidPackageFormat>
 
         <!-- Firma con la clave propia de piRadar (fuera del repo; su contraseña está en el llavero de macOS y la pasa
              tools/build-apk.sh). Las actualizaciones solo se instalan encima si van firmadas con la misma clave. -->
