@@ -53,12 +53,24 @@ Además: tema claro, oscuro o el del sistema, y diseño que se adapta a teléfon
 ```
 
 ## Recursos gráficos
-| Recurso | Requisito | Estado |
+Listos en `store/google-play/`:
+| Recurso | Archivo | Requisito de Play |
 |---|---|---|
-| Ícono | 512×512 PNG 32 bits, ≤ 1 MB | Exportar del ícono de radar actual |
-| Imagen destacada | 1024×500 PNG/JPEG, sin transparencia | Por hacer |
-| Capturas de teléfono | 2–8, PNG/JPEG, lado corto ≥ 320 px, proporción ≤ 2:1 | Tomar del emulador (Inicio, Movimientos, Escanear, Análisis, Respaldo) con datos de ejemplo, nunca datos reales |
-| Capturas de tableta (opcional) | 7" y 10" | Opcional |
+| Ícono | `graphics/icon-512.png` | 512×512 PNG |
+| Imagen destacada | `graphics/feature-graphic-1024x500.png` | 1024×500 sin transparencia |
+| Capturas de teléfono (8) | `screenshots/1-inicio.png` … `8-inicio-oscuro.png`, 1080×1809 | 2–8, proporción ≤ 2:1 |
+
+Orden sugerido: Inicio, Nuevo desde recibo, Movimientos, Análisis, Por categoría, Categorías, Respaldo, Inicio oscuro.
+
+Cómo se hicieron (para rehacerlas):
+- Ícono e imagen destacada: `tools/store-graphics.sh` (Chrome sin ventana sobre los HTML de `graphics/`).
+- Datos **ficticios**: `dotnet run tools/demo-data/demo-backup.cs -- demo.piradar demo1234 <fecha>` genera un respaldo con
+  ~400 movimientos inventados; se restaura en el emulador Debug como `backup-in.piradar`. El recibo es
+  `graphics/receipt-demo.html` (comercio y NIT inventados) renderizado como `scan-in.jpg` y leído por el OCR real.
+- Capturas: `tools/demo-data/screenshots-ui-script.txt` como `ui-script.txt` con `adb shell wm size 1080x1920`
+  (el 20:9 del emulador pasa el límite 2:1 de Play), `adb exec-out screencap` en cada línea `SHOT` y recorte de la
+  franja vacía de la barra de estado (111 px). Borrar `backup-in.piradar` antes de la captura de Respaldo para que no
+  aparezca el botón Debug. Nunca usar datos ni recibos reales.
 
 ## Datos de contacto (públicos en la ficha)
 - Correo: belvictodeveloper@gmail.com (obligatorio y visible para todos).

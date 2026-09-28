@@ -1,0 +1,64 @@
+<!doctype html>
+<!-- Imagen destacada de Google Play (1024×500). Se renderiza con tools/store-graphics.sh. -->
+<html lang="es"><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 1024px; height: 500px; overflow: hidden; }
+  body {
+    font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Roboto, sans-serif;
+    background: radial-gradient(circle at 78% 50%, #00897B 0%, #00695C 38%, #004D40 100%);
+    color: #fff; position: relative;
+  }
+  .rings { position: absolute; right: -140px; top: -100px; opacity: .9; }
+  .text { position: absolute; left: 72px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; width: 560px; }
+  .brand { display: flex; align-items: center; gap: 22px; }
+  .brand svg { width: 104px; height: 104px; border-radius: 24px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+  h1 { font-size: 76px; font-weight: 700; letter-spacing: -1.5px; margin: 0; }
+  h1 span { color: #FFCA28; }
+  p { font-size: 34px; line-height: 1.25; margin: 30px 0 0; font-weight: 500; }
+  .tags { margin-top: 26px; display: flex; gap: 12px; }
+  .tags div { font-size: 21px; padding: 8px 16px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); }
+</style></head>
+<body>
+  <svg class="rings" width="700" height="700" viewBox="0 0 456 456">
+    <defs>
+      <linearGradient id="sweep" x1="228" y1="228" x2="300" y2="110" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#FFCA28" stop-opacity="0.02"/>
+        <stop offset="1" stop-color="#FFCA28" stop-opacity="0.35"/>
+      </linearGradient>
+    </defs>
+    <path d="M228 228 L337 72.4 A190 190 0 0 1 392.5 133 Z" fill="url(#sweep)"/>
+    <circle cx="228" cy="228" r="190" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3"/>
+    <circle cx="228" cy="228" r="140" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="3"/>
+    <circle cx="228" cy="228" r="90" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="3"/>
+    <circle cx="228" cy="228" r="40" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="3"/>
+    <line x1="228" y1="228" x2="392.5" y2="133" stroke="#fff" stroke-opacity=".45" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="318" cy="118" r="16" fill="#FFCA28" fill-opacity=".3"/>
+    <circle cx="318" cy="118" r="8" fill="#FFCA28"/>
+    <circle cx="150" cy="300" r="6" fill="#fff" fill-opacity=".55"/>
+    <circle cx="300" cy="320" r="5" fill="#fff" fill-opacity=".4"/>
+  </svg>
+  <div class="text">
+    <div class="brand">
+      <svg viewBox="0 0 456 456">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00796B"/><stop offset="1" stop-color="#004D40"/></linearGradient>
+          <linearGradient id="sw" x1="228" y1="228" x2="300" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFCA28" stop-opacity="0.05"/><stop offset="1" stop-color="#FFCA28" stop-opacity="0.55"/></linearGradient>
+        </defs>
+        <rect width="456" height="456" fill="url(#bg)"/>
+        <g transform="translate(228 228) scale(0.8) translate(-228 -228)">
+          <path d="M228 228 L228 88 A140 140 0 0 1 349.24 158 Z" fill="url(#sw)"/>
+          <circle cx="228" cy="228" r="140" fill="none" stroke="#FFFFFF" stroke-width="12"/>
+          <circle cx="228" cy="228" r="93" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="9"/>
+          <circle cx="228" cy="228" r="46" fill="none" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="7"/>
+          <line x1="228" y1="228" x2="349.24" y2="158" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/>
+          <circle cx="288" cy="142" r="30" fill="#FFCA28" fill-opacity="0.3"/>
+          <circle cx="288" cy="142" r="17" fill="#FFCA28"/>
+          <circle cx="228" cy="228" r="12" fill="#FFFFFF"/>
+        </g>
+      </svg>
+      <h1>pi<span>Radar</span></h1>
+    </div>
+    <p>Tus gastos e ingresos, claros.<br>Todo en tu teléfono, sin nube.</p>
+    <div class="tags"><div>Escanea recibos</div><div>COP y USD</div><div>Cifrado</div></div>
+  </div>
+</body></html>

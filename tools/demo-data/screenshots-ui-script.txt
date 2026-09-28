@@ -1,0 +1,52 @@
+go /backup
+wait 2000
+click #debug-backup
+wait 2000
+fill Contraseña=demo1234
+click #backup-password-ok
+waitfor [...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Reemplazar')
+js [...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Reemplazar').click()
+wait 8000
+js 'RESTORED'
+wait 5000
+theme Light
+go /
+wait 4000
+js 'SHOT 1-inicio'
+wait 7000
+go /scan
+wait 3000
+click #debug-photo
+waitfor location.search.includes('scan=1')
+wait 3000
+pick Categoría=Mercado
+wait 1500
+js 'SHOT 2-recibo'
+wait 7000
+go /transactions
+wait 4000
+js 'SHOT 3-movimientos'
+wait 7000
+go /analytics
+wait 5000
+js 'SHOT 4-analisis'
+wait 7000
+js (document.querySelector('.mud-chart')?.scrollIntoView({block:'start'}), window.scrollBy(0,-140), 'scrolled')
+wait 2000
+js 'SHOT 5-analisis-categorias'
+wait 7000
+go /categories
+wait 4000
+js 'SHOT 6-categorias'
+wait 7000
+go /backup
+wait 4000
+js 'SHOT 7-respaldo'
+wait 7000
+theme Dark
+go /
+wait 4000
+js 'SHOT 8-inicio-oscuro'
+wait 7000
+theme System
+js 'DONE'
