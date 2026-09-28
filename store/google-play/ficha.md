@@ -61,6 +61,6 @@ Además: tema claro, oscuro o el del sistema, y diseño que se adapta a teléfon
 | Capturas de tableta (opcional) | 7" y 10" | Opcional |
 
 ## Datos de contacto (públicos en la ficha)
-- Correo: jhbelalc@gmail.com (obligatorio y visible para todos).
+- Correo: belvictodeveloper@gmail.com (obligatorio y visible para todos).
 - Sitio web: opcional.
 - Política de privacidad: URL pública de `politica-privacidad.md` (ver `formularios.md`).
