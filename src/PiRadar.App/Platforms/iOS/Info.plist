@@ -6,6 +6,10 @@
     <string>piRadar usa la cámara para fotografiar tus recibos. La foto se procesa y guarda cifrada solo en este dispositivo.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>piRadar abre tus fotos para leer recibos. La foto se procesa y guarda cifrada solo en este dispositivo.</string>
+    <!-- Cumplimiento de exportación: respondido en App Store Connect el 2026-09-28 (cifrado estándar además del del
+         sistema: BD con SQLite3MC y respaldo AES-GCM); Apple lo registró como sin cifrado no exento. -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>UIDeviceFamily</key>
