@@ -64,6 +64,15 @@
         <AndroidSigningKeyPass>env:PIRADAR_KEYSTORE_PASS</AndroidSigningKeyPass>
     </PropertyGroup>
 
+    <!-- Release de iOS para el App Store (tools/build-ipa.sh): iPhone/iPad reales, firmado con el certificado Apple
+         Distribution y el perfil "piRadar App Store" (creados con la API de App Store Connect; la clave privada y el .p12
+         están en ../piRadar-firma, la contraseña del .p12 en el llavero, servicio piradar-ios-distribution-p12). -->
+    <PropertyGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('-ios'))">
+        <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
+        <CodesignKey>Apple Distribution</CodesignKey>
+        <CodesignProvision>piRadar App Store</CodesignProvision>
+    </PropertyGroup>
+
     <!-- Sin la clave propia no se genera un Release: firmado con otra clave no se podría instalar encima del actual. -->
     <Target Name="PiRadarCheckSigningKey" BeforeTargets="BeforeBuild"
             Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('-android'))">
