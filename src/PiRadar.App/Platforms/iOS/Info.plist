@@ -10,6 +10,10 @@
          sistema: BD con SQLite3MC y respaldo AES-GCM); Apple lo registró como sin cifrado no exento. -->
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
+    <!-- MediaPicker.CapturePhotoAsync (MAUI 10) exige también el permiso de agregar a la fototeca (PhotosAddOnly), aunque
+         no guarda la foto ahí: sin esta clave lanza PermissionException antes de abrir la cámara. -->
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>iOS pide este permiso para usar la cámara. piRadar no guarda fotos en tu fototeca: la foto del recibo queda cifrada solo dentro de la app.</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
     <key>UIDeviceFamily</key>
