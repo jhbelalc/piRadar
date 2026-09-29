@@ -122,6 +122,11 @@
                     <MudPaper Elevation="0" Outlined="true" Class="pa-2">
                         <MudText Typo="Typo.subtitle2" Class="mb-2">Recibo</MudText>
                         <img src="@_receiptImage" alt="Foto del recibo" style="width: 100%; border-radius: 8px" />
+                        @if (!string.IsNullOrWhiteSpace(_receiptText))
+                        {
+                            <MudButton id="receipt-text" Variant="Variant.Text" Color="Color.Primary" Class="mt-1"
+                                       StartIcon="@Icons.Material.Rounded.Notes" OnClick="ShowReceiptTextAsync">Ver texto leído</MudButton>
+                        }
                     </MudPaper>
                 }
                 else if (_source == TransactionSource.Ocr)
@@ -156,6 +161,7 @@
     private string? _notes;
     private TransactionSource _source = TransactionSource.Manual;
     private string? _receiptImage;
+    private string? _receiptText;
     private IReadOnlyList<string> _merchants = [];
     private PendingScan? _scan;
     private IReadOnlyList<Money> _totalChoices = [];
@@ -222,6 +228,7 @@
         _amount = parsed.Total;
         _totalChoices = parsed.TotalCandidates.Where(t => t != parsed.Total).ToList();
         _receiptImage = "data:image/jpeg;base64," + Convert.ToBase64String(scan.Image.Jpeg);
+        _receiptText = string.Join('\n', parsed.Rows);
 
         if (parsed.Date is { } date)
         {
@@ -279,7 +286,14 @@
         if (t.ReceiptId is { } receiptId && await ReceiptRepository.GetImageAsync(receiptId) is { } image)
         {
             _receiptImage = "data:image/jpeg;base64," + Convert.ToBase64String(image.Jpeg);
+            _receiptText = (await ReceiptRepository.GetAsync(receiptId))?.OcrText;
         }
+    }
+
+    private async Task ShowReceiptTextAsync()
+    {
+        var parameters = new DialogParameters<ReceiptTextDialog> { { d => d.Text, _receiptText ?? string.Empty } };
+        await Dialogs.ShowAsync<ReceiptTextDialog>("Texto leído del recibo", parameters, DialogExtensions.FormOptions);
     }
 
     private async Task SetTypeAsync(TransactionType type)
