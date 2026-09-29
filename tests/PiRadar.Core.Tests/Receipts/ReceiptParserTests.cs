@@ -56,6 +56,43 @@ public class ReceiptParserTests
     }
 
     [Fact]
+    public void Parse_PrefersLegalName_WhenBrandIsTruncatedLogo()
+    {
+        // Vision en un iPhone con iOS 26 leyó el logo "MR TENDERS" como "TENDER" (2026-09-28).
+        string[] rows =
+        [
+            "TENDER",
+            "MR TENDERS COLOMBIA S.A.S",
+            "NIT: 901962299-0",
+            "Sede: Ingenio",
+            "24/9/2026 18:47",
+            "Total venta $ 60.000",
+        ];
+
+        var result = ReceiptParser.Parse(rows, Today);
+
+        Assert.Equal(["Mr Tenders", "Tender"], result.MerchantCandidates);
+    }
+
+    [Fact]
+    public void Parse_KeepsBrandFirst_WhenLegalNameContainsItAsWholeWord()
+    {
+        string[] rows =
+        [
+            "TIENDAS ARA",
+            "JERONIMO MARTINS COLOMBIA S.A.S",
+            "TIENDAS ARA JERONIMO MARTINS S.A.S",
+            "NIT 900.480.569-1",
+            "FECHA: 26/09/2026",
+            "TOTAL A PAGAR $17.190",
+        ];
+
+        var result = ReceiptParser.Parse(rows, Today);
+
+        Assert.Equal("Tiendas Ara", result.Merchant);
+    }
+
+    [Fact]
     public void Parse_IgnoresTaxSummaryRowsAndItemCounts()
     {
         string[] rows =

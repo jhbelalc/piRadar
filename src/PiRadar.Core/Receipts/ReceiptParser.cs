@@ -513,11 +513,33 @@ public static partial class ReceiptParser
             brand = brands.FirstOrDefault(b => b.Count(char.IsLetter) >= 6);
         }
 
+        // Logo leído a medias: la "marca" es un pedazo de la razón social que no calza con palabras completas
+        // ("TENDER" en "MR TENDERS"); la razón social es la lectura completa. "TIENDAS ARA" en
+        // "TIENDAS ARA JERONIMO MARTINS" sí calza con palabras completas y se deja como marca.
+        if (brand is not null && legal is not null && IsTruncatedPartOf(brand, legal))
+        {
+            (brand, legal) = (legal, brand);
+        }
+
         return new[] { brand, legal }
             .Where(n => !string.IsNullOrWhiteSpace(n))
             .Select(n => TitleCase(n!))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static bool IsTruncatedPartOf(string brand, string legal)
+    {
+        var compactBrand = TextNormalizer.Compact(brand);
+        var compactLegal = TextNormalizer.Compact(legal);
+        if (compactBrand.Length == 0 || compactBrand == compactLegal || !compactLegal.Contains(compactBrand, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var legalWords = TextNormalizer.Fold(legal).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var brandWords = TextNormalizer.Fold(brand).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return !brandWords.All(legalWords.Contains);
     }
 
     /// <summary>Deja solo el nombre: sin códigos, números, direcciones ni prefijos. <c>null</c> si no parece un nombre.</summary>
