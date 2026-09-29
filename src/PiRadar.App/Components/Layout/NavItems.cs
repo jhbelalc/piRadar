@@ -27,5 +27,6 @@ public static class NavItems
         new("Tasas de cambio", Icons.Material.Rounded.CurrencyExchange, "exchange-rates"),
         new("Respaldo", Icons.Material.Rounded.CloudUpload, "backup"),
         new("Ajustes", Icons.Material.Rounded.Settings, "settings"),
+        new("Acerca de", Icons.Material.Rounded.Info, "about"),
     ];
 }

@@ -1,0 +1,78 @@
+@page "/about/licenses"
+
+<PageBar Title="Licencias de terceros" BackHref="about" />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.body2" Class="mud-text-secondary">
+            piRadar usa estos componentes de código abierto y servicios. Gracias a sus autores.
+        </MudText>
+
+        <MudPaper Elevation="0" Outlined="true">
+            <MudList T="string" Dense="true">
+                @foreach (var notice in Notices)
+                {
+                    <MudListItem T="string">
+                        <MudText Typo="Typo.subtitle2">@notice.Name</MudText>
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">@notice.Copyright</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@notice.License · @notice.Url</MudText>
+                    </MudListItem>
+                }
+            </MudList>
+        </MudPaper>
+
+        <MudExpansionPanels Outlined="true" Elevation="0">
+            @foreach (var (title, file) in FullTexts)
+            {
+                <MudExpansionPanel Text="@title">
+                    <pre class="license-text">@_texts[file]</pre>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private sealed record Notice(string Name, string Copyright, string License, string Url);
+
+    // Paquetes de PiRadar.App/Core/Data y lo que traen dentro (ver los .csproj). Al agregar uno, sumarlo aquí.
+    private static readonly Notice[] Notices =
+    [
+        new(".NET y .NET MAUI", "Copyright (c) .NET Foundation and Contributors", "Licencia MIT", "github.com/dotnet/maui"),
+        new("MudBlazor", "Copyright (c) 2021 MudBlazor", "Licencia MIT", "github.com/MudBlazor/MudBlazor"),
+        new("Material Icons", "Copyright Google LLC", "Licencia Apache 2.0", "github.com/google/material-design-icons"),
+        new("sqlite-net", "Copyright (c) Krueger Systems, Inc.", "Licencia MIT", "github.com/praeclarum/sqlite-net"),
+        new("SQLitePCLRaw", "Copyright 2014-2024 SourceGear, LLC", "Licencia Apache 2.0", "github.com/ericsink/SQLitePCL.raw"),
+        new("SQLite3 Multiple Ciphers", "Copyright (c) 2019-2026 Ulrich Telle", "Licencia MIT", "github.com/utelle/SQLite3MultipleCiphers"),
+        new("SQLite", "Autores de SQLite", "Dominio público", "sqlite.org/copyright.html"),
+        new("Plugin.Maui.OCR", "Copyright (c) 2024 Kori Francis", "Licencia MIT", "github.com/kfrancis/ocr"),
+        new("Google ML Kit, reconocimiento de texto (Android)", "Copyright Google LLC",
+            "Términos del servicio de ML Kit", "developers.google.com/ml-kit/terms"),
+        new("Enlaces de .NET para Android y ML Kit", "Copyright (c) .NET Foundation Contributors", "Licencia MIT",
+            "github.com/dotnet/android-libraries"),
+    ];
+
+    private static readonly (string Title, string File)[] FullTexts =
+    [
+        ("Texto de la licencia MIT", "MIT.txt"),
+        ("Texto de la licencia Apache 2.0", "Apache-2.0.txt"),
+    ];
+
+    private Dictionary<string, string> _texts = [];
+
+    protected override void OnInitialized() => _texts = FullTexts.ToDictionary(t => t.File, t => LoadText(t.File));
+
+    private static string LoadText(string file)
+    {
+        using var stream = typeof(Licenses).Assembly.GetManifestResourceStream("Licenses." + file)
+            ?? throw new InvalidOperationException($"Falta el recurso Licenses.{file}.");
+        using var reader = new StreamReader(stream);
+
+        // Los textos vienen cortados a 80 columnas; en un teléfono se leen mejor como párrafos que se ajustan solos.
+        var paragraphs = reader.ReadToEnd().Replace("\r\n", "\n")
+            .Split("\n\n", StringSplitOptions.RemoveEmptyEntries)
+            .Select(p => string.Join(' ', p.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)))
+            .Where(p => p.Length > 0);
+        return string.Join("\n\n", paragraphs);
+    }
+}

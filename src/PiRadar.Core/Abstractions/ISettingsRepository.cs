@@ -18,4 +18,13 @@ public interface ISettingsRepository
     Task<DateTime?> GetLastBackupAtAsync();
 
     Task SetLastBackupAtAsync(DateTime utc);
+
+    /// <summary>Título de la pantalla de inicio; <see cref="HomeTitle.Default"/> si no se ha cambiado.</summary>
+    Task<string> GetHomeTitleAsync();
+
+    /// <summary>
+    /// Guarda el título normalizado (<see cref="HomeTitle.Normalize"/>). Vacío o igual al predeterminado vuelve al
+    /// predeterminado. Devuelve el título que queda.
+    /// </summary>
+    Task<string> SetHomeTitleAsync(string? title);
 }

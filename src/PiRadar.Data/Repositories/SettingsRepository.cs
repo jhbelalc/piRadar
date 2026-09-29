@@ -47,6 +47,22 @@ internal sealed class SettingsRepository(DatabaseHost host) : RepositoryBase(hos
 
     public Task SetLastBackupAtAsync(DateTime utc) => SetAsync(AppSettingKeys.LastBackupAt, FormatBackupDate(utc));
 
+    public async Task<string> GetHomeTitleAsync() =>
+        HomeTitle.Normalize(await GetAsync(AppSettingKeys.HomeTitle)) ?? HomeTitle.Default;
+
+    public async Task<string> SetHomeTitleAsync(string? title)
+    {
+        var normalized = HomeTitle.Normalize(title);
+        if (normalized is null || normalized == HomeTitle.Default)
+        {
+            await Connection.DeleteAsync<AppSettingRecord>(AppSettingKeys.HomeTitle);
+            return HomeTitle.Default;
+        }
+
+        await SetAsync(AppSettingKeys.HomeTitle, normalized);
+        return normalized;
+    }
+
     /// <summary>Formato ISO 8601 en UTC con que se guarda <see cref="AppSettingKeys.LastBackupAt"/>.</summary>
     internal static string FormatBackupDate(DateTime utc) =>
         RecordMapping.ToUtcForStorage(utc).ToString("O", CultureInfo.InvariantCulture);

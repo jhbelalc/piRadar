@@ -63,4 +63,32 @@ public class SettingsRepositoryTests
 
         Assert.Null(await repo.GetAsync("missing"));
     }
+
+    [Fact]
+    public async Task HomeTitle_DefaultsUntilChanged_AndResetsWhenEmpty()
+    {
+        await using var temp = await TempHost.OpenAsync();
+        var repo = new SettingsRepository(temp.Host);
+
+        Assert.Equal(HomeTitle.Default, await repo.GetHomeTitleAsync());
+
+        Assert.Equal("Mi Cartera", await repo.SetHomeTitleAsync("  Mi   Cartera "));
+        Assert.Equal("Mi Cartera", await repo.GetHomeTitleAsync());
+
+        Assert.Equal(HomeTitle.Default, await repo.SetHomeTitleAsync("   "));
+        Assert.Equal(HomeTitle.Default, await repo.GetHomeTitleAsync());
+        Assert.Null(await repo.GetAsync(AppSettingKeys.HomeTitle));
+    }
+
+    [Fact]
+    public async Task HomeTitle_TooLongStoredValue_IsCutOnRead()
+    {
+        await using var temp = await TempHost.OpenAsync();
+        var repo = new SettingsRepository(temp.Host);
+
+        // Un respaldo editado a mano o de una versión futura no debe romper el encabezado.
+        await repo.SetAsync(AppSettingKeys.HomeTitle, new string('x', 80));
+
+        Assert.Equal(HomeTitle.MaxLength, (await repo.GetHomeTitleAsync()).Length);
+    }
 }

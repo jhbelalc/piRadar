@@ -6,6 +6,7 @@
 @inject IDialogService Dialogs
 @inject ISnackbar Snackbar
 @inject ThemeState ThemeState
+@inject HomeTitleState HomeTitleState
 @inject NavigationManager Navigation
 @inject ILogger<Backup> Logger
 
@@ -163,6 +164,7 @@
         {
             await BackupService.RestoreAsync(contents);
             await ThemeState.LoadAsync();
+            await HomeTitleState.LoadAsync();
             Snackbar.Add("Respaldo restaurado.", Severity.Success);
             Navigation.NavigateTo("");
         }

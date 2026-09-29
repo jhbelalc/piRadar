@@ -5,13 +5,23 @@
         <MudIconButton Icon="@Icons.Material.Rounded.ArrowBack" Color="Color.Inherit" Edge="Edge.Start"
                        Href="@BackHref" aria-label="Volver" />
     }
-    <MudText Typo="Typo.h6" Class="ml-2" Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">@Title</MudText>
+    @if (Subtitle is null)
+    {
+        <MudText Typo="Typo.h6" Class="ml-2" Style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis">@Title</MudText>
+    }
+    else
+    {
+        <AppTitle Title="@Title" Subtitle="@Subtitle" Class="ml-2" />
+    }
     <MudSpacer />
     @Actions
 </MudAppBar>
 
 @code {
     [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    /// <summary>Segunda línea bajo el título (Inicio: "piRadar"); con ella el título puede ocupar 2 líneas.</summary>
+    [Parameter] public string? Subtitle { get; set; }
 
     /// <summary>Página a la que vuelve la flecha; sin flecha si es <c>null</c>.</summary>
     [Parameter] public string? BackHref { get; set; }

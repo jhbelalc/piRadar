@@ -1,0 +1,19 @@
+@* Título del usuario con "piRadar" debajo (barra de Inicio y menú lateral). Un título largo (hasta 50 caracteres)
+   pasa a 2 líneas con letra más pequeña para que quepa en la altura de la barra. *@
+<div class="app-title @Class">
+    <div class="app-title-main @(IsLong ? "app-title-long" : null)">@Title</div>
+    <div class="app-title-sub">@Subtitle</div>
+</div>
+
+@code {
+    // En un teléfono de 360 px caben unos 26 caracteres del tamaño h6 en una línea.
+    private const int LongTitle = 26;
+
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired] public string Subtitle { get; set; } = string.Empty;
+
+    [Parameter] public string? Class { get; set; }
+
+    private bool IsLong => Title.Length > LongTitle;
+}

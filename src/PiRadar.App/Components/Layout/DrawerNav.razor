@@ -1,7 +1,10 @@
+@implements IDisposable
+@inject HomeTitleState HomeTitleState
+
 <div>
     <div class="d-flex align-center gap-2 px-4" style="height: var(--mud-appbar-height)">
         <MudIcon Icon="@Icons.Material.Rounded.Radar" Color="Color.Primary" />
-        <MudText Typo="Typo.h6">piRadar</MudText>
+        <AppTitle Title="@HomeTitleState.Title" Subtitle="piRadar" />
     </div>
     <MudDivider />
     <MudNavMenu Color="Color.Primary" Class="py-2">
@@ -25,4 +28,10 @@
         NavItems.NewTransaction with { Label = "Nuevo movimiento" },
         NavItems.Analytics,
     ];
+
+    protected override void OnInitialized() => HomeTitleState.Changed += OnTitleChanged;
+
+    private void OnTitleChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose() => HomeTitleState.Changed -= OnTitleChanged;
 }

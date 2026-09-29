@@ -7,8 +7,9 @@
 @inject ISettingsRepository SettingsRepository
 @inject TransactionsViewState TransactionsState
 @inject NavigationManager Navigation
+@inject HomeTitleState HomeTitleState
 
-<PageBar Title="piRadar" />
+<PageBar Title="@HomeTitleState.Title" Subtitle="piRadar" />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
     <MudStack Spacing="3">

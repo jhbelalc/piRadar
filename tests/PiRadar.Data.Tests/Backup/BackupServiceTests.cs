@@ -52,6 +52,7 @@ public class BackupServiceTests
         Assert.Equal(categories.Single(c => c.Name == "Restaurantes").Id, coffee.ParentId);
         Assert.Equal(3900m, Assert.Single(await new ExchangeRateRepository(target.Host).GetAllAsync()).Rate);
         Assert.Equal("Dark", await new SettingsRepository(target.Host).GetAsync(AppSettingKeys.Theme));
+        Assert.Equal("Mis finanzas", await new SettingsRepository(target.Host).GetHomeTitleAsync());
         // La fecha del último respaldo pasa a ser la del respaldo restaurado.
         Assert.Equal(contents.Summary.CreatedAt, await new SettingsRepository(target.Host).GetLastBackupAtAsync());
     }
@@ -133,6 +134,7 @@ public class BackupServiceTests
             From = Currency.USD, To = Currency.COP, Rate = 3900m, EffectiveDate = new DateTime(2026, 9, 1),
         });
         await new SettingsRepository(temp.Host).SetAsync(AppSettingKeys.Theme, "Dark");
+        await new SettingsRepository(temp.Host).SetHomeTitleAsync("Mis finanzas");
         return withReceipt;
     }
 

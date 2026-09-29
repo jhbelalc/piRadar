@@ -10,4 +10,7 @@ public static class AppSettingKeys
 
     /// <summary>Tema de la interfaz: <c>System</c>, <c>Light</c> o <c>Dark</c>.</summary>
     public const string Theme = "Theme";
+
+    /// <summary>Título de la pantalla de inicio elegido por el usuario; sin fila, <c>HomeTitle.Default</c>.</summary>
+    public const string HomeTitle = "HomeTitle";
 }

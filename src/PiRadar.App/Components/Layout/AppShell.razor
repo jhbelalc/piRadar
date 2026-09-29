@@ -1,4 +1,5 @@
 @inject ThemeState ThemeState
+@inject HomeTitleState HomeTitleState
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 
@@ -26,7 +27,11 @@
 
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
-    protected override Task OnInitializedAsync() => ThemeState.LoadAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        await ThemeState.LoadAsync();
+        await HomeTitleState.LoadAsync();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

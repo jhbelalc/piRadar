@@ -1,0 +1,33 @@
+.app-title {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.app-title-main {
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1.2;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* Dos líneas como máximo: con 50 caracteres y letra de 1 rem caben en un teléfono. */
+.app-title-long {
+    font-size: 1rem;
+    line-height: 1.15;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow-wrap: anywhere;
+}
+
+.app-title-sub {
+    font-size: 0.75rem;
+    line-height: 1.3;
+    opacity: 0.8;
+    letter-spacing: 0.02em;
+}

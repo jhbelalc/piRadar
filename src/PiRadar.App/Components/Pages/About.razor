@@ -1,0 +1,99 @@
+@page "/about"
+@inject ISnackbar Snackbar
+
+<PageBar Title="Acerca de" BackHref="more" />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <MudStack Spacing="3">
+        <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="py-2">
+            @* El mismo radar del ícono de la app (Resources/AppIcon). *@
+            <svg width="88" height="88" viewBox="0 0 456 456" role="img" aria-label="Ícono de piRadar" style="border-radius: 20px">
+                <defs>
+                    <linearGradient id="about-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00796B" /><stop offset="1" stop-color="#004D40" /></linearGradient>
+                    <linearGradient id="about-sweep" x1="228" y1="228" x2="300" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFCA28" stop-opacity="0.05" /><stop offset="1" stop-color="#FFCA28" stop-opacity="0.55" /></linearGradient>
+                </defs>
+                <rect width="456" height="456" fill="url(#about-bg)" />
+                <g transform="translate(228 228) scale(0.8) translate(-228 -228)">
+                    <path d="M228 228 L228 88 A140 140 0 0 1 349.24 158 Z" fill="url(#about-sweep)" />
+                    <circle cx="228" cy="228" r="140" fill="none" stroke="#FFFFFF" stroke-width="12" />
+                    <circle cx="228" cy="228" r="93" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="9" />
+                    <circle cx="228" cy="228" r="46" fill="none" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="7" />
+                    <line x1="228" y1="228" x2="349.24" y2="158" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round" />
+                    <circle cx="288" cy="142" r="30" fill="#FFCA28" fill-opacity="0.3" />
+                    <circle cx="288" cy="142" r="17" fill="#FFCA28" />
+                    <circle cx="228" cy="228" r="12" fill="#FFFFFF" />
+                </g>
+            </svg>
+            <MudText Typo="Typo.h5">piRadar</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary" id="about-version">
+                Versión @AppInfo.Current.VersionString (@AppInfo.Current.BuildString)
+            </MudText>
+        </MudStack>
+
+        <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+            <MudText Typo="Typo.body2">
+                Registra tus gastos e ingresos, escanea recibos y mira en qué se va tu dinero, en pesos y dólares.
+            </MudText>
+            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start" Class="mt-3">
+                <MudIcon Icon="@Icons.Material.Rounded.Lock" Color="Color.Primary" Size="Size.Small" />
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                    Tus datos y las fotos de recibos se guardan cifrados solo en este dispositivo. piRadar no usa
+                    internet, no tiene anuncios ni cuentas, y no envía tus datos a nadie.
+                </MudText>
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Elevation="0" Outlined="true">
+            <MudText Typo="Typo.subtitle1" Class="px-4 pt-3">Desarrollador</MudText>
+            <MudList T="string" Dense="true">
+                <MudListItem T="string" Icon="@Icons.Material.Rounded.Person" Text="@DeveloperName" />
+                <MudListItem T="string" Icon="@Icons.Material.Rounded.Place" Text="Cali - Colombia" />
+                <MudListItem T="string" Icon="@Icons.Material.Rounded.Email" id="about-email"
+                             OnClick="@(() => OpenAsync("mailto:" + Email))">
+                    <MudText Typo="Typo.body2" Color="Color.Primary">@Email</MudText>
+                </MudListItem>
+                <MudListItem T="string" Icon="@Icons.Material.Rounded.Language" id="about-website"
+                             OnClick="@(() => OpenAsync(Website))">
+                    <MudText Typo="Typo.body2" Color="Color.Primary">belvicto.com</MudText>
+                </MudListItem>
+            </MudList>
+        </MudPaper>
+
+        <MudPaper Elevation="0" Outlined="true">
+            <MudList T="string">
+                <MudListItem T="string" Href="about/licenses" Icon="@Icons.Material.Rounded.Gavel" id="about-licenses">
+                    <div class="d-flex align-center justify-space-between">
+                        <span>Licencias de terceros</span>
+                        <MudIcon Icon="@Icons.Material.Rounded.ChevronRight" Color="Color.Default" />
+                    </div>
+                </MudListItem>
+            </MudList>
+        </MudPaper>
+
+        <MudText Typo="Typo.caption" Class="mud-text-secondary" Align="Align.Center">
+            © 2026 @DeveloperName
+        </MudText>
+    </MudStack>
+</MudContainer>
+
+@code {
+    private const string DeveloperName = "John Harold Belalcazar Lozano";
+    private const string Email = "belvictodeveloper@gmail.com";
+    private const string Website = "https://belvicto.com";
+
+    // Abre la app de correo o el navegador del teléfono; piRadar en sí no usa internet.
+    private async Task OpenAsync(string uri)
+    {
+        try
+        {
+            if (!await Launcher.Default.TryOpenAsync(new Uri(uri)))
+            {
+                Snackbar.Add("No hay una app en este teléfono para abrir el enlace.", Severity.Warning);
+            }
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("No se pudo abrir el enlace.", Severity.Warning);
+        }
+    }
+}

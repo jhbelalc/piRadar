@@ -1,11 +1,29 @@
 @page "/settings"
 @inject ISettingsRepository SettingsRepository
 @inject ThemeState ThemeState
+@inject HomeTitleState HomeTitleState
+@inject ISnackbar Snackbar
 
 <PageBar Title="Ajustes" BackHref="more" />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
     <MudStack Spacing="3">
+        <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+            <MudText Typo="Typo.subtitle1">Título de inicio</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary mb-3">
+                El nombre que ves arriba en Inicio, por ejemplo "Mis finanzas". Debajo siempre aparece piRadar.
+            </MudText>
+            <MudTextField T="string" id="home-title" @bind-Value="_homeTitle" Label="Título" Variant="Variant.Outlined"
+                          MaxLength="HomeTitle.MaxLength" Counter="HomeTitle.MaxLength" Immediate="true"
+                          Placeholder="@HomeTitle.Default" />
+            <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-2">
+                <MudButton id="home-title-reset" Variant="Variant.Text" OnClick="ResetHomeTitleAsync"
+                           Disabled="HomeTitleState.Title == HomeTitle.Default">Restablecer</MudButton>
+                <MudButton id="home-title-save" Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveHomeTitleAsync"
+                           Disabled="(HomeTitle.Normalize(_homeTitle) ?? HomeTitle.Default) == HomeTitleState.Title">Guardar</MudButton>
+            </MudStack>
+        </MudPaper>
+
         <MudPaper Class="pa-4" Elevation="0" Outlined="true">
             <MudText Typo="Typo.subtitle1">Moneda base</MudText>
             <MudText Typo="Typo.body2" Class="mud-text-secondary mb-3" >
@@ -39,18 +57,30 @@
                 </div>
             </MudStack>
         </MudPaper>
-
-        <MudText Typo="Typo.caption" Class="mud-text-secondary" Align="Align.Center">
-            piRadar @AppInfo.Current.VersionString (@AppInfo.Current.BuildString)
-        </MudText>
     </MudStack>
 </MudContainer>
 
 @code {
     private Currency _baseCurrency;
+    private string? _homeTitle;
 
-    protected override async Task OnInitializedAsync() =>
+    protected override async Task OnInitializedAsync()
+    {
         _baseCurrency = await SettingsRepository.GetBaseCurrencyAsync();
+        _homeTitle = HomeTitleState.Title;
+    }
+
+    private async Task SaveHomeTitleAsync()
+    {
+        _homeTitle = await HomeTitleState.SetAsync(_homeTitle);
+        Snackbar.Add("Título guardado.", Severity.Success);
+    }
+
+    private async Task ResetHomeTitleAsync()
+    {
+        _homeTitle = await HomeTitleState.SetAsync(null);
+        Snackbar.Add("Título restablecido.", Severity.Success);
+    }
 
     private async Task SetBaseCurrencyAsync(Currency currency)
     {

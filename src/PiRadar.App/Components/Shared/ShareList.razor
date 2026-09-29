@@ -1,5 +1,5 @@
 @* Filas con ícono, nombre, monto, porcentaje y una barra proporcional en el color de cada fila. Si hay más de
-   MaxRows, las últimas se suman en "Otras". *@
+   MaxRows, las últimas se suman en "Otras categorías". *@
 <MudStack Spacing="3">
     @foreach (var row in Visible)
     {
@@ -21,7 +21,7 @@
 </MudStack>
 
 @code {
-    /// <summary>Gris de "Otras" (el mismo de la categoría "Otros gastos" de la semilla).</summary>
+    /// <summary>Gris de "Otras categorías" (el mismo de la categoría "Otros gastos" de la semilla).</summary>
     public const string OtherColor = "#757575";
 
     [Parameter, EditorRequired] public IReadOnlyList<ShareRow> Rows { get; set; } = [];
@@ -38,7 +38,7 @@
             }
 
             var rest = Rows.Skip(MaxRows - 1).ToList();
-            var other = new ShareRow("more_horiz", OtherColor, "Otras",
+            var other = new ShareRow("more_horiz", OtherColor, "Otras categorías",
                 new Money(rest.Sum(r => r.Total.AmountMinor), rest[0].Total.Currency), rest.Sum(r => r.Share));
             return Rows.Take(MaxRows - 1).Append(other);
         }
