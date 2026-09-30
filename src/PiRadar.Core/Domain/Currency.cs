@@ -17,10 +17,11 @@ public static class CurrencyExtensions
         _ => throw new ArgumentOutOfRangeException(nameof(currency), currency, null),
     };
 
+    /// <summary>Símbolo según el idioma: en español el peso es "$" y el dólar "US$"; en inglés el dólar es "$" y el peso "COP $".</summary>
     public static string Symbol(this Currency currency) => currency switch
     {
-        Currency.COP => "$",
-        Currency.USD => "US$",
+        Currency.COP => AppLocale.IsEnglish ? "COP $" : "$",
+        Currency.USD => AppLocale.IsEnglish ? "$" : "US$",
         _ => throw new ArgumentOutOfRangeException(nameof(currency), currency, null),
     };
 

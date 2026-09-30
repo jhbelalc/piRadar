@@ -1,6 +1,6 @@
 @page "/more"
 
-<PageBar Title="Más" />
+<PageBar Title="@Pick("Más", "More")" />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
     <MudPaper Elevation="0" Outlined="true">
@@ -16,14 +16,14 @@
                         }
                         else
                         {
-                            <MudText Typo="Typo.caption">Próximamente</MudText>
+                            <MudText Typo="Typo.caption">@Pick("Próximamente", "Coming soon")</MudText>
                         }
                     </div>
                 </MudListItem>
             }
             @if (BuildInfo.IsDebug)
             {
-                <MudListItem T="string" Href="diagnostics" Icon="@Icons.Material.Rounded.BugReport" Text="Diagnóstico (Debug)" />
+                <MudListItem T="string" Href="diagnostics" Icon="@Icons.Material.Rounded.BugReport" Text="Diagnostics (Debug)" />
             }
         </MudList>
     </MudPaper>

@@ -18,13 +18,13 @@
 </MudSelect>
 
 @code {
-    private const string NoneText = "Sin especificar";
+    private static string NoneText => Pick("Sin especificar", "Not specified");
     private IReadOnlyList<PaymentMethod> _items = [];
     private bool _loaded;
 
     [Parameter] public int? Value { get; set; }
     [Parameter] public EventCallback<int?> ValueChanged { get; set; }
-    [Parameter] public string Label { get; set; } = "Medio de pago";
+    [Parameter] public string Label { get; set; } = Pick("Medio de pago", "Payment method");
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public Variant Variant { get; set; } = Variant.Outlined;
 

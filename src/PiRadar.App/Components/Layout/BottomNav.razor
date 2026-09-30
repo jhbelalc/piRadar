@@ -1,18 +1,18 @@
 @implements IDisposable
 @inject NavigationManager Navigation
 
-<nav class="bottom-nav mud-elevation-4" aria-label="Navegación principal">
+<nav class="bottom-nav mud-elevation-4" aria-label="@Pick("Navegación principal", "Main navigation")">
     @Item(NavItems.Home)
     @Item(NavItems.Transactions)
     @if (NavItems.NewTransaction.Enabled)
     {
-        <a href="@NavItems.NewTransaction.Href" class="bottom-nav-add" aria-label="Nuevo movimiento">
+        <a href="@NavItems.NewTransaction.Href" class="bottom-nav-add" aria-label="@Pick("Nuevo movimiento", "New transaction")">
             <MudIcon Icon="@NavItems.NewTransaction.Icon" />
         </a>
     }
     else
     {
-        <span class="bottom-nav-add disabled" aria-disabled="true" aria-label="Nuevo movimiento">
+        <span class="bottom-nav-add disabled" aria-disabled="true" aria-label="@Pick("Nuevo movimiento", "New transaction")">
             <MudIcon Icon="@NavItems.NewTransaction.Icon" />
         </span>
     }

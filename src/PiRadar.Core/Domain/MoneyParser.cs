@@ -3,7 +3,7 @@ using System.Globalization;
 namespace PiRadar.Core.Domain;
 
 /// <summary>
-/// Interpreta montos escritos por el usuario en formato colombiano ("1.234.567", "12,50"). Tolera el punto como
+/// Interpreta montos escritos por el usuario en formato colombiano ("1.234.567", "12,50") o estadounidense ("1,234.56"). Tolera el punto como
 /// decimal porque el teclado numérico de Android a veces solo ofrece "." ("12.50"). Regla, igual que en los
 /// recibos: un separador seguido de exactamente 3 dígitos es de miles; si no, es decimal. Con separadores
 /// mezclados, el último es el decimal.
@@ -13,10 +13,8 @@ public static class MoneyParser
     /// <summary>Más dígitos enteros que esto ya no cabe en <c>long</c> con centavos (y no es un monto real).</summary>
     private const int MaxIntegerDigits = 13;
 
-    private static readonly CultureInfo Colombia = CultureInfo.GetCultureInfo("es-CO");
-
     /// <summary>
-    /// Convierte el texto a <see cref="Money"/>. Devuelve <c>false</c> con un mensaje en español si está vacío,
+    /// Convierte el texto a <see cref="Money"/>. Devuelve <c>false</c> con un mensaje en el idioma vigente si está vacío,
     /// no es un número o tiene más decimales de los que admite la moneda.
     /// </summary>
     public static bool TryParse(string? text, Currency currency, out Money money, out string? error)
@@ -25,20 +23,22 @@ public static class MoneyParser
         var cleaned = StripCurrency(text);
         if (cleaned.Length == 0)
         {
-            error = "Ingresa un monto.";
+            error = AppLocale.Pick("Ingresa un monto.", "Enter an amount.");
             return false;
         }
 
         if (!TryParseDecimal(cleaned, out var value))
         {
-            error = "El monto no es válido.";
+            error = AppLocale.Pick("El monto no es válido.", "The amount is not valid.");
             return false;
         }
 
         var scale = currency.Scale();
         if (decimal.Round(value, scale) != value)
         {
-            error = scale == 0 ? "Los pesos no llevan centavos." : $"Máximo {scale} decimales.";
+            error = scale == 0
+                ? AppLocale.Pick("Los pesos no llevan centavos.", "Colombian pesos have no cents.")
+                : AppLocale.Pick($"Máximo {scale} decimales.", $"At most {scale} decimals.");
             return false;
         }
 
@@ -97,13 +97,14 @@ public static class MoneyParser
 
     /// <summary>Texto para un campo de edición: sin símbolo, con miles y los decimales de la moneda.</summary>
     public static string FormatForInput(Money money) =>
-        money.ToDecimal().ToString("N" + money.Currency.Scale(), Colombia);
+        money.ToDecimal().ToString("N" + money.Currency.Scale(), AppLocale.Culture);
 
     /// <summary>Texto para editar un número decimal (p. ej. una tasa), sin ceros de más a la derecha.</summary>
     public static string FormatDecimal(decimal value, int minDecimals = 0)
     {
-        var text = value.ToString("#,##0." + new string('0', minDecimals) + new string('#', 28 - minDecimals), Colombia);
-        return text.TrimEnd(',');
+        var culture = AppLocale.Culture;
+        var text = value.ToString("#,##0." + new string('0', minDecimals) + new string('#', 28 - minDecimals), culture);
+        return text.TrimEnd(culture.NumberFormat.NumberDecimalSeparator[0]);
     }
 
     // "1.234.567": el primer grupo tiene 1–3 dígitos y los demás exactamente 3; un solo tipo de separador.

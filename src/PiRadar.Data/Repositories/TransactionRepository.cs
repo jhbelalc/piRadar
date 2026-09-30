@@ -133,7 +133,7 @@ internal sealed class TransactionRepository(DatabaseHost host, IClock clock)
 
             if (image.Jpeg is not { Length: > 0 } || image.Width <= 0 || image.Height <= 0)
             {
-                throw new DomainValidationException("La imagen del recibo no es válida.");
+                throw new DomainValidationException(AppLocale.Pick("La imagen del recibo no es válida.", "The receipt image is not valid."));
             }
 
             var imageRecord = image.ToRecord();
@@ -205,12 +205,12 @@ internal sealed class TransactionRepository(DatabaseHost host, IClock clock)
     {
         if (!Enum.IsDefined(record.Type))
         {
-            throw new DomainValidationException("Tipo de movimiento no válido.");
+            throw new DomainValidationException(AppLocale.Pick("Tipo de movimiento no válido.", "Invalid transaction type."));
         }
 
         if (record.AmountMinor <= 0)
         {
-            throw new DomainValidationException("El monto debe ser mayor que cero.");
+            throw new DomainValidationException(AppLocale.Pick("El monto debe ser mayor que cero.", "The amount must be greater than zero."));
         }
 
         record.Merchant = TrimToNull(record.Merchant);
@@ -218,27 +218,27 @@ internal sealed class TransactionRepository(DatabaseHost host, IClock clock)
         record.Notes = TrimToNull(record.Notes);
 
         var category = db.Find<CategoryRecord>(record.CategoryId)
-            ?? throw new DomainValidationException("La categoría no existe.");
+            ?? throw new DomainValidationException(AppLocale.Pick("La categoría no existe.", "The category does not exist."));
         if (category.Kind != record.Type)
         {
             throw new DomainValidationException(record.Type == TransactionType.Expense
-                ? "La categoría elegida es de ingresos; el movimiento es un gasto."
-                : "La categoría elegida es de gastos; el movimiento es un ingreso.");
+                ? AppLocale.Pick("La categoría elegida es de ingresos; el movimiento es un gasto.", "The chosen category is for income, but the transaction is an expense.")
+                : AppLocale.Pick("La categoría elegida es de gastos; el movimiento es un ingreso.", "The chosen category is for expenses, but the transaction is income."));
         }
 
         // Una categoría o medio archivado no se puede elegir de nuevo, pero un movimiento viejo lo conserva al editarse.
         if (category.IsArchived && stored?.CategoryId != record.CategoryId)
         {
-            throw new DomainValidationException($"La categoría «{category.Name}» está archivada.");
+            throw new DomainValidationException(AppLocale.Pick($"La categoría «{category.Name}» está archivada.", $"The category “{category.Name}” is archived."));
         }
 
         if (record.PaymentMethodId is { } paymentMethodId)
         {
             var method = db.Find<PaymentMethodRecord>(paymentMethodId)
-                ?? throw new DomainValidationException("El medio de pago no existe.");
+                ?? throw new DomainValidationException(AppLocale.Pick("El medio de pago no existe.", "The payment method does not exist."));
             if (method.IsArchived && stored?.PaymentMethodId != paymentMethodId)
             {
-                throw new DomainValidationException($"El medio de pago «{method.Name}» está archivado.");
+                throw new DomainValidationException(AppLocale.Pick($"El medio de pago «{method.Name}» está archivado.", $"The payment method “{method.Name}” is archived."));
             }
         }
     }

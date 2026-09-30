@@ -1,6 +1,6 @@
 <MudToggleGroup T="Currency" Value="Value" ValueChanged="ValueChanged" SelectionMode="SelectionMode.SingleSelection"
                 Color="Color.Primary" Size="Size" CheckMark="false" Disabled="Disabled" Style="width: fit-content">
-    @foreach (var currency in Enum.GetValues<Currency>())
+    @foreach (var currency in Ordered)
     {
         <MudToggleItem Value="currency" Text="@currency.ToString()" />
     }
@@ -11,4 +11,9 @@
     [Parameter] public EventCallback<Currency> ValueChanged { get; set; }
     [Parameter] public Size Size { get; set; } = Size.Small;
     [Parameter] public bool Disabled { get; set; }
+
+    // En inglés el dólar va primero.
+    private static IEnumerable<Currency> Ordered => IsEnglish
+        ? Enum.GetValues<Currency>().OrderByDescending(c => c == Currency.USD)
+        : Enum.GetValues<Currency>();
 }

@@ -1,0 +1,3 @@
+"NSCameraUsageDescription" = "piRadar uses the camera to photograph your receipts. The photo is processed and stored encrypted on this device only.";
+"NSPhotoLibraryUsageDescription" = "piRadar opens your photos to read receipts. The photo is processed and stored encrypted on this device only.";
+"NSPhotoLibraryAddUsageDescription" = "iOS asks for this permission to use the camera. piRadar does not save photos to your photo library: the receipt photo stays encrypted inside the app.";

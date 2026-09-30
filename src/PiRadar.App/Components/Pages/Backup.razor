@@ -7,10 +7,11 @@
 @inject ISnackbar Snackbar
 @inject ThemeState ThemeState
 @inject HomeTitleState HomeTitleState
+@inject LanguageState Language
 @inject NavigationManager Navigation
 @inject ILogger<Backup> Logger
 
-<PageBar Title="Respaldo" BackHref="more" />
+<PageBar Title="@Pick("Respaldo", "Backup")" BackHref="more" />
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="page-content">
     <MudStack Spacing="3">
@@ -18,30 +19,38 @@
             <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start">
                 <MudIcon Icon="@Icons.Material.Rounded.Lock" Color="Color.Primary" />
                 <div>
-                    <MudText Typo="Typo.subtitle1">Respaldo cifrado</MudText>
+                    <MudText Typo="Typo.subtitle1">@Pick("Respaldo cifrado", "Encrypted backup")</MudText>
                     <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                        Un archivo <b>.piradar</b> con todos tus movimientos, categorías, medios de pago, tasas y fotos
-                        de recibos, cifrado con una contraseña que eliges. Guárdalo donde quieras (Drive, correo, tu
-                        computador) y restáuralo en este u otro teléfono. Sin la contraseña no se puede abrir.
+                        @if (IsEnglish)
+                        {
+                            <text>A <b>.piradar</b> file with all your transactions, categories, payment methods, rates and receipt photos, encrypted with a password you choose. Save it wherever you like (Drive, email, your computer) and restore it on this or another phone. Without the password it cannot be opened.</text>
+                        }
+                        else
+                        {
+                            <text>Un archivo <b>.piradar</b> con todos tus movimientos, categorías, medios de pago, tasas y fotos de recibos, cifrado con una contraseña que eliges. Guárdalo donde quieras (Drive, correo, tu computador) y restáuralo en este u otro teléfono. Sin la contraseña no se puede abrir.</text>
+                        }
                     </MudText>
                 </div>
             </MudStack>
         </MudPaper>
 
         <MudText Typo="Typo.body2" Class="mud-text-secondary ml-1" id="last-backup">
-            @(_lastBackup is { } last ? $"Último respaldo: {DateLabels.Day(last.ToLocalTime(), DateTime.Today)} {last.ToLocalTime():HH:mm}" : "Aún no has hecho ningún respaldo.")
+            @(_lastBackup is { } last
+                ? Pick($"Último respaldo: {DateLabels.Day(last.ToLocalTime(), DateTime.Today)} {DateLabels.Time(last.ToLocalTime())}",
+                       $"Last backup: {DateLabels.Day(last.ToLocalTime(), DateTime.Today)} {DateLabels.Time(last.ToLocalTime())}")
+                : Pick("Aún no has hecho ningún respaldo.", "You have not made a backup yet."))
         </MudText>
 
         <MudButton id="backup-export" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                   StartIcon="@Icons.Material.Rounded.CloudUpload" OnClick="ExportAsync" Disabled="_busy">Crear respaldo</MudButton>
+                   StartIcon="@Icons.Material.Rounded.CloudUpload" OnClick="ExportAsync" Disabled="_busy">@Pick("Crear respaldo", "Create backup")</MudButton>
         <MudButton id="backup-import" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                    StartIcon="@Icons.Material.Rounded.SettingsBackupRestore" OnClick="PickAndRestoreAsync" Disabled="_busy">
-            Restaurar un respaldo
+            @Pick("Restaurar un respaldo", "Restore a backup")
         </MudButton>
         @if (BuildInfo.IsDebug && File.Exists(DebugBackupPath))
         {
             <MudButton id="debug-backup" Variant="Variant.Text" FullWidth="true" OnClick="RestoreDebugFileAsync" Disabled="_busy">
-                Restaurar archivo de prueba (Debug)
+                Restore test file (Debug)
             </MudButton>
         }
 
@@ -51,7 +60,14 @@
         }
 
         <MudAlert Severity="Severity.Warning" Dense="true" Icon="@Icons.Material.Rounded.Warning">
-            Restaurar reemplaza <b>todos</b> los datos de este teléfono por los del respaldo.
+            @if (IsEnglish)
+            {
+                <text>Restoring replaces <b>all</b> the data on this phone with the backup's.</text>
+            }
+            else
+            {
+                <text>Restaurar reemplaza <b>todos</b> los datos de este teléfono por los del respaldo.</text>
+            }
         </MudAlert>
     </MudStack>
 </MudContainer>
@@ -71,7 +87,7 @@
 
     private async Task ExportAsync()
     {
-        var dialog = await Dialogs.ShowAsync<BackupPasswordDialog>("Crear respaldo", DialogExtensions.FormOptions);
+        var dialog = await Dialogs.ShowAsync<BackupPasswordDialog>(Pick("Crear respaldo", "Create backup"), DialogExtensions.FormOptions);
         if (await dialog.Result is not { Canceled: false, Data: byte[] file })
         {
             return;
@@ -85,18 +101,18 @@
             await File.WriteAllBytesAsync(path, file);
             await Share.Default.RequestAsync(new ShareFileRequest
             {
-                Title = "Respaldo de piRadar",
+                Title = Pick("Respaldo de piRadar", "piRadar backup"),
                 File = new ShareFile(path, "application/octet-stream"),
             });
 
             _lastBackup = DateTime.UtcNow;
             await SettingsRepository.SetLastBackupAtAsync(_lastBackup.Value);
-            Snackbar.Add("Respaldo creado. Guárdalo en un lugar seguro junto con su contraseña.", Severity.Success);
+            Snackbar.Add(Pick("Respaldo creado. Guárdalo en un lugar seguro junto con su contraseña.", "Backup created. Keep it somewhere safe together with its password."), Severity.Success);
         }
         catch (Exception ex)
         {
             Logger.LogError(ex, "No se pudo compartir el respaldo");
-            Snackbar.Add("No se pudo guardar el respaldo. Intenta de nuevo.", Severity.Error);
+            Snackbar.Add(Pick("No se pudo guardar el respaldo. Intenta de nuevo.", "The backup could not be saved. Try again."), Severity.Error);
         }
         finally
         {
@@ -112,7 +128,7 @@
             // .piradar no es un tipo conocido por el sistema: se aceptan todos y el formato se valida al abrir.
             picked = await FilePicker.Default.PickAsync(new PickOptions
             {
-                PickerTitle = "Elige el respaldo (.piradar)",
+                PickerTitle = Pick("Elige el respaldo (.piradar)", "Choose the backup (.piradar)"),
                 FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
                 {
                     [DevicePlatform.Android] = ["*/*"],
@@ -123,7 +139,7 @@
         catch (Exception ex)
         {
             Logger.LogError(ex, "Falló el selector de archivos");
-            Snackbar.Add("No se pudo abrir el selector de archivos.", Severity.Error);
+            Snackbar.Add(Pick("No se pudo abrir el selector de archivos.", "The file picker could not be opened."), Severity.Error);
             return;
         }
 
@@ -148,13 +164,13 @@
     private async Task RestoreAsync(byte[] file)
     {
         var parameters = new DialogParameters<BackupPasswordDialog> { { d => d.File, file } };
-        var dialog = await Dialogs.ShowAsync<BackupPasswordDialog>("Restaurar respaldo", parameters, DialogExtensions.FormOptions);
+        var dialog = await Dialogs.ShowAsync<BackupPasswordDialog>(Pick("Restaurar respaldo", "Restore backup"), parameters, DialogExtensions.FormOptions);
         if (await dialog.Result is not { Canceled: false, Data: BackupContents contents })
         {
             return;
         }
 
-        if (!await Dialogs.ConfirmAsync("¿Reemplazar todos los datos?", Describe(contents.Summary), "Reemplazar"))
+        if (!await Dialogs.ConfirmAsync(Pick("¿Reemplazar todos los datos?", "Replace all data?"), Describe(contents.Summary), Pick("Reemplazar", "Replace")))
         {
             return;
         }
@@ -164,15 +180,17 @@
         {
             await BackupService.RestoreAsync(contents);
             await ThemeState.LoadAsync();
+            // El respaldo puede venir del otro idioma: se aplica el suyo y se traducen los nombres de la app.
+            await Language.ReloadAfterRestoreAsync();
             await HomeTitleState.LoadAsync();
-            Snackbar.Add("Respaldo restaurado.", Severity.Success);
-            Navigation.NavigateTo("");
+            Snackbar.Add(Pick("Respaldo restaurado.", "Backup restored."), Severity.Success);
+            Navigation.NavigateTo("", forceLoad: true);
         }
         catch (Exception ex)
         {
             // La restauración es una sola transacción: si falla, los datos anteriores quedan intactos.
             Logger.LogError(ex, "Falló la restauración del respaldo");
-            Snackbar.Add("No se pudo restaurar el respaldo. Tus datos no cambiaron.", Severity.Error);
+            Snackbar.Add(Pick("No se pudo restaurar el respaldo. Tus datos no cambiaron.", "The backup could not be restored. Your data did not change."), Severity.Error);
         }
         finally
         {
@@ -183,12 +201,23 @@
     private static string Describe(BackupSummary summary)
     {
         var created = summary.CreatedAt.ToLocalTime();
+        if (IsEnglish)
+        {
+            var transactions = summary.TransactionCount == 1 ? "1 transaction" : $"{summary.TransactionCount} transactions";
+            var span = summary is { FirstTransaction: { } from, LastTransaction: { } to }
+                ? $" (from {DateLabels.Short(from)} to {DateLabels.Short(to)})"
+                : "";
+            var photos = summary.ReceiptCount == 1 ? "1 receipt" : $"{summary.ReceiptCount} receipts";
+            return $"The backup from {DateLabels.Short(created)} at {DateLabels.Time(created)} has {transactions}{span} and {photos}. " +
+                "Everything currently on this phone will be erased and replaced. This cannot be undone.";
+        }
+
         var movements = summary.TransactionCount == 1 ? "1 movimiento" : $"{summary.TransactionCount} movimientos";
         var range = summary is { FirstTransaction: { } first, LastTransaction: { } last }
             ? $" (del {DateLabels.Short(first)} al {DateLabels.Short(last)})"
             : "";
         var receipts = summary.ReceiptCount == 1 ? "1 recibo" : $"{summary.ReceiptCount} recibos";
-        return $"El respaldo del {DateLabels.Short(created)} a las {created:HH:mm} tiene {movements}{range} y {receipts}. " +
+        return $"El respaldo del {DateLabels.Short(created)} a las {DateLabels.Time(created)} tiene {movements}{range} y {receipts}. " +
             "Todo lo que hay ahora en este teléfono se borra y se reemplaza. No se puede deshacer.";
     }
 

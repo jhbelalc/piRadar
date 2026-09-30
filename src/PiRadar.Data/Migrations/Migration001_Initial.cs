@@ -1,3 +1,4 @@
+using PiRadar.Core.Domain;
 using PiRadar.Data.Seed;
 using SQLite;
 
@@ -120,6 +121,7 @@ internal sealed class Migration001_Initial : IMigration
                 name, (int)kind, icon, order++);
         }
 
-        db.Execute("""INSERT INTO "AppSetting" ("Key", "Value") VALUES (?, ?)""", AppSettingKeys.BaseCurrency, "COP");
+        db.Execute("""INSERT INTO "AppSetting" ("Key", "Value") VALUES (?, ?)""", AppSettingKeys.BaseCurrency,
+            AppLocale.IsEnglish ? "USD" : "COP");
     }
 }

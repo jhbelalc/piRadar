@@ -2,6 +2,7 @@
 @using PiRadar.Data
 @inject DatabaseHost Host
 @inject ILogger<DatabaseGate> Logger
+@inject LanguageState Language
 
 @* Abre la BD antes de mostrar la app; si no se puede, ofrece empezar de cero. *@
 @switch (_state)
@@ -10,7 +11,7 @@
         <div class="d-flex flex-column align-center justify-center gap-4" style="min-height: 100vh">
             <MudIcon Icon="@Icons.Material.Rounded.Radar" Color="Color.Primary" Style="font-size: 4rem" />
             <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small" />
-            <MudText Typo="Typo.body2" Class="mud-text-secondary">Abriendo tus datos…</MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary">@Pick("Abriendo tus datos…", "Opening your data…")</MudText>
         </div>
         break;
 
@@ -22,22 +23,22 @@
         <MudContainer MaxWidth="MaxWidth.Small" Class="py-8" Style="padding-top: calc(32px + env(safe-area-inset-top)) !important">
             <MudStack Spacing="3">
                 <MudIcon Icon="@Icons.Material.Rounded.LockReset" Color="Color.Error" Style="font-size: 3rem" />
-                <MudText Typo="Typo.h5">No se pudieron abrir tus datos</MudText>
+                <MudText Typo="Typo.h5">@Pick("No se pudieron abrir tus datos", "Your data could not be opened")</MudText>
                 <MudText>@_message</MudText>
-                <MudText Typo="Typo.body2">Si tienes un respaldo, podrás importarlo después de empezar de cero.</MudText>
+                <MudText Typo="Typo.body2">@Pick("Si tienes un respaldo, podrás importarlo después de empezar de cero.", "If you have a backup, you can import it after starting over.")</MudText>
                 @if (_confirmReset)
                 {
                     <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
-                        Se borrarán todos los datos de este dispositivo. Esta acción no se puede deshacer.
+                        @Pick("Se borrarán todos los datos de este dispositivo. Esta acción no se puede deshacer.", "All data on this device will be erased. This cannot be undone.")
                     </MudAlert>
                     <MudStack Row="true" Justify="Justify.FlexEnd">
-                        <MudButton Variant="Variant.Text" OnClick="() => _confirmReset = false">Cancelar</MudButton>
-                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="ResetAsync">Borrar y empezar de cero</MudButton>
+                        <MudButton Variant="Variant.Text" OnClick="() => _confirmReset = false">@Pick("Cancelar", "Cancel")</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="ResetAsync">@Pick("Borrar y empezar de cero", "Erase and start over")</MudButton>
                     </MudStack>
                 }
                 else
                 {
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => _confirmReset = true">Empezar de cero…</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => _confirmReset = true">@Pick("Empezar de cero…", "Start over…")</MudButton>
                 }
             </MudStack>
         </MudContainer>
@@ -68,16 +69,26 @@
             (_state, _message) = status switch
             {
                 DatabaseStatus.Opened => (GateState.Ready, string.Empty),
-                DatabaseStatus.KeyMissing => (GateState.Failed,
-                    "Los datos existen pero la clave para leerlos ya no está en este dispositivo."),
-                _ => (GateState.Failed, "La clave guardada no abre los datos o el archivo está dañado."),
+                DatabaseStatus.KeyMissing => (GateState.Failed, Pick(
+                    "Los datos existen pero la clave para leerlos ya no está en este dispositivo.",
+                    "The data exists but the key to read it is no longer on this device.")),
+                _ => (GateState.Failed, Pick(
+                    "La clave guardada no abre los datos o el archivo está dañado.",
+                    "The stored key does not open the data, or the file is damaged.")),
             };
+            if (status == DatabaseStatus.Opened)
+            {
+                // El idioma elegido en Ajustes vive en la BD: se aplica antes de mostrar la app.
+                await Language.LoadAsync();
+            }
         }
         catch (Exception ex)
         {
             Logger.LogError("Error al abrir la base de datos: {ExceptionType}", ex.GetType().FullName);
             // No se muestra el detalle: podría incluir rutas o datos del almacenamiento seguro.
-            (_state, _message) = (GateState.Failed, "Ocurrió un error inesperado al abrir el almacenamiento seguro.");
+            (_state, _message) = (GateState.Failed, Pick(
+                "Ocurrió un error inesperado al abrir el almacenamiento seguro.",
+                "An unexpected error occurred while opening secure storage."));
         }
     }
 }

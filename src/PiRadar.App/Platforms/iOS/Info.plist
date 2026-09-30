@@ -2,6 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <!-- Idiomas de la app: los textos de permisos salen de es.lproj / en.lproj/InfoPlist.strings según el idioma del
+         teléfono; los valores de abajo son el respaldo en español. -->
+    <key>CFBundleDevelopmentRegion</key>
+    <string>es</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>es</string>
+        <string>en</string>
+    </array>
     <key>NSCameraUsageDescription</key>
     <string>piRadar usa la cámara para fotografiar tus recibos. La foto se procesa y guarda cifrada solo en este dispositivo.</string>
     <key>NSPhotoLibraryUsageDescription</key>

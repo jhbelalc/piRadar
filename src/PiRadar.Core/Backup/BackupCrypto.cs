@@ -1,3 +1,4 @@
+using PiRadar.Core.Domain;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text;
@@ -35,10 +36,12 @@ public static class BackupCrypto
     {
         if (string.IsNullOrEmpty(password) || password.Length < MinPasswordLength)
         {
-            return $"La contraseña debe tener al menos {MinPasswordLength} caracteres.";
+            return AppLocale.Pick(
+                $"La contraseña debe tener al menos {MinPasswordLength} caracteres.",
+                $"The password must be at least {MinPasswordLength} characters long.");
         }
 
-        return password == confirmation ? null : "Las contraseñas no coinciden.";
+        return password == confirmation ? null : AppLocale.Pick("Las contraseñas no coinciden.", "The passwords do not match.");
     }
 
     public static byte[] Encrypt(ReadOnlySpan<byte> plaintext, string password, int schemaVersion, int iterations = DefaultIterations)
@@ -84,19 +87,19 @@ public static class BackupCrypto
         // Sin al menos un byte cifrado no es un respaldo (y AES-GCM de Android abortaría el proceso con cuerpo vacío).
         if (file.Length <= HeaderSize + TagSize || !file[..Magic.Length].SequenceEqual(Magic))
         {
-            throw new BackupException("El archivo no es un respaldo de piRadar.");
+            throw new BackupException(AppLocale.Pick("El archivo no es un respaldo de piRadar.", "This file is not a piRadar backup."));
         }
 
         var format = file[7];
         if (format > FormatVersion)
         {
-            throw new BackupException("El respaldo se hizo con una versión más nueva de piRadar. Actualiza la app para restaurarlo.");
+            throw new BackupException(AppLocale.Pick("El respaldo se hizo con una versión más nueva de piRadar. Actualiza la app para restaurarlo.", "This backup was made with a newer version of piRadar. Update the app to restore it."));
         }
 
         var iterations = BinaryPrimitives.ReadInt32LittleEndian(file[12..]);
         if (format < 1 || iterations is < 1 or > MaxIterations)
         {
-            throw new BackupException("El archivo de respaldo está dañado.");
+            throw new BackupException(AppLocale.Pick("El archivo de respaldo está dañado.", "The backup file is damaged."));
         }
 
         return new BackupHeader(format, BinaryPrimitives.ReadInt32LittleEndian(file[8..]), iterations);
@@ -120,7 +123,7 @@ public static class BackupCrypto
         }
         catch (AuthenticationTagMismatchException ex)
         {
-            throw new BackupException("Contraseña incorrecta o archivo dañado.", ex);
+            throw new BackupException(AppLocale.Pick("Contraseña incorrecta o archivo dañado.", "Wrong password or damaged file."), ex);
         }
         finally
         {
@@ -152,7 +155,7 @@ public static class BackupCrypto
     {
         if (!AesGcm.IsSupported)
         {
-            throw new BackupException("Este dispositivo no soporta el cifrado del respaldo (AES-GCM).");
+            throw new BackupException(AppLocale.Pick("Este dispositivo no soporta el cifrado del respaldo (AES-GCM).", "This device does not support backup encryption (AES-GCM)."));
         }
     }
 }

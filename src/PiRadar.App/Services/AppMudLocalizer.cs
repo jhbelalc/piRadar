@@ -1,10 +1,14 @@
 using Microsoft.Extensions.Localization;
 using MudBlazor;
+using PiRadar.Core.Domain;
 
 namespace PiRadar.App.Services;
 
-/// <summary>Textos internos de MudBlazor en español (botones de diálogos, selectores, etc.).</summary>
-public sealed class SpanishMudLocalizer : MudLocalizer
+/// <summary>
+/// Textos internos de MudBlazor (botones de diálogos, selectores, etc.): en español los de este diccionario; en inglés
+/// se usan los que trae MudBlazor.
+/// </summary>
+public sealed class AppMudLocalizer : MudLocalizer
 {
     private static readonly Dictionary<string, string> Texts = new()
     {
@@ -28,5 +32,5 @@ public sealed class SpanishMudLocalizer : MudLocalizer
     };
 
     public override LocalizedString this[string key] =>
-        Texts.TryGetValue(key, out var text) ? new LocalizedString(key, text) : base[key];
+        !AppLocale.IsEnglish && Texts.TryGetValue(key, out var text) ? new LocalizedString(key, text) : base[key];
 }

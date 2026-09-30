@@ -3,16 +3,16 @@
 @inject IDialogService Dialogs
 @inject ISnackbar Snackbar
 
-<PageBar Title="Medios de pago" BackHref="more">
+<PageBar Title="@Pick("Medios de pago", "Payment methods")" BackHref="more">
     <Actions>
         <MudIconButton id="add-payment-method" Icon="@Icons.Material.Rounded.Add" Color="Color.Inherit"
-                       aria-label="Nuevo medio de pago" OnClick="() => ShowDialogAsync(null)" />
+                       aria-label="@Pick("Nuevo medio de pago", "New payment method")" OnClick="() => ShowDialogAsync(null)" />
     </Actions>
 </PageBar>
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
     <MudStack Spacing="2">
-        <MudSwitch T="bool" Value="_showArchived" ValueChanged="SetShowArchivedAsync" Color="Color.Primary" Label="Mostrar archivados" />
+        <MudSwitch T="bool" Value="_showArchived" ValueChanged="SetShowArchivedAsync" Color="Color.Primary" Label="@Pick("Mostrar archivados", "Show archived")" />
 
         @if (_items is null)
         {
@@ -20,7 +20,7 @@
         }
         else if (_items.Count == 0)
         {
-            <MudText Class="mud-text-secondary py-8" Align="Align.Center" >No hay medios de pago. Crea uno con +.</MudText>
+            <MudText Class="mud-text-secondary py-8" Align="Align.Center" >@Pick("No hay medios de pago. Crea uno con +.", "No payment methods. Create one with +.")</MudText>
         }
         else
         {
@@ -41,7 +41,7 @@
                                 <MudSpacer />
                                 @if (method.IsArchived)
                                 {
-                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">Archivado</MudChip>
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@Pick("Archivado", "Archived")</MudChip>
                                 }
                             </div>
                         </MudListItem>
@@ -69,7 +69,7 @@
     private async Task ShowDialogAsync(PaymentMethod? method)
     {
         var parameters = new DialogParameters<PaymentMethodDialog> { { d => d.PaymentMethod, method } };
-        var title = method is null ? "Nuevo medio de pago" : "Editar medio de pago";
+        var title = method is null ? Pick("Nuevo medio de pago", "New payment method") : Pick("Editar medio de pago", "Edit payment method");
         var dialog = await Dialogs.ShowAsync<PaymentMethodDialog>(title, parameters, DialogExtensions.FormOptions);
         if (await dialog.Result is { Canceled: false, Data: string message })
         {

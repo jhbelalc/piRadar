@@ -63,6 +63,20 @@ internal sealed class SettingsRepository(DatabaseHost host) : RepositoryBase(hos
         return normalized;
     }
 
+    public async Task<AppLanguage?> GetLanguageAsync() =>
+        AppLocale.ParseCode(await GetAsync(AppSettingKeys.Language));
+
+    public async Task SetLanguageAsync(AppLanguage? language)
+    {
+        if (language is null)
+        {
+            await Connection.DeleteAsync<AppSettingRecord>(AppSettingKeys.Language);
+            return;
+        }
+
+        await SetAsync(AppSettingKeys.Language, AppLocale.Code(language.Value));
+    }
+
     /// <summary>Formato ISO 8601 en UTC con que se guarda <see cref="AppSettingKeys.LastBackupAt"/>.</summary>
     internal static string FormatBackupDate(DateTime utc) =>
         RecordMapping.ToUtcForStorage(utc).ToString("O", CultureInfo.InvariantCulture);

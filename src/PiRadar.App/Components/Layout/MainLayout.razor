@@ -1,6 +1,7 @@
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject ThemeState ThemeState
+@inject IJSRuntime JS
 
 <MudThemeProvider @ref="_themeProvider" Theme="AppTheme.Theme" IsDarkMode="IsDarkMode" ObserveSystemDarkModeChange="false" />
 <MudPopoverProvider />
@@ -32,6 +33,8 @@
     {
         if (firstRender && _themeProvider is not null)
         {
+            // Idioma del documento para lectores de pantalla y el corrector del teclado.
+            await JS.InvokeVoidAsync("eval", $"document.documentElement.lang = '{AppLocale.Code(AppLocale.Language)}'");
             _systemDark = await _themeProvider.GetSystemDarkModeAsync();
             await _themeProvider.WatchSystemDarkModeAsync(dark =>
             {

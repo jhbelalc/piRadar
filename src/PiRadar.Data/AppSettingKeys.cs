@@ -13,4 +13,7 @@ public static class AppSettingKeys
 
     /// <summary>Título de la pantalla de inicio elegido por el usuario; sin fila, <c>HomeTitle.Default</c>.</summary>
     public const string HomeTitle = "HomeTitle";
+
+    /// <summary>Idioma elegido: <c>es</c> o <c>en</c>; sin fila, el idioma del dispositivo.</summary>
+    public const string Language = "Language";
 }

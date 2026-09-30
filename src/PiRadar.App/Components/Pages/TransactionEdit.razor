@@ -15,7 +15,7 @@
         @if (!IsNew && _loaded)
         {
             <MudIconButton id="delete-transaction" Icon="@Icons.Material.Rounded.DeleteOutline" Color="Color.Inherit"
-                           aria-label="Eliminar movimiento" OnClick="DeleteAsync" />
+                           aria-label="@Pick("Eliminar movimiento", "Delete transaction")" OnClick="DeleteAsync" />
         }
     </Actions>
 </PageBar>
@@ -27,7 +27,7 @@
     }
     else if (_notFound)
     {
-        <MudText Class="mud-text-secondary">Este movimiento ya no existe.</MudText>
+        <MudText Class="mud-text-secondary">@Pick("Este movimiento ya no existe.", "This transaction no longer exists.")</MudText>
     }
     else
     {
@@ -41,13 +41,13 @@
                 @if (IsNew && _scan is null)
                 {
                     <MudButton id="scan-receipt" Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true"
-                               StartIcon="@Icons.Material.Rounded.DocumentScanner" Href="scan">Escanear recibo</MudButton>
+                               StartIcon="@Icons.Material.Rounded.DocumentScanner" Href="scan">@Pick("Escanear recibo", "Scan receipt")</MudButton>
                 }
 
                 @if (_scan is not null)
                 {
                     <MudAlert Severity="Severity.Info" Dense="true" Icon="@Icons.Material.Rounded.DocumentScanner">
-                        Valores leídos del recibo: revísalos antes de guardar.
+                        @Pick("Valores leídos del recibo: revísalos antes de guardar.", "Values read from the receipt: review them before saving.")
                         @foreach (var hint in _scanHints)
                         {
                             <br />@hint
@@ -57,13 +57,13 @@
 
                 <MudToggleGroup T="TransactionType" Value="_type" ValueChanged="SetTypeAsync" SelectionMode="SelectionMode.SingleSelection"
                                 Color="@(_type == TransactionType.Expense ? Color.Error : Color.Success)" CheckMark="false" Style="width: 100%">
-                    <MudToggleItem Value="TransactionType.Expense" Text="Gasto" />
-                    <MudToggleItem Value="TransactionType.Income" Text="Ingreso" />
+                    <MudToggleItem Value="TransactionType.Expense" Text="@Pick("Gasto", "Expense")" />
+                    <MudToggleItem Value="TransactionType.Income" Text="@Pick("Ingreso", "Income")" />
                 </MudToggleGroup>
 
                 <div class="d-flex align-start gap-3">
                     <div style="flex: 1">
-                        <MoneyInput @bind-Value="_amount" Currency="_currency" Label="Monto" />
+                        <MoneyInput @bind-Value="_amount" Currency="_currency" Label="@Pick("Monto", "Amount")" />
                     </div>
                     <div class="pt-2">
                         <CurrencyToggle @bind-Value="_currency" Size="Size.Medium" />
@@ -73,7 +73,7 @@
                 @if (_totalChoices.Count > 0)
                 {
                     <div class="d-flex align-center flex-wrap gap-1">
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary mr-1">¿Otro total?</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary mr-1">@Pick("¿Otro total?", "Another total?")</MudText>
                         @foreach (var total in _totalChoices)
                         {
                             <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary"
@@ -85,17 +85,17 @@
                 <CategoryPicker @bind-Value="_categoryId" Kind="_type" />
 
                 <div class="d-flex gap-3">
-                    <MudDatePicker @bind-Date="_date" Label="Fecha" Variant="Variant.Outlined" DateFormat="dd/MM/yyyy"
+                    <MudDatePicker @bind-Date="_date" Label="@Pick("Fecha", "Date")" Variant="Variant.Outlined" DateFormat="@(IsEnglish ? "MM/dd/yyyy" : "dd/MM/yyyy")"
                                    PickerVariant="PickerVariant.Dialog" AutoClose="true" Required="true"
-                                   RequiredError="Elige la fecha." ShowToolbar="false" />
-                    <MudTimePicker @bind-Time="_time" Label="Hora" Variant="Variant.Outlined" TimeFormat="HH:mm"
-                                   PickerVariant="PickerVariant.Dialog" AutoClose="true" AmPm="false" Required="true"
-                                   RequiredError="Elige la hora." Style="max-width: 130px" />
+                                   RequiredError="@Pick("Elige la fecha.", "Choose the date.")" ShowToolbar="false" />
+                    <MudTimePicker @bind-Time="_time" Label="@Pick("Hora", "Time")" Variant="Variant.Outlined" TimeFormat="@(IsEnglish ? "hh:mm tt" : "HH:mm")"
+                                   PickerVariant="PickerVariant.Dialog" AutoClose="true" AmPm="@IsEnglish" Required="true"
+                                   RequiredError="@Pick("Elige la hora.", "Choose the time.")" Style="@(IsEnglish ? "max-width: 165px" : "max-width: 130px")" />
                 </div>
 
                 <PaymentMethodPicker @bind-Value="_paymentMethodId" />
 
-                <MudAutocomplete T="string" @bind-Value="_merchant" Label="Comercio (opcional)" Variant="Variant.Outlined"
+                <MudAutocomplete T="string" @bind-Value="_merchant" Label="@Pick("Comercio (opcional)", "Merchant (optional)")" Variant="Variant.Outlined"
                                  SearchFunc="SearchMerchantsAsync" CoerceText="false" CoerceValue="true" MaxLength="80"
                                  MaxItems="8" MinCharacters="1" ShowProgressIndicator="false" OpenIcon="@string.Empty" />
 
@@ -111,31 +111,31 @@
                     </div>
                 }
 
-                <MudTextField T="string" @bind-Value="_description" Label="Descripción (opcional)" Variant="Variant.Outlined"
+                <MudTextField T="string" @bind-Value="_description" Label="@Pick("Descripción (opcional)", "Description (optional)")" Variant="Variant.Outlined"
                               MaxLength="120" />
 
-                <MudTextField T="string" @bind-Value="_notes" Label="Notas (opcional)" Variant="Variant.Outlined"
+                <MudTextField T="string" @bind-Value="_notes" Label="@Pick("Notas (opcional)", "Notes (optional)")" Variant="Variant.Outlined"
                               Lines="3" MaxLength="500" />
 
                 @if (_receiptImage is not null)
                 {
                     <MudPaper Elevation="0" Outlined="true" Class="pa-2">
-                        <MudText Typo="Typo.subtitle2" Class="mb-2">Recibo</MudText>
-                        <img src="@_receiptImage" alt="Foto del recibo" style="width: 100%; border-radius: 8px" />
+                        <MudText Typo="Typo.subtitle2" Class="mb-2">@Pick("Recibo", "Receipt")</MudText>
+                        <img src="@_receiptImage" alt="@Pick("Foto del recibo", "Receipt photo")" style="width: 100%; border-radius: 8px" />
                         @if (!string.IsNullOrWhiteSpace(_receiptText))
                         {
                             <MudButton id="receipt-text" Variant="Variant.Text" Color="Color.Primary" Class="mt-1"
-                                       StartIcon="@Icons.Material.Rounded.Notes" OnClick="ShowReceiptTextAsync">Ver texto leído</MudButton>
+                                       StartIcon="@Icons.Material.Rounded.Notes" OnClick="ShowReceiptTextAsync">@Pick("Ver texto leído", "View text read")</MudButton>
                         }
                     </MudPaper>
                 }
                 else if (_source == TransactionSource.Ocr)
                 {
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Registrado desde un recibo.</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Registrado desde un recibo.", "Added from a receipt.")</MudText>
                 }
 
                 <MudButton id="save-transaction" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
-                           FullWidth="true" OnClick="SaveAsync" Disabled="_busy">Guardar</MudButton>
+                           FullWidth="true" OnClick="SaveAsync" Disabled="_busy">@Pick("Guardar", "Save")</MudButton>
             </MudStack>
         </MudForm>
     }
@@ -178,7 +178,8 @@
 
     private bool IsNew => Id is null;
 
-    private string PageTitle => _scan is not null ? "Nuevo desde recibo" : IsNew ? "Nuevo movimiento" : "Editar movimiento";
+    private string PageTitle => _scan is not null ? Pick("Nuevo desde recibo", "New from receipt")
+        : IsNew ? Pick("Nuevo movimiento", "New transaction") : Pick("Editar movimiento", "Edit transaction");
 
     protected override async Task OnInitializedAsync()
     {
@@ -255,16 +256,16 @@
 
         if (parsed.Total is null)
         {
-            _scanHints.Add("No se encontró el total: escríbelo.");
+            _scanHints.Add(Pick("No se encontró el total: escríbelo.", "The total was not found: enter it."));
         }
         else if (!parsed.TotalConfirmed)
         {
-            _scanHints.Add("Revisa el total: no cuadró con otra parte del recibo.");
+            _scanHints.Add(Pick("Revisa el total: no cuadró con otra parte del recibo.", "Check the total: it did not match another part of the receipt."));
         }
 
         if (parsed.Date is null)
         {
-            _scanHints.Add("No se encontró la fecha: se dejó la de hoy.");
+            _scanHints.Add(Pick("No se encontró la fecha: se dejó la de hoy.", "The date was not found: today's date was left."));
         }
     }
 
@@ -293,7 +294,7 @@
     private async Task ShowReceiptTextAsync()
     {
         var parameters = new DialogParameters<ReceiptTextDialog> { { d => d.Text, _receiptText ?? string.Empty } };
-        await Dialogs.ShowAsync<ReceiptTextDialog>("Texto leído del recibo", parameters, DialogExtensions.FormOptions);
+        await Dialogs.ShowAsync<ReceiptTextDialog>(Pick("Texto leído del recibo", "Text read from the receipt"), parameters, DialogExtensions.FormOptions);
     }
 
     private async Task SetTypeAsync(TransactionType type)
@@ -331,7 +332,7 @@
         if (!_form.IsValid || _amount is not { } amount || _categoryId is not { } categoryId
             || _date is not { } date || _time is not { } time)
         {
-            _error = _categoryId is null ? "Elige una categoría." : null;
+            _error = _categoryId is null ? Pick("Elige una categoría.", "Choose a category.") : null;
             return;
         }
 
@@ -365,17 +366,17 @@
                     OcrEngine = scan.OcrEngine,
                 };
                 await TransactionRepository.AddWithReceiptAsync(transaction, receipt, scan.Image);
-                Snackbar.Add("Movimiento y recibo guardados.", Severity.Success);
+                Snackbar.Add(Pick("Movimiento y recibo guardados.", "Transaction and receipt saved."), Severity.Success);
             }
             else if (IsNew)
             {
                 await TransactionRepository.AddAsync(transaction);
-                Snackbar.Add("Movimiento guardado.", Severity.Success);
+                Snackbar.Add(Pick("Movimiento guardado.", "Transaction saved."), Severity.Success);
             }
             else
             {
                 await TransactionRepository.UpdateAsync(transaction);
-                Snackbar.Add("Cambios guardados.", Severity.Success);
+                Snackbar.Add(Pick("Cambios guardados.", "Changes saved."), Severity.Success);
             }
 
             Navigation.NavigateTo("transactions");
@@ -386,7 +387,7 @@
         }
         catch (KeyNotFoundException)
         {
-            _error = "Este movimiento ya no existe.";
+            _error = Pick("Este movimiento ya no existe.", "This transaction no longer exists.");
         }
         finally
         {
@@ -397,15 +398,15 @@
     private async Task DeleteAsync()
     {
         var message = _original?.ReceiptId is null
-            ? "¿Eliminar este movimiento? Esta acción no se puede deshacer."
-            : "¿Eliminar este movimiento y la foto de su recibo? Esta acción no se puede deshacer.";
-        if (!await Dialogs.ConfirmAsync("Eliminar movimiento", message, "Eliminar"))
+            ? Pick("¿Eliminar este movimiento? Esta acción no se puede deshacer.", "Delete this transaction? This cannot be undone.")
+            : Pick("¿Eliminar este movimiento y la foto de su recibo? Esta acción no se puede deshacer.", "Delete this transaction and its receipt photo? This cannot be undone.");
+        if (!await Dialogs.ConfirmAsync(Pick("Eliminar movimiento", "Delete transaction"), message, Pick("Eliminar", "Delete")))
         {
             return;
         }
 
         await TransactionRepository.DeleteAsync(Id!.Value);
-        Snackbar.Add("Movimiento eliminado.", Severity.Success);
+        Snackbar.Add(Pick("Movimiento eliminado.", "Transaction deleted."), Severity.Success);
         Navigation.NavigateTo("transactions");
     }
 }

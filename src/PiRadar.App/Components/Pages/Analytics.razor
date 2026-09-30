@@ -7,7 +7,7 @@
 @inject ISettingsRepository SettingsRepository
 @inject AnalyticsViewState State
 
-<PageBar Title="Análisis" />
+<PageBar Title="@Pick("Análisis", "Analytics")" />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
     <MudStack Spacing="3">
@@ -32,7 +32,7 @@
         {
             <MudStack AlignItems="AlignItems.Center" Class="py-8" Spacing="3" id="analytics-empty">
                 <MudIcon Icon="@Icons.Material.Rounded.Insights" Size="Size.Large" Class="mud-text-secondary" />
-                <MudText Class="mud-text-secondary">No hay movimientos en este periodo.</MudText>
+                <MudText Class="mud-text-secondary">@Pick("No hay movimientos en este periodo.", "No transactions in this period.")</MudText>
             </MudStack>
         }
         else
@@ -40,38 +40,38 @@
             @if (_missing.Count > 0)
             {
                 <MudAlert Severity="Severity.Warning" Dense="true" id="analytics-missing-rates">
-                    @MissingText porque falta la tasa de cambio para su fecha.
-                    <MudLink Href="exchange-rates" Typo="Typo.body2">Agregar tasa</MudLink>
+                    @MissingText @Pick("porque falta la tasa de cambio para su fecha.", "because the exchange rate for their date is missing.")
+                    <MudLink Href="exchange-rates" Typo="Typo.body2">@Pick("Agregar tasa", "Add rate")</MudLink>
                 </MudAlert>
             }
 
             <MudPaper Elevation="0" Outlined="true" Class="pa-4" id="analytics-summary">
                 <div class="summary-grid">
                     <div>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Gastos</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Gastos", "Expenses")</MudText>
                         <MudText Typo="Typo.subtitle1" Class="money-expense">@_totals.Expenses</MudText>
                     </div>
                     <div>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Ingresos</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Ingresos", "Income")</MudText>
                         <MudText Typo="Typo.subtitle1" Class="money-income">@_totals.Income</MudText>
                     </div>
                     <div>
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Balance</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Balance", "Balance")</MudText>
                         <MudText Typo="Typo.subtitle1" Style="font-weight: 600">@_totals.Balance</MudText>
                     </div>
                 </div>
                 @if (_dailyAverage is { } average && State.Period.Granularity != PeriodGranularity.Day)
                 {
                     <MudText Typo="Typo.body2" Class="mud-text-secondary mt-2">
-                        Gasto promedio por día: <b>@average</b>
+                        @Pick("Gasto promedio por día:", "Average spending per day:") <b>@average</b>
                     </MudText>
                 }
             </MudPaper>
 
             <MudToggleGroup T="TransactionType" Value="State.Type" ValueChanged="SetTypeAsync" SelectionMode="SelectionMode.SingleSelection"
                             Color="Color.Primary" CheckMark="false" Size="Size.Small" Style="width: 100%" id="analytics-type">
-                <MudToggleItem Value="TransactionType.Expense" Text="Gastos" />
-                <MudToggleItem Value="TransactionType.Income" Text="Ingresos" />
+                <MudToggleItem Value="TransactionType.Expense" Text="@Pick("Gastos", "Expenses")" />
+                <MudToggleItem Value="TransactionType.Income" Text="@Pick("Ingresos", "Income")" />
             </MudToggleGroup>
 
             <div>
@@ -85,14 +85,14 @@
             @if (_categoryRows.Count == 0)
             {
                 <MudText Class="mud-text-secondary" Align="Align.Center">
-                    No hay @(State.Type == TransactionType.Expense ? "gastos" : "ingresos") en este periodo.
+                    @(State.Type == TransactionType.Expense ? Pick("No hay gastos en este periodo.", "No expenses in this period.") : Pick("No hay ingresos en este periodo.", "No income in this period."))
                 </MudText>
             }
             else
             {
                 <MudGrid Spacing="3">
                     <MudItem xs="12" md="6">
-                        <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">Por categoría</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">@Pick("Por categoría", "By category")</MudText>
                         <MudPaper Elevation="0" Outlined="true" Class="pa-3" id="analytics-categories">
                             <MudChart T="double" ChartType="ChartType.Donut" ChartSeries="_categorySeries"
                                       ChartLabels="@(_categoryRows.Select(r => r.Name).ToArray())" ChartOptions="_categoryOptions"
@@ -103,7 +103,7 @@
                         </MudPaper>
                     </MudItem>
                     <MudItem xs="12" md="6">
-                        <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">Por medio de pago</MudText>
+                        <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">@Pick("Por medio de pago", "By payment method")</MudText>
                         <MudPaper Elevation="0" Outlined="true" Class="pa-3" id="analytics-payment-methods">
                             <ShareList Rows="_paymentRows" />
                         </MudPaper>
@@ -159,7 +159,7 @@
         _views = currencies.Select(c => (c.ToString(), c.ToString())).ToList();
         if (currencies.Count > 1)
         {
-            _views.Add((ConsolidatedKey, $"Todo en {_baseCurrency}"));
+            _views.Add((ConsolidatedKey, Pick($"Todo en {_baseCurrency}", $"All in {_baseCurrency}")));
         }
 
         _view = State.Consolidated && currencies.Count > 1 ? ConsolidatedKey
@@ -193,32 +193,37 @@
             .ToList();
     }
 
-    /// <summary>Texto al tocar una barra: "14:00–15:00", "jueves 24 sep", "septiembre".</summary>
+    /// <summary>Texto al tocar una barra: "14:00–15:00", "jueves 24 sep", "septiembre" ("2:00 PM–3:00 PM", "Thursday, Sep 24", "September").</summary>
     private static string BucketDetail(DateTime start, PeriodGranularity granularity) => granularity switch
     {
-        PeriodGranularity.Day => $"{start:HH:mm}–{start.AddHours(1):HH:mm}",
+        PeriodGranularity.Day => $"{DateLabels.Time(start)}–{DateLabels.Time(start.AddHours(1))}",
         PeriodGranularity.Year => DateLabels.MonthName(start.Month),
-        _ => $"{DateLabels.DayName(start.DayOfWeek)} {start.Day} {DateLabels.MonthAbbreviation(start.Month)}",
+        _ => IsEnglish
+            ? $"{DateLabels.DayName(start.DayOfWeek)}, {DateLabels.MonthAbbreviation(start.Month)} {start.Day}"
+            : $"{DateLabels.DayName(start.DayOfWeek)} {start.Day} {DateLabels.MonthAbbreviation(start.Month)}",
     };
 
-    private string SeriesTitle => (State.Type == TransactionType.Expense ? "Gastos" : "Ingresos") + State.Period.Granularity switch
-    {
-        PeriodGranularity.Day => " por hora",
-        PeriodGranularity.Year => " por mes",
-        _ => " por día",
-    };
+    private string SeriesTitle => (State.Type == TransactionType.Expense
+            ? Pick("Gastos", "Expenses")
+            : Pick("Ingresos", "Income"))
+        + State.Period.Granularity switch
+        {
+            PeriodGranularity.Day => Pick(" por hora", " by hour"),
+            PeriodGranularity.Year => Pick(" por mes", " by month"),
+            _ => Pick(" por día", " by day"),
+        };
 
     private void BuildBreakdowns()
     {
         var type = State.Type;
         _categoryRows = ShareRow.FromCategories(CategoryShare.ByCategory(_transactions!, type, _currency, _categories), _categories);
-        _categorySeries = [new() { Name = "Categorías", Data = _categoryRows.Select(r => (double)r.Total.ToDecimal()).ToArray() }];
+        _categorySeries = [new() { Name = Pick("Categorías", "Categories"), Data = _categoryRows.Select(r => (double)r.Total.ToDecimal()).ToArray() }];
         _categoryOptions = new DonutChartOptions { ChartPalette = _categoryRows.Select(r => r.Color).ToArray(), ShowLegend = false };
 
         _paymentRows = SpendingAnalyzer.ByPaymentMethod(_transactions!, type, _currency)
             .Select(s => s.PaymentMethodId is { } id && _paymentMethods.GetValueOrDefault(id) is { } method
                 ? new ShareRow(method.Icon, PaymentColor, PaymentMethodText.Display(method), s.Total, s.Share)
-                : new ShareRow("more_horiz", ShareList.OtherColor, "Sin medio de pago", s.Total, s.Share))
+                : new ShareRow("more_horiz", ShareList.OtherColor, Pick("Sin medio de pago", "No payment method"), s.Total, s.Share))
             .ToList();
     }
 
@@ -230,10 +235,10 @@
     {
         get
         {
-            var currencies = string.Join(" y ", _missing.Select(t => t.Amount.Currency).Distinct().Order());
+            var currencies = string.Join(Pick(" y ", " and "), _missing.Select(t => t.Amount.Currency).Distinct().Order());
             return _missing.Count == 1
-                ? $"1 movimiento en {currencies} no se incluye"
-                : $"{_missing.Count} movimientos en {currencies} no se incluyen";
+                ? Pick($"1 movimiento en {currencies} no se incluye", $"1 {currencies} transaction is not included")
+                : Pick($"{_missing.Count} movimientos en {currencies} no se incluyen", $"{_missing.Count} {currencies} transactions are not included");
         }
     }
 

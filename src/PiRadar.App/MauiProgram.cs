@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using MudBlazor;
 using MudBlazor.Services;
 using PiRadar.App.Services;
@@ -13,10 +12,9 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
 	{
-		// Textos, fechas y números de la UI en español de Colombia, sin importar el idioma del teléfono.
-		var colombia = CultureInfo.GetCultureInfo("es-CO");
-		CultureInfo.DefaultThreadCurrentCulture = colombia;
-		CultureInfo.DefaultThreadCurrentUICulture = colombia;
+		// Idioma de la UI: el del teléfono (inglés o español; otro idioma cae en español) hasta que se abre la BD y se
+		// aplica el que el usuario haya elegido en Ajustes (LanguageState).
+		LanguageState.ApplyDeviceLanguage();
 
 		var builder = MauiApp.CreateBuilder();
 		builder
@@ -30,9 +28,10 @@ public static class MauiProgram
 			config.SnackbarConfiguration.VisibleStateDuration = 3000;
 			config.SnackbarConfiguration.ShowCloseIcon = false;
 		});
-		builder.Services.AddTransient<MudLocalizer, SpanishMudLocalizer>();
+		builder.Services.AddTransient<MudLocalizer, AppMudLocalizer>();
 		builder.Services.AddSingleton<ThemeState>();
 		builder.Services.AddSingleton<HomeTitleState>();
+		builder.Services.AddSingleton<LanguageState>();
 		builder.Services.AddSingleton<TransactionsViewState>();
 		builder.Services.AddSingleton<AnalyticsViewState>();
 		builder.Services.AddSingleton<ScanState>();

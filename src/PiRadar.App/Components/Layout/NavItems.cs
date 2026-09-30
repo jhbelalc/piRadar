@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Routing;
 using MudBlazor;
+using PiRadar.Core.Domain;
 
 namespace PiRadar.App.Components.Layout;
 
@@ -13,20 +14,22 @@ public sealed record NavItem(string Label, string Icon, string Href, bool Enable
 /// <summary>Destinos de la barra inferior (teléfono) y del menú lateral (tablet u horizontal).</summary>
 public static class NavItems
 {
-    public static NavItem Home { get; } = new("Inicio", Icons.Material.Rounded.Home, "");
-    public static NavItem Transactions { get; } = new("Movimientos", Icons.Material.Rounded.ReceiptLong, "transactions");
-    public static NavItem NewTransaction { get; } = new("Nuevo", Icons.Material.Rounded.Add, "transactions/new");
-    public static NavItem Analytics { get; } = new("Análisis", Icons.Material.Rounded.Insights, "analytics");
-    public static NavItem More { get; } = new("Más", Icons.Material.Rounded.Menu, "more");
+    // Propiedades calculadas (no campos): la etiqueta depende del idioma vigente.
+    public static NavItem Home => new(AppLocale.Pick("Inicio", "Home"), Icons.Material.Rounded.Home, "");
+    public static NavItem Transactions => new(
+        AppLocale.Pick("Movimientos", "Transactions"), Icons.Material.Rounded.ReceiptLong, "transactions");
+    public static NavItem NewTransaction => new(AppLocale.Pick("Nuevo", "New"), Icons.Material.Rounded.Add, "transactions/new");
+    public static NavItem Analytics => new(AppLocale.Pick("Análisis", "Analytics"), Icons.Material.Rounded.Insights, "analytics");
+    public static NavItem More => new(AppLocale.Pick("Más", "More"), Icons.Material.Rounded.Menu, "more");
 
     /// <summary>Páginas que en el teléfono cuelgan de "Más".</summary>
-    public static IReadOnlyList<NavItem> MoreItems { get; } =
+    public static IReadOnlyList<NavItem> MoreItems =>
     [
-        new("Categorías", Icons.Material.Rounded.Category, "categories"),
-        new("Medios de pago", Icons.Material.Rounded.CreditCard, "payment-methods"),
-        new("Tasas de cambio", Icons.Material.Rounded.CurrencyExchange, "exchange-rates"),
-        new("Respaldo", Icons.Material.Rounded.CloudUpload, "backup"),
-        new("Ajustes", Icons.Material.Rounded.Settings, "settings"),
-        new("Acerca de", Icons.Material.Rounded.Info, "about"),
+        new(AppLocale.Pick("Categorías", "Categories"), Icons.Material.Rounded.Category, "categories"),
+        new(AppLocale.Pick("Medios de pago", "Payment methods"), Icons.Material.Rounded.CreditCard, "payment-methods"),
+        new(AppLocale.Pick("Tasas de cambio", "Exchange rates"), Icons.Material.Rounded.CurrencyExchange, "exchange-rates"),
+        new(AppLocale.Pick("Respaldo", "Backup"), Icons.Material.Rounded.CloudUpload, "backup"),
+        new(AppLocale.Pick("Ajustes", "Settings"), Icons.Material.Rounded.Settings, "settings"),
+        new(AppLocale.Pick("Acerca de", "About"), Icons.Material.Rounded.Info, "about"),
     ];
 }

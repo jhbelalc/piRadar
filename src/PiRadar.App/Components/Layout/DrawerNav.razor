@@ -21,11 +21,11 @@
 </div>
 
 @code {
-    private static readonly NavItem[] MainItems =
+    private static NavItem[] MainItems =>
     [
         NavItems.Home,
         NavItems.Transactions,
-        NavItems.NewTransaction with { Label = "Nuevo movimiento" },
+        NavItems.NewTransaction with { Label = Pick("Nuevo movimiento", "New transaction") },
         NavItems.Analytics,
     ];
 

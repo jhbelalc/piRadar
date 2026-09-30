@@ -1,0 +1,3 @@
+"NSCameraUsageDescription" = "piRadar usa la cámara para fotografiar tus recibos. La foto se procesa y guarda cifrada solo en este dispositivo.";
+"NSPhotoLibraryUsageDescription" = "piRadar abre tus fotos para leer recibos. La foto se procesa y guarda cifrada solo en este dispositivo.";
+"NSPhotoLibraryAddUsageDescription" = "iOS pide este permiso para usar la cámara. piRadar no guarda fotos en tu fototeca: la foto del recibo queda cifrada solo dentro de la app.";
