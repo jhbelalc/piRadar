@@ -18,12 +18,13 @@ internal abstract class RepositoryBase(DatabaseHost host)
     protected static bool Exists(SQLiteConnection db, string sql, params object[] args) =>
         db.ExecuteScalar<int>($"SELECT EXISTS({sql})", args) == 1;
 
-    protected static string RequireName(string? name, string what)
+    protected static string RequireName(string? name, string what, string whatEn)
     {
         var trimmed = name?.Trim();
         if (string.IsNullOrEmpty(trimmed))
         {
-            throw new Core.Domain.DomainValidationException($"El nombre de {what} es obligatorio.");
+            throw new Core.Domain.DomainValidationException(
+                Core.Domain.AppLocale.Pick($"El nombre de {what} es obligatorio.", $"The {whatEn} name is required."));
         }
 
         return trimmed;

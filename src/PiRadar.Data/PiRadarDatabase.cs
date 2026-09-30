@@ -1,3 +1,4 @@
+using PiRadar.Core.Domain;
 using PiRadar.Data.Migrations;
 using SQLite;
 
@@ -59,7 +60,7 @@ public sealed class PiRadarDatabase : IAsyncDisposable
         catch (SQLiteException ex)
         {
             await connection.CloseAsync();
-            throw new DatabaseUnreadableException("No se pudo leer la base de datos: clave incorrecta o archivo dañado.", ex);
+            throw new DatabaseUnreadableException(AppLocale.Pick("No se pudo leer la base de datos: clave incorrecta o archivo dañado.", "The database could not be read: wrong key or damaged file."), ex);
         }
 
         // Todas las migraciones pendientes son atómicas: cada una corre en un SAVEPOINT anidado.

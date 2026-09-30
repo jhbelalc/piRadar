@@ -1,3 +1,4 @@
+using PiRadar.Core.Domain;
 using System.IO.Compression;
 using System.Text.Json;
 using PiRadar.Core.Abstractions;
@@ -48,7 +49,7 @@ internal sealed class BackupService(DatabaseHost host, IClock clock) : IBackupSe
             var header = BackupCrypto.ReadHeader(file);
             if (header.SchemaVersion > Migrator.LatestVersion)
             {
-                throw new BackupException("El respaldo se hizo con una versión más nueva de piRadar. Actualiza la app para restaurarlo.");
+                throw new BackupException(AppLocale.Pick("El respaldo se hizo con una versión más nueva de piRadar. Actualiza la app para restaurarlo.", "This backup was made with a newer version of piRadar. Update the app to restore it."));
             }
 
             var body = BackupCrypto.Decrypt(file, password);
@@ -66,7 +67,7 @@ internal sealed class BackupService(DatabaseHost host, IClock clock) : IBackupSe
             }
             catch (Exception ex) when (ex is JsonException or FormatException or SQLiteException or InvalidDataException)
             {
-                throw new BackupException("El archivo de respaldo está dañado.", ex);
+                throw new BackupException(AppLocale.Pick("El archivo de respaldo está dañado.", "The backup file is damaged."), ex);
             }
         }, cancellationToken);
     }

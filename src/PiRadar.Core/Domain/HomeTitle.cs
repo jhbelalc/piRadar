@@ -8,7 +8,8 @@ namespace PiRadar.Core.Domain;
 /// </summary>
 public static class HomeTitle
 {
-    public const string Default = "Tus cuentas protegidas";
+    /// <summary>Título predeterminado en el idioma vigente.</summary>
+    public static string Default => AppLocale.Pick("Tus cuentas protegidas", "Your money, protected");
 
     public const int MaxLength = 50;
 

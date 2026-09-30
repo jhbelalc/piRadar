@@ -65,21 +65,21 @@ internal sealed partial class PaymentMethodRepository(DatabaseHost host)
 
     private static void Validate(SQLiteConnection db, PaymentMethodRecord record)
     {
-        record.Name = RequireName(record.Name, "el medio de pago");
+        record.Name = RequireName(record.Name, "el medio de pago", "payment method");
         if (!Enum.IsDefined(record.Kind))
         {
-            throw new DomainValidationException("Tipo de medio de pago no válido.");
+            throw new DomainValidationException(AppLocale.Pick("Tipo de medio de pago no válido.", "Invalid payment method type."));
         }
 
         if (string.IsNullOrWhiteSpace(record.Icon))
         {
-            throw new DomainValidationException("El medio de pago necesita un ícono.");
+            throw new DomainValidationException(AppLocale.Pick("El medio de pago necesita un ícono.", "The payment method needs an icon."));
         }
 
         record.LastFourDigits = string.IsNullOrWhiteSpace(record.LastFourDigits) ? null : record.LastFourDigits.Trim();
         if (record.LastFourDigits is not null && !FourDigits().IsMatch(record.LastFourDigits))
         {
-            throw new DomainValidationException("Los últimos dígitos deben ser exactamente 4 números.");
+            throw new DomainValidationException(AppLocale.Pick("Los últimos dígitos deben ser exactamente 4 números.", "The last digits must be exactly 4 numbers."));
         }
 
         if (!record.IsArchived)
@@ -87,7 +87,7 @@ internal sealed partial class PaymentMethodRepository(DatabaseHost host)
             var others = db.Table<PaymentMethodRecord>().Where(p => !p.IsArchived && p.Id != record.Id).ToList();
             if (others.Any(p => string.Equals(p.Name, record.Name, StringComparison.CurrentCultureIgnoreCase)))
             {
-                throw new DomainValidationException($"Ya existe un medio de pago llamado «{record.Name}».");
+                throw new DomainValidationException(AppLocale.Pick($"Ya existe un medio de pago llamado «{record.Name}».", $"A payment method named “{record.Name}” already exists."));
             }
         }
     }

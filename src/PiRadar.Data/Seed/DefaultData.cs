@@ -2,10 +2,14 @@ using PiRadar.Core.Domain;
 
 namespace PiRadar.Data.Seed;
 
-/// <summary>Datos iniciales que inserta la migración 1. Iconos Material; colores #RRGGBB.</summary>
+/// <summary>
+/// Datos iniciales que inserta la migración 1, en el idioma vigente al crear la BD. Iconos Material; colores #RRGGBB.
+/// Las listas en español e inglés van en el mismo orden: <see cref="SystemNameLocalizer"/> las empareja por posición
+/// para traducir los nombres cuando el usuario cambia de idioma.
+/// </summary>
 internal static class DefaultData
 {
-    public static readonly IReadOnlyList<(string Name, TransactionType Kind, string Icon, string Color)> Categories =
+    public static readonly IReadOnlyList<(string Name, TransactionType Kind, string Icon, string Color)> SpanishCategories =
     [
         ("Mercado", TransactionType.Expense, "shopping_cart", "#43A047"),
         ("Restaurantes", TransactionType.Expense, "restaurant", "#FB8C00"),
@@ -25,7 +29,14 @@ internal static class DefaultData
         ("Otros ingresos", TransactionType.Income, "add_circle", "#616161"),
     ];
 
-    public static readonly IReadOnlyList<(string Name, PaymentMethodKind Kind, string Icon)> PaymentMethods =
+    public static readonly IReadOnlyList<string> EnglishCategoryNames =
+    [
+        "Groceries", "Restaurants", "Transportation", "Utilities", "Housing", "Health", "Education",
+        "Entertainment", "Clothing", "Technology", "Pets", "Other expenses",
+        "Salary", "Freelance", "Investments", "Other income",
+    ];
+
+    public static readonly IReadOnlyList<(string Name, PaymentMethodKind Kind, string Icon)> SpanishPaymentMethods =
     [
         ("Efectivo", PaymentMethodKind.Cash, "payments"),
         ("Tarjeta débito", PaymentMethodKind.DebitCard, "credit_card"),
@@ -34,4 +45,21 @@ internal static class DefaultData
         ("Nequi", PaymentMethodKind.DigitalWallet, "smartphone"),
         ("Daviplata", PaymentMethodKind.DigitalWallet, "smartphone"),
     ];
+
+    /// <summary>Las billeteras (Nequi/Daviplata, Venmo/Zelle) son marcas: no se traducen al cambiar de idioma.</summary>
+    public static readonly IReadOnlyList<string> EnglishPaymentMethodNames =
+        ["Cash", "Debit card", "Credit card", "Bank account", "Venmo", "Zelle"];
+
+    /// <summary>Cuántos medios de pago (desde el primero) son genéricos y se traducen; el resto son marcas.</summary>
+    public const int TranslatablePaymentMethods = 4;
+
+    public static IReadOnlyList<(string Name, TransactionType Kind, string Icon, string Color)> Categories =>
+        AppLocale.IsEnglish
+            ? [.. SpanishCategories.Select((c, i) => (EnglishCategoryNames[i], c.Kind, c.Icon, c.Color))]
+            : SpanishCategories;
+
+    public static IReadOnlyList<(string Name, PaymentMethodKind Kind, string Icon)> PaymentMethods =>
+        AppLocale.IsEnglish
+            ? [.. SpanishPaymentMethods.Select((m, i) => (EnglishPaymentMethodNames[i], m.Kind, m.Icon))]
+            : SpanishPaymentMethods;
 }

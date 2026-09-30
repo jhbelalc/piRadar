@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IReceiptRepository, ReceiptRepository>();
         services.AddSingleton<IExchangeRateRepository, ExchangeRateRepository>();
         services.AddSingleton<ISettingsRepository, SettingsRepository>();
+        services.AddSingleton<ISystemNameLocalizer, SystemNameLocalizer>();
         services.AddSingleton<IBackupService, BackupService>();
         return services;
     }

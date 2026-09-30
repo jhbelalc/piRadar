@@ -51,14 +51,14 @@ internal sealed partial class CategoryRepository(DatabaseHost host) : Repository
         if (record.Kind != stored.Kind && HasTransactions(db, record.Id))
         {
             throw new DomainValidationException(
-                "No se puede cambiar entre gasto e ingreso una categoría que ya tiene movimientos.");
+                AppLocale.Pick("No se puede cambiar entre gasto e ingreso una categoría que ya tiene movimientos.", "A category that already has transactions cannot switch between expense and income."));
         }
 
         if (record.Kind != stored.Kind
             && Exists(db, """SELECT 1 FROM "Category" WHERE "ParentId" = ?""", record.Id))
         {
             throw new DomainValidationException(
-                "No se puede cambiar entre gasto e ingreso una categoría que tiene subcategorías.");
+                AppLocale.Pick("No se puede cambiar entre gasto e ingreso una categoría que tiene subcategorías.", "A category that has subcategories cannot switch between expense and income."));
         }
 
         db.Update(record);
@@ -85,20 +85,20 @@ internal sealed partial class CategoryRepository(DatabaseHost host) : Repository
 
     private static void Validate(SQLiteConnection db, CategoryRecord record)
     {
-        record.Name = RequireName(record.Name, "la categoría");
+        record.Name = RequireName(record.Name, "la categoría", "category");
         if (!Enum.IsDefined(record.Kind))
         {
-            throw new DomainValidationException("Tipo de categoría no válido.");
+            throw new DomainValidationException(AppLocale.Pick("Tipo de categoría no válido.", "Invalid category type."));
         }
 
         if (string.IsNullOrWhiteSpace(record.Icon))
         {
-            throw new DomainValidationException("La categoría necesita un ícono.");
+            throw new DomainValidationException(AppLocale.Pick("La categoría necesita un ícono.", "The category needs an icon."));
         }
 
         if (!HexColor().IsMatch(record.Color))
         {
-            throw new DomainValidationException("El color debe tener el formato #RRGGBB.");
+            throw new DomainValidationException(AppLocale.Pick("El color debe tener el formato #RRGGBB.", "The color must use the #RRGGBB format."));
         }
 
         record.Color = record.Color.ToUpperInvariant();
@@ -108,22 +108,22 @@ internal sealed partial class CategoryRepository(DatabaseHost host) : Repository
             var parent = db.Find<CategoryRecord>(parentId);
             if (parent is null || parentId == record.Id)
             {
-                throw new DomainValidationException("La categoría padre no es válida.");
+                throw new DomainValidationException(AppLocale.Pick("La categoría padre no es válida.", "The parent category is not valid."));
             }
 
             if (parent.ParentId is not null)
             {
-                throw new DomainValidationException("Solo se admite un nivel de subcategorías.");
+                throw new DomainValidationException(AppLocale.Pick("Solo se admite un nivel de subcategorías.", "Only one level of subcategories is allowed."));
             }
 
             if (parent.Kind != record.Kind)
             {
-                throw new DomainValidationException("La subcategoría debe ser del mismo tipo que su categoría padre.");
+                throw new DomainValidationException(AppLocale.Pick("La subcategoría debe ser del mismo tipo que su categoría padre.", "A subcategory must be the same type as its parent category."));
             }
 
             if (record.Id != 0 && Exists(db, """SELECT 1 FROM "Category" WHERE "ParentId" = ?""", record.Id))
             {
-                throw new DomainValidationException("Una categoría con subcategorías no puede ser subcategoría.");
+                throw new DomainValidationException(AppLocale.Pick("Una categoría con subcategorías no puede ser subcategoría.", "A category with subcategories cannot be a subcategory."));
             }
         }
 
@@ -135,7 +135,7 @@ internal sealed partial class CategoryRepository(DatabaseHost host) : Repository
             if (siblings.Any(c => c.ParentId == record.ParentId
                 && string.Equals(c.Name, record.Name, StringComparison.CurrentCultureIgnoreCase)))
             {
-                throw new DomainValidationException($"Ya existe una categoría llamada «{record.Name}».");
+                throw new DomainValidationException(AppLocale.Pick($"Ya existe una categoría llamada «{record.Name}».", $"A category named “{record.Name}” already exists."));
             }
         }
     }

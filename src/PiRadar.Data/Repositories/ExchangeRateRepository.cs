@@ -21,12 +21,12 @@ internal sealed class ExchangeRateRepository(DatabaseHost host) : RepositoryBase
         ArgumentNullException.ThrowIfNull(rate);
         if (rate.From == rate.To)
         {
-            throw new DomainValidationException("La tasa debe ser entre dos monedas distintas.");
+            throw new DomainValidationException(AppLocale.Pick("La tasa debe ser entre dos monedas distintas.", "The rate must be between two different currencies."));
         }
 
         if (rate.RateMicros <= 0)
         {
-            throw new DomainValidationException("La tasa debe ser mayor que cero.");
+            throw new DomainValidationException(AppLocale.Pick("La tasa debe ser mayor que cero.", "The rate must be greater than zero."));
         }
 
         var record = rate.ToRecord();
