@@ -1,5 +1,3 @@
-using System.Globalization;
-
 namespace PiRadar.Core.Domain;
 
 /// <summary>
@@ -7,8 +5,6 @@ namespace PiRadar.Core.Domain;
 /// </summary>
 public readonly record struct Money(long AmountMinor, Currency Currency)
 {
-    private static readonly CultureInfo Colombia = CultureInfo.GetCultureInfo("es-CO");
-
     public static Money Zero(Currency currency) => new(0, currency);
 
     /// <summary>Crea un monto a partir de un valor decimal; falla si tiene más decimales de los que admite la moneda.</summary>
@@ -18,7 +14,10 @@ public readonly record struct Money(long AmountMinor, Currency Currency)
         if (minor != decimal.Truncate(minor))
         {
             throw new ArgumentException(
-                $"{amount} tiene más de {currency.Scale()} decimales para {currency}.", nameof(amount));
+                AppLocale.Pick(
+                    $"{amount} tiene más de {currency.Scale()} decimales para {currency}.",
+                    $"{amount} has more than {currency.Scale()} decimals for {currency}."),
+                nameof(amount));
         }
 
         return new Money(checked((long)minor), currency);
@@ -42,20 +41,26 @@ public readonly record struct Money(long AmountMinor, Currency Currency)
 
     public static Money operator -(Money money) => money with { AmountMinor = checked(-money.AmountMinor) };
 
-    /// <summary>Formato colombiano: <c>$ 1.234.567</c> para COP y <c>US$ 12,50</c> para USD.</summary>
+    /// <summary>
+    /// Formato del idioma vigente. Español: <c>$ 1.234.567</c> (COP) y <c>US$ 12,50</c> (USD). Inglés:
+    /// <c>$12.50</c> (USD) y <c>COP $1,234,567</c> (COP), con el signo delante del símbolo.
+    /// </summary>
     public override string ToString()
     {
         var scale = Currency.Scale();
-        var number = Math.Abs(ToDecimal()).ToString("N" + scale, Colombia);
+        var number = Math.Abs(ToDecimal()).ToString("N" + scale, AppLocale.Culture);
         var sign = AmountMinor < 0 ? "-" : string.Empty;
-        return $"{sign}{Currency.Symbol()} {number}";
+        var separator = AppLocale.IsEnglish ? string.Empty : " ";
+        return $"{sign}{Currency.Symbol()}{separator}{number}";
     }
 
     private static void EnsureSameCurrency(Money left, Money right)
     {
         if (left.Currency != right.Currency)
         {
-            throw new InvalidOperationException($"No se pueden operar montos en {left.Currency} y {right.Currency}.");
+            throw new InvalidOperationException(AppLocale.Pick(
+                $"No se pueden operar montos en {left.Currency} y {right.Currency}.",
+                $"Cannot combine amounts in {left.Currency} and {right.Currency}."));
         }
     }
 

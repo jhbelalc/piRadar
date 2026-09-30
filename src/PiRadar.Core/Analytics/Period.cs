@@ -11,7 +11,7 @@ public enum PeriodGranularity
 }
 
 /// <summary>
-/// Día, semana (lunes a domingo, ISO), mes o año en hora local. <see cref="Start"/> es inclusivo y
+/// Día, semana (lunes a domingo en español, ISO; domingo a sábado en inglés), mes o año en hora local. <see cref="Start"/> es inclusivo y
 /// <see cref="End"/> exclusivo, como <see cref="Domain.TransactionFilter"/>.
 /// </summary>
 public readonly record struct Period
@@ -42,7 +42,7 @@ public readonly record struct Period
         var start = granularity switch
         {
             PeriodGranularity.Day => day,
-            PeriodGranularity.Week => day.AddDays(-(((int)day.DayOfWeek + 6) % 7)),
+            PeriodGranularity.Week => day.AddDays(-(((int)day.DayOfWeek - (int)AppLocale.FirstDayOfWeek + 7) % 7)),
             PeriodGranularity.Month => new DateTime(day.Year, day.Month, 1),
             PeriodGranularity.Year => new DateTime(day.Year, 1, 1),
             _ => throw new ArgumentOutOfRangeException(nameof(granularity), granularity, null),
@@ -62,10 +62,15 @@ public readonly record struct Period
 
     public bool Contains(DateTime date) => date >= Start && date < End;
 
-    /// <summary>Etiqueta en español: "jueves 25 sep 2026", "22 – 28 sep 2026", "Septiembre 2026", "2026".</summary>
+    /// <summary>
+    /// Etiqueta: "jueves 25 sep 2026", "22 – 28 sep 2026", "Septiembre 2026", "2026"; en inglés
+    /// "Friday Sep 25, 2026", "Sep 20 – 26, 2026", "September 2026".
+    /// </summary>
     public string Label => Granularity switch
     {
-        PeriodGranularity.Day => $"{DateLabels.DayName(Start.DayOfWeek)} {DateLabels.Short(Start)}",
+        PeriodGranularity.Day => AppLocale.IsEnglish
+            ? $"{DateLabels.DayName(Start.DayOfWeek)}, {DateLabels.Short(Start)}"
+            : $"{DateLabels.DayName(Start.DayOfWeek)} {DateLabels.Short(Start)}",
         PeriodGranularity.Week => WeekLabel(),
         PeriodGranularity.Month => $"{Capitalize(DateLabels.MonthName(Start.Month))} {Start.Year}",
         _ => Start.Year.ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -77,6 +82,13 @@ public readonly record struct Period
         if (Start.Year != last.Year)
         {
             return $"{DateLabels.Short(Start)} – {DateLabels.Short(last)}";
+        }
+
+        if (AppLocale.IsEnglish)
+        {
+            return Start.Month == last.Month
+                ? $"{DateLabels.MonthAbbreviation(Start.Month)} {Start.Day} – {last.Day}, {last.Year}"
+                : $"{DateLabels.MonthAbbreviation(Start.Month)} {Start.Day} – {DateLabels.Short(last)}";
         }
 
         return Start.Month == last.Month
