@@ -15,11 +15,15 @@ public static partial class ReceiptParser
     /// <summary>Filas de cabecera en las que se busca el comercio.</summary>
     private const int MaxHeaderRows = 14;
 
-    public static ReceiptParseResult Parse(OcrPage page, DateOnly today) =>
-        Parse(RowBuilder.Build(page).Select(r => r.Text).ToList(), today);
+    /// <param name="fallbackCurrency">
+    /// Moneda cuando el recibo no trae NIT ni pistas de moneda (p. ej. USD si la app está en inglés).
+    /// </param>
+    public static ReceiptParseResult Parse(OcrPage page, DateOnly today, Currency fallbackCurrency = Currency.COP) =>
+        Parse(RowBuilder.Build(page).Select(r => r.Text).ToList(), today, fallbackCurrency);
 
     /// <summary>Re-parsea desde filas de texto, p. ej. las guardadas en <c>Receipt.OcrText</c>.</summary>
-    public static ReceiptParseResult Parse(IReadOnlyList<string> rows, DateOnly today)
+    public static ReceiptParseResult Parse(
+        IReadOnlyList<string> rows, DateOnly today, Currency fallbackCurrency = Currency.COP)
     {
         var lines = rows
             .Where(r => !string.IsNullOrWhiteSpace(r))
@@ -27,7 +31,7 @@ public static partial class ReceiptParser
             .ToList();
 
         var taxId = FindTaxId(lines);
-        var currency = DetectCurrency(lines, hasTaxId: taxId is not null);
+        var currency = DetectCurrency(lines, hasTaxId: taxId is not null, fallbackCurrency);
         var totals = FindTotals(lines, currency);
         var date = FindDate(lines, today, preferMonthFirst: currency == Currency.USD);
         var merchants = FindMerchants(lines, taxId?.Line);
@@ -59,6 +63,13 @@ public static partial class ReceiptParser
         public IReadOnlyList<AmountToken> Amounts => _amounts ??= AmountParser.Find(Text);
 
         public bool Has(params ReadOnlySpan<string> keywords) => TextNormalizer.ContainsAny(Compact, keywords);
+
+        /// <summary>Palabras de recibo en inglés que restan del total (TAX, TIP, CHANGE...), como palabra completa.</summary>
+        public bool HasEnglishExclusion => EnglishExclusion().IsMatch(Folded);
+
+        public bool HasEnglishChange => EnglishChange().IsMatch(Folded);
+
+        public bool HasEnglishTaxOrTip => EnglishTaxOrTip().IsMatch(Folded);
 
         /// <summary>Fila con montos y casi sin letras ("31.492", "$ 63.500").</summary>
         public bool IsAmountOnly
@@ -93,15 +104,16 @@ public static partial class ReceiptParser
     private static readonly (string Keyword, int Priority)[] TotalKeywords =
     [
         ("TOTALAPAGAR", 3), ("TOTALCONPROPINA", 3), ("NETOAPAGAR", 3), ("VALORAPAGAR", 3),
+        ("AMOUNTDUE", 3), ("BALANCEDUE", 3), ("TOTALDUE", 3),
         ("TOTALFACTURA", 2), ("VALORTOTAL", 2), ("TOTALVENTA", 2), ("ORDERTOTAL", 2), ("GRANDTOTAL", 2),
-        ("TOTALCOP", 2), ("TOTALNETO", 2), ("IMPORTETOTAL", 2),
+        ("TOTALCOP", 2), ("TOTALNETO", 2), ("IMPORTETOTAL", 2), ("TOTALAMOUNT", 2),
         ("TOTAL", 1),
     ];
 
     private static readonly string[] PaymentKeywords =
     [
         "TARJ", "EFECTIVO", "DEBITO", "CREDITO", "MASTERCARD", "MASTER", "VISA", "AMEX", "DINERS", "NEQUI",
-        "DAVIPLATA", "RECIBIDO", "TRANSFERENCIA", "MEDIOSDEPAGO",
+        "DAVIPLATA", "RECIBIDO", "TRANSFERENCIA", "MEDIOSDEPAGO", "CASH", "DEBIT", "TENDER",
     ];
 
     private static readonly string[] TaxAndTipKeywords =
@@ -115,7 +127,7 @@ public static partial class ReceiptParser
 
         foreach (var line in lines)
         {
-            if (line.Has(TotalExclusions))
+            if (line.Has(TotalExclusions) || line.HasEnglishExclusion)
             {
                 continue;
             }
@@ -144,7 +156,8 @@ public static partial class ReceiptParser
         }
 
         var payments = lines
-            .Where(l => l.Has(PaymentKeywords) && !l.Has("AHORRO", "IMPUESTO", "CAMBIO") && l.Amounts.Count > 0)
+            .Where(l => l.Has(PaymentKeywords) && !l.Has("AHORRO", "IMPUESTO", "CAMBIO") && !l.HasEnglishChange
+                && !l.HasEnglishExclusion && l.Amounts.Count > 0)
             .Select(l => l.Amounts[^1].Value)
             .Where(v => IsPlausible(v, currency))
             .ToList();
@@ -152,7 +165,7 @@ public static partial class ReceiptParser
         if (scored.Count == 0 && payments.Count > 0)
         {
             // Sin palabra de total (Homecenter): lo pagado menos el cambio.
-            var change = lines.Where(l => l.Has("CAMBIO") && l.Amounts.Count > 0).Select(l => l.Amounts[^1].Value)
+            var change = lines.Where(l => (l.Has("CAMBIO") || l.HasEnglishChange) && l.Amounts.Count > 0).Select(l => l.Amounts[^1].Value)
                 .FirstOrDefault();
             var paid = payments.Max() - change;
             if (IsPlausible(paid, currency))
@@ -166,7 +179,7 @@ public static partial class ReceiptParser
             // Último recurso: el mayor monto de la parte inferior, con baja prioridad.
             foreach (var line in lines.Skip(lines.Count / 3))
             {
-                if (!line.Has(TotalExclusions) && line.Amounts.Count is > 0 and < 3)
+                if (!line.Has(TotalExclusions) && !line.HasEnglishExclusion && line.Amounts.Count is > 0 and < 3)
                 {
                     // Un número sin "$" ni separadores suele ser un código (PLU, consecutivo).
                     foreach (var a in line.Amounts.Where(a => IsPlausible(a.Value, currency)))
@@ -223,7 +236,7 @@ public static partial class ReceiptParser
                 return true;
             }
 
-            if (line.Has(TaxAndTipKeywords) && !line.Has("TOTAL") && line.Amounts.Count > 0)
+            if ((line.Has(TaxAndTipKeywords) || line.HasEnglishTaxOrTip) && !line.Has("TOTAL") && line.Amounts.Count > 0)
             {
                 sum += line.Amounts[^1].Value;
                 if (sum == total)
@@ -344,7 +357,8 @@ public static partial class ReceiptParser
     private static TaxIdResult? FindTaxId(List<Line> lines)
     {
         // El NIT del comercio va antes de los totales; los del pie son de proveedores de software o facturación.
-        var firstTotal = lines.FindIndex(l => !l.Has(TotalExclusions) && l.Has("TOTAL") && l.Amounts.Count > 0);
+        var firstTotal = lines.FindIndex(
+            l => !l.Has(TotalExclusions) && !l.HasEnglishExclusion && l.Has("TOTAL") && l.Amounts.Count > 0);
         var searchEnd = firstTotal >= 0 ? firstTotal : Math.Max(MaxHeaderRows, lines.Count * 2 / 5);
         var headerEnd = Math.Min(searchEnd, Math.Max(MaxHeaderRows, lines.Count * 2 / 5));
         foreach (var line in lines.Take(searchEnd))
@@ -412,7 +426,7 @@ public static partial class ReceiptParser
 
     // ---------------------------------------------------------------- Moneda
 
-    private static Currency DetectCurrency(List<Line> lines, bool hasTaxId)
+    private static Currency DetectCurrency(List<Line> lines, bool hasTaxId, Currency fallback)
     {
         if (hasTaxId)
         {
@@ -421,9 +435,23 @@ public static partial class ReceiptParser
 
         var usd = lines.Any(l => l.Folded.Contains("US$", StringComparison.Ordinal)
                 || l.Folded.Contains("U$S", StringComparison.Ordinal) || UsdCode().IsMatch(l.Folded))
-            || lines.Any(l => l.Has("ORDERTOTAL", "SHIPPING", "YOURORDER", "SALESTAX", "GRANDTOTAL", "ITEMPRICE"));
-        return usd ? Currency.USD : Currency.COP;
+            || lines.Any(l => l.Has("ORDERTOTAL", "SHIPPING", "YOURORDER", "SALESTAX", "GRANDTOTAL", "ITEMPRICE"))
+            || lines.Any(l => UsReceiptWords().IsMatch(l.Folded));
+        return usd ? Currency.USD : fallback;
     }
+
+    /// <summary>Palabras que solo salen en recibos en inglés (sin NIT): TAX, CASHIER, THANK YOU, AMOUNT DUE...</summary>
+    [GeneratedRegex(@"\b(?:TAX|CASHIER|THANK YOU|AMOUNT DUE|BALANCE DUE|TOTAL DUE|GRATUITY|TENDERED|CHANGE DUE)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex UsReceiptWords();
+
+    [GeneratedRegex(@"\b(?:TAX|TAXES|TIP|GRATUITY|CHANGE|CHANGE DUE|DISCOUNT|SAVINGS|TENDER|TENDERED|COUPON|BALANCE)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex EnglishExclusion();
+
+    [GeneratedRegex(@"\b(?:CHANGE|CHANGE DUE|CASH BACK)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex EnglishChange();
+
+    [GeneratedRegex(@"\b(?:TAX|TAXES|TIP|GRATUITY)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex EnglishTaxOrTip();
 
     [GeneratedRegex(@"\bUSD\b")]
     private static partial Regex UsdCode();
@@ -434,6 +462,7 @@ public static partial class ReceiptParser
     private static readonly HashSet<string> MerchantNoiseWords = new(StringComparer.Ordinal)
     {
         "NIT", "N.I.T", "TEL", "TEL.", "CEL", "POR", "IVA", "ORD", "NO", "NO.", "DIR", "DIR.", "MESA", "CAJA", "SEDE", "DIAN",
+        "SERVER", "TABLE", "GUEST", "GUESTS", "CHECK", "ORDER",
     };
 
     private static readonly string[] MerchantNoise =
@@ -443,6 +472,7 @@ public static partial class ReceiptParser
         "DOCUMENTO", "ORDEN", "CAJERO", "VENDEDOR", "MESERO", "NUMERO", "ACTIVIDAD", "CIIU", "TARIFA", "CONSUMIDOR", "CLIENTE", "CUENTANOS", "EXPERIENCIA", "GRACIAS", "BIENVENIDO", "COMPRA", "LUGAR",
         "EXPEDICION", "REFERENCIA", "IGNORE", "RECEIPT", "EMAIL", "CORREO", "CUFE", "PEDIDO", "TURNO", "SOMOS",
         "GRANDES", "SEGUN", "AUTORIZ", "ELECTRONICA",
+        "CASHIER", "THANKYOU", "WELCOME", "SURVEY", "TRANSACTION", "TERMINAL",
     ];
 
     private static readonly HashSet<string> PlaceWords = new(StringComparer.Ordinal)
@@ -454,6 +484,7 @@ public static partial class ReceiptParser
     private static readonly HashSet<string> AddressWords = new(StringComparer.Ordinal)
     {
         "CL", "CLL", "CR", "CRA", "KR", "KRA", "AV", "AK", "AC", "DG", "TV", "CC", "C.C", "LC", "LOCAL",
+        "AVE", "BLVD", "HWY", "PKWY", "STE", "SUITE", "STREET", "AVENUE",
     };
 
     private static readonly HashSet<string> LowercaseConnectors = new(StringComparer.Ordinal) { "de", "del", "y", "e" };
@@ -545,7 +576,7 @@ public static partial class ReceiptParser
     /// <summary>Deja solo el nombre: sin códigos, números, direcciones ni prefijos. <c>null</c> si no parece un nombre.</summary>
     private static string? CleanName(string text)
     {
-        text = NamePrefix().Replace(text, string.Empty);
+        text = UsCompanySuffix().Replace(NamePrefix().Replace(text, string.Empty), string.Empty);
 
         // Teléfonos y consecutivos: "COMPRA Y RECOGE 3054829046".
         if (LongNumber().IsMatch(text) || text.Contains('#') || text.Contains('@') || text.Contains('<') || text.Contains('>')
@@ -658,6 +689,10 @@ public static partial class ReceiptParser
 
     [GeneratedRegex(@"\s(?:S\s?\.?\s?A\s?\.?\s?S|S\s?\.?\s?A|LTDA|S\s?EN\s?C|E\s?\.?\s?U|S\s?\.?\s?C\s?\.?\s?A)\s?\.?\s*$")]
     private static partial Regex LegalSuffix();
+
+    /// <summary>Sufijo societario estadounidense ("THE GRILL HOUSE LLC"): se quita del nombre sin tratarlo como razón social.</summary>
+    [GeneratedRegex(@"[\s,]+(?:INC|LLC|CORP|LTD|L\.L\.C)\.?\s*$", RegexOptions.IgnoreCase)]
+    private static partial Regex UsCompanySuffix();
 
     [GeneratedRegex(@"\bN\s?\.?\s?I\s?\.?\s?T\b")]
     private static partial Regex NitPrefix();
