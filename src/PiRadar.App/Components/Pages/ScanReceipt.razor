@@ -4,14 +4,15 @@
 @inject IOcrService Ocr
 @inject ScanState ScanState
 @inject NavigationManager Navigation
+@inject ISettingsRepository SettingsRepository
 
-<PageBar Title="Escanear recibo" BackHref="transactions/new" />
+<PageBar Title="@Pick("Escanear recibo", "Scan receipt")" BackHref="transactions/new" />
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="page-content">
     <MudStack Spacing="3">
         @if (_preview is not null)
         {
-            <img src="@_preview" alt="Recibo" style="max-height: 45vh; object-fit: contain; border-radius: 8px" />
+            <img src="@_preview" alt="@Pick("Recibo", "Receipt")" style="max-height: 45vh; object-fit: contain; border-radius: 8px" />
         }
 
         @if (_busy)
@@ -19,8 +20,8 @@
             <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="py-4">
                 <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
                 <MudText>@_status</MudText>
-                <MudText Typo="Typo.caption" Class="mud-text-secondary">Se lee en el teléfono, sin internet.</MudText>
-                <MudButton Variant="Variant.Text" OnClick="Cancel">Cancelar</MudButton>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Se lee en el teléfono, sin internet.", "It is read on the phone, without internet.")</MudText>
+                <MudButton Variant="Variant.Text" OnClick="Cancel">@Pick("Cancelar", "Cancel")</MudButton>
             </MudStack>
         }
         else
@@ -34,8 +35,8 @@
                 <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="py-4">
                     <MudIcon Icon="@Icons.Material.Rounded.DocumentScanner" Color="Color.Primary" Style="font-size: 4rem" />
                     <MudText Align="Align.Center">
-                        Toma una foto del recibo completo, derecho y con buena luz. Propondremos el total, la fecha y el
-                        comercio para que los confirmes.
+                        @Pick("Toma una foto del recibo completo, derecho y con buena luz. Propondremos el total, la fecha y el comercio para que los confirmes.",
+                              "Take a photo of the whole receipt, straight and well lit. We will suggest the total, date and merchant for you to confirm.")
                     </MudText>
                 </MudStack>
             }
@@ -43,17 +44,17 @@
             @if (MediaPicker.Default.IsCaptureSupported)
             {
                 <MudButton id="take-photo" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                           StartIcon="@Icons.Material.Rounded.PhotoCamera" OnClick="TakePhotoAsync">Tomar foto</MudButton>
+                           StartIcon="@Icons.Material.Rounded.PhotoCamera" OnClick="TakePhotoAsync">@Pick("Tomar foto", "Take photo")</MudButton>
             }
             <MudButton id="pick-photo" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                       StartIcon="@Icons.Material.Rounded.PhotoLibrary" OnClick="PickPhotoAsync">Elegir de la galería</MudButton>
+                       StartIcon="@Icons.Material.Rounded.PhotoLibrary" OnClick="PickPhotoAsync">@Pick("Elegir de la galería", "Choose from gallery")</MudButton>
             @if (BuildInfo.IsDebug && File.Exists(DebugPhotoPath))
             {
                 <MudButton id="debug-photo" Variant="Variant.Text" FullWidth="true" OnClick="UseDebugPhotoAsync">
-                    Foto de prueba (Debug)
+                    Test photo (Debug)
                 </MudButton>
             }
-            <MudButton Variant="Variant.Text" FullWidth="true" Href="transactions/new">Registrar a mano</MudButton>
+            <MudButton Variant="Variant.Text" FullWidth="true" Href="transactions/new">@Pick("Registrar a mano", "Enter manually")</MudButton>
         }
     </MudStack>
 </MudContainer>
@@ -69,10 +70,10 @@
     private static string DebugPhotoPath => Path.Combine(FileSystem.AppDataDirectory, "scan-in.jpg");
 
     private Task TakePhotoAsync() => FromPickerAsync(() => MediaPicker.Default.CapturePhotoAsync(
-        new MediaPickerOptions { Title = "Recibo" }));
+        new MediaPickerOptions { Title = Pick("Recibo", "Receipt") }));
 
     private Task PickPhotoAsync() => FromPickerAsync(async () => (await MediaPicker.Default.PickPhotosAsync(
-        new MediaPickerOptions { Title = "Recibo", SelectionLimit = 1 })).FirstOrDefault());
+        new MediaPickerOptions { Title = Pick("Recibo", "Receipt"), SelectionLimit = 1 })).FirstOrDefault());
 
     private async Task UseDebugPhotoAsync() => await ProcessAsync(await File.ReadAllBytesAsync(DebugPhotoPath));
 
@@ -86,7 +87,7 @@
         }
         catch (PermissionException)
         {
-            _error = "piRadar no tiene permiso para usar la cámara o las fotos. Actívalo en los ajustes del teléfono.";
+            _error = Pick("piRadar no tiene permiso para usar la cámara o las fotos. Actívalo en los ajustes del teléfono.", "piRadar does not have permission to use the camera or photos. Turn it on in the phone settings.");
             return;
         }
 
@@ -96,7 +97,7 @@
         }
 
         _busy = true;
-        _status = "Abriendo la foto…";
+        _status = Pick("Abriendo la foto…", "Opening the photo…");
         StateHasChanged();
 
         // Fuera del hilo de la interfaz: una foto de 6 MB leída ahí congela la app (ANR en Android).
@@ -114,7 +115,7 @@
         catch (IOException)
         {
             _busy = false;
-            _error = "No se pudo abrir la foto. Prueba con otra.";
+            _error = Pick("No se pudo abrir la foto. Prueba con otra.", "The photo could not be opened. Try another one.");
             return;
         }
 
@@ -130,21 +131,23 @@
         _error = null;
         try
         {
-            _status = "Preparando la foto…";
+            _status = Pick("Preparando la foto…", "Preparing the photo…");
             StateHasChanged();
             var image = await Task.Run(() => ReceiptPhoto.Prepare(photo), _cts.Token);
             _preview = "data:image/jpeg;base64," + Convert.ToBase64String(image.Jpeg);
 
-            _status = "Leyendo el recibo…";
+            _status = Pick("Leyendo el recibo…", "Reading the receipt…");
             StateHasChanged();
             var page = await Ocr.RecognizeAsync(photo, _cts.Token);
             if (page.Elements.Count == 0)
             {
-                _error = "No se encontró texto en la foto. Intenta de nuevo con el recibo completo, derecho y con más luz.";
+                _error = Pick("No se encontró texto en la foto. Intenta de nuevo con el recibo completo, derecho y con más luz.", "No text was found in the photo. Try again with the whole receipt, straight and with more light.");
                 return;
             }
 
-            var parsed = ReceiptParser.Parse(page, DateOnly.FromDateTime(DateTime.Today));
+            // Sin NIT ni pistas de moneda en el recibo, se asume la moneda base del usuario.
+            var parsed = ReceiptParser.Parse(
+                page, DateOnly.FromDateTime(DateTime.Today), await SettingsRepository.GetBaseCurrencyAsync());
             ScanState.Pending = new PendingScan(image, page.Engine, parsed);
             Navigation.NavigateTo("transactions/new?scan=1");
         }
@@ -154,7 +157,7 @@
         }
         catch (Exception ex) when (ex is InvalidOperationException or IOException)
         {
-            _error = "No se pudo leer la imagen. Prueba con otra foto.";
+            _error = Pick("No se pudo leer la imagen. Prueba con otra foto.", "The image could not be read. Try another photo.");
         }
         finally
         {

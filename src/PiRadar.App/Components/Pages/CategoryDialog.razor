@@ -11,18 +11,18 @@
                 }
                 @if (Category?.IsArchived == true)
                 {
-                    <MudAlert Severity="Severity.Info" Dense="true">Está archivada: no aparece al registrar movimientos.</MudAlert>
+                    <MudAlert Severity="Severity.Info" Dense="true">@Pick("Está archivada: no aparece al registrar movimientos.", "It is archived: it does not appear when adding transactions.")</MudAlert>
                 }
                 <div class="d-flex align-center gap-3">
                     <IconAvatar Icon="@_icon" Color="@_color" Size="Size.Large" />
-                    <MudTextField T="string" @bind-Value="_name" Label="Nombre" Required="true"
-                                  RequiredError="Escribe un nombre." MaxLength="40" Variant="Variant.Outlined" />
+                    <MudTextField T="string" @bind-Value="_name" Label="@Pick("Nombre", "Name")" Required="true"
+                                  RequiredError="@Pick("Escribe un nombre.", "Enter a name.")" MaxLength="40" Variant="Variant.Outlined" />
                 </div>
                 @if (!HasChildren && Parents.Count > 0)
                 {
-                    <MudSelect T="int?" @bind-Value="_parentId" Label="Dentro de" Variant="Variant.Outlined"
-                               ToStringFunc="@(id => id is null ? "Ninguna (categoría principal)" : Parents.FirstOrDefault(p => p.Id == id)?.Name)">
-                        <MudSelectItem T="int?" Value="null">Ninguna (categoría principal)</MudSelectItem>
+                    <MudSelect T="int?" @bind-Value="_parentId" Label="@Pick("Dentro de", "Inside")" Variant="Variant.Outlined"
+                               ToStringFunc="@(id => id is null ? Pick("Ninguna (categoría principal)", "None (top-level category)") : Parents.FirstOrDefault(p => p.Id == id)?.Name)">
+                        <MudSelectItem T="int?" Value="null">@Pick("Ninguna (categoría principal)", "None (top-level category)")</MudSelectItem>
                         @foreach (var parent in Parents)
                         {
                             <MudSelectItem T="int?" Value="parent.Id">@parent.Name</MudSelectItem>
@@ -37,15 +37,15 @@
     <DialogActions>
         @if (Category is { IsArchived: true })
         {
-            <MudButton Color="Color.Primary" OnClick="RestoreAsync" Disabled="_busy">Restaurar</MudButton>
+            <MudButton Color="Color.Primary" OnClick="RestoreAsync" Disabled="_busy">@Pick("Restaurar", "Restore")</MudButton>
         }
         else if (Category is not null)
         {
-            <MudButton Color="Color.Error" OnClick="DeleteAsync" Disabled="_busy">Eliminar</MudButton>
+            <MudButton Color="Color.Error" OnClick="DeleteAsync" Disabled="_busy">@Pick("Eliminar", "Delete")</MudButton>
         }
         <MudSpacer />
-        <MudButton OnClick="() => MudDialog.Cancel()">Cancelar</MudButton>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync" Disabled="_busy">Guardar</MudButton>
+        <MudButton OnClick="() => MudDialog.Cancel()">@Pick("Cancelar", "Cancel")</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync" Disabled="_busy">@Pick("Guardar", "Save")</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -95,33 +95,34 @@
                 {
                     Name = _name!, Kind = Kind, Icon = _icon, Color = _color, ParentId = _parentId,
                 });
-                return "Categoría creada.";
+                return Pick("Categoría creada.", "Category created.");
             }
 
             await CategoryRepository.UpdateAsync(Edited(Category.IsArchived));
-            return "Categoría guardada.";
+            return Pick("Categoría guardada.", "Category saved.");
         });
     }
 
     private Task RestoreAsync() => RunAsync(async () =>
     {
         await CategoryRepository.UpdateAsync(Edited(archived: false));
-        return "Categoría restaurada.";
+        return Pick("Categoría restaurada.", "Category restored.");
     });
 
     private async Task DeleteAsync()
     {
-        var confirmed = await Dialogs.ConfirmAsync("Eliminar categoría",
-            $"¿Eliminar «{Category!.Name}»? Si tiene movimientos o subcategorías se archivará para conservar el historial.",
-            "Eliminar");
+        var confirmed = await Dialogs.ConfirmAsync(Pick("Eliminar categoría", "Delete category"),
+            Pick($"¿Eliminar «{Category!.Name}»? Si tiene movimientos o subcategorías se archivará para conservar el historial.",
+                 $"Delete “{Category!.Name}”? If it has transactions or subcategories it will be archived to keep the history."),
+            Pick("Eliminar", "Delete"));
         if (!confirmed)
         {
             return;
         }
 
         await RunAsync(async () => await CategoryRepository.DeleteOrArchiveAsync(Category.Id) == RemovalResult.Deleted
-            ? "Categoría eliminada."
-            : "Se archivó porque tiene movimientos o subcategorías.");
+            ? Pick("Categoría eliminada.", "Category deleted.")
+            : Pick("Se archivó porque tiene movimientos o subcategorías.", "It was archived because it has transactions or subcategories."));
     }
 
     private Category Edited(bool archived) => new()
@@ -151,7 +152,7 @@
         }
         catch (KeyNotFoundException)
         {
-            _error = "La categoría ya no existe.";
+            _error = Pick("La categoría ya no existe.", "The category no longer exists.");
         }
         finally
         {

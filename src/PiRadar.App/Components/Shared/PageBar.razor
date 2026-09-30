@@ -3,7 +3,7 @@
     @if (BackHref is not null)
     {
         <MudIconButton Icon="@Icons.Material.Rounded.ArrowBack" Color="Color.Inherit" Edge="Edge.Start"
-                       Href="@BackHref" aria-label="Volver" />
+                       Href="@BackHref" aria-label="@Pick("Volver", "Back")" />
     }
     @if (Subtitle is null)
     {

@@ -1,7 +1,7 @@
 @inject ICategoryRepository Categories
 
 <MudSelect T="int?" Label="@Label" Value="Value" ValueChanged="ValueChanged" Required="Required"
-           RequiredError="Elige una categoría." Variant="Variant" AnchorOrigin="Origin.BottomCenter"
+           RequiredError="@Pick("Elige una categoría.", "Choose a category.")" Variant="Variant" AnchorOrigin="Origin.BottomCenter"
            ToStringFunc="@(id => _items.FirstOrDefault(c => c.Id == id)?.Name ?? string.Empty)" Disabled="Disabled">
     @foreach (var category in _items)
     {
@@ -12,7 +12,7 @@
                 <span>@category.Name</span>
                 @if (category.IsArchived)
                 {
-                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">Archivada</MudChip>
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@Pick("Archivada", "Archived")</MudChip>
                 }
             </div>
         </MudSelectItem>
@@ -29,7 +29,7 @@
     /// <summary>Solo se ofrecen categorías de este tipo.</summary>
     [Parameter, EditorRequired] public TransactionType Kind { get; set; }
 
-    [Parameter] public string Label { get; set; } = "Categoría";
+    [Parameter] public string Label { get; set; } = Pick("Categoría", "Category");
     [Parameter] public bool Required { get; set; } = true;
     [Parameter] public bool Disabled { get; set; }
     [Parameter] public Variant Variant { get; set; } = Variant.Outlined;

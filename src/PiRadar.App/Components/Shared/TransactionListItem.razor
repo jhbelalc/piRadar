@@ -11,7 +11,7 @@
         </div>
         @if (Transaction.ReceiptId is not null)
         {
-            <MudIcon Icon="@Icons.Material.Rounded.Receipt" Size="Size.Small" Class="mud-text-secondary" aria-label="Con recibo" />
+            <MudIcon Icon="@Icons.Material.Rounded.Receipt" Size="Size.Small" Class="mud-text-secondary" aria-label="@Pick("Con recibo", "Has receipt")" />
         }
         <SignedAmount Amount="Transaction.Amount" Type="Transaction.Type" />
     </div>
@@ -25,7 +25,7 @@
     /// <summary>Empieza por el día ("Ayer 18:42", "16 sep 17:22"), para listas que no agrupan por día.</summary>
     [Parameter] public bool ShowDay { get; set; }
 
-    private string Title => Transaction.Merchant ?? Transaction.Description ?? Category?.Name ?? "Sin categoría";
+    private string Title => Transaction.Merchant ?? Transaction.Description ?? Category?.Name ?? Pick("Sin categoría", "Uncategorized");
 
     // Lo que no está en el título: día (si se pide), categoría (si el título es otro), medio de pago y hora.
     private string Subtitle
@@ -61,9 +61,9 @@
     private static string DayLabel(DateTime date)
     {
         var today = DateTime.Today;
-        return date.Date == today ? "Hoy"
-            : date.Date == today.AddDays(-1) ? "Ayer"
-            : date.Year == today.Year ? $"{date.Day} {DateLabels.MonthAbbreviation(date.Month)}"
+        return date.Date == today ? Pick("Hoy", "Today")
+            : date.Date == today.AddDays(-1) ? Pick("Ayer", "Yesterday")
+            : date.Year == today.Year ? (IsEnglish ? $"{DateLabels.MonthAbbreviation(date.Month)} {date.Day}" : $"{date.Day} {DateLabels.MonthAbbreviation(date.Month)}")
             : DateLabels.Short(date);
     }
 }

@@ -3,43 +3,57 @@
 @inject ThemeState ThemeState
 @inject HomeTitleState HomeTitleState
 @inject ISnackbar Snackbar
+@inject LanguageState Language
+@inject NavigationManager Navigation
 
-<PageBar Title="Ajustes" BackHref="more" />
+<PageBar Title="@Pick("Ajustes", "Settings")" BackHref="more" />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
     <MudStack Spacing="3">
         <MudPaper Class="pa-4" Elevation="0" Outlined="true">
-            <MudText Typo="Typo.subtitle1">Título de inicio</MudText>
+            <MudText Typo="Typo.subtitle1">@Pick("Título de inicio", "Home title")</MudText>
             <MudText Typo="Typo.body2" Class="mud-text-secondary mb-3">
-                El nombre que ves arriba en Inicio, por ejemplo "Mis finanzas". Debajo siempre aparece piRadar.
+                @Pick("El nombre que ves arriba en Inicio, por ejemplo \"Mis finanzas\". Debajo siempre aparece piRadar.",
+                      "The name you see at the top of Home, for example \"My finances\". piRadar always appears below it.")
             </MudText>
-            <MudTextField T="string" id="home-title" @bind-Value="_homeTitle" Label="Título" Variant="Variant.Outlined"
+            <MudTextField T="string" id="home-title" @bind-Value="_homeTitle" Label="@Pick("Título", "Title")" Variant="Variant.Outlined"
                           MaxLength="HomeTitle.MaxLength" Counter="HomeTitle.MaxLength" Immediate="true"
                           Placeholder="@HomeTitle.Default" />
             <MudStack Row="true" Justify="Justify.FlexEnd" Spacing="2" Class="mt-2">
                 <MudButton id="home-title-reset" Variant="Variant.Text" OnClick="ResetHomeTitleAsync"
-                           Disabled="HomeTitleState.Title == HomeTitle.Default">Restablecer</MudButton>
+                           Disabled="HomeTitleState.Title == HomeTitle.Default">@Pick("Restablecer", "Reset")</MudButton>
                 <MudButton id="home-title-save" Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveHomeTitleAsync"
-                           Disabled="(HomeTitle.Normalize(_homeTitle) ?? HomeTitle.Default) == HomeTitleState.Title">Guardar</MudButton>
+                           Disabled="(HomeTitle.Normalize(_homeTitle) ?? HomeTitle.Default) == HomeTitleState.Title">@Pick("Guardar", "Save")</MudButton>
             </MudStack>
         </MudPaper>
 
         <MudPaper Class="pa-4" Elevation="0" Outlined="true">
-            <MudText Typo="Typo.subtitle1">Moneda base</MudText>
+            <MudText Typo="Typo.subtitle1">@Pick("Moneda base", "Base currency")</MudText>
             <MudText Typo="Typo.body2" Class="mud-text-secondary mb-3" >
-                Los totales siempre se muestran separados por moneda. La moneda base se usa en la vista consolidada,
-                convirtiendo con las tasas de cambio que ingreses.
+                @Pick("Los totales siempre se muestran separados por moneda. La moneda base se usa en la vista consolidada, convirtiendo con las tasas de cambio que ingreses.",
+                      "Totals are always shown separately by currency. The base currency is used in the combined view, converting with the exchange rates you enter.")
             </MudText>
             <CurrencyToggle Value="_baseCurrency" ValueChanged="SetBaseCurrencyAsync" Size="Size.Medium" />
         </MudPaper>
 
         <MudPaper Class="pa-4" Elevation="0" Outlined="true">
-            <MudText Typo="Typo.subtitle1" Class="mb-2">Tema</MudText>
+            <MudText Typo="Typo.subtitle1" Class="mb-2">@Pick("Idioma", "Language")</MudText>
+            <MudRadioGroup T="string" id="language" Value="LanguageCode" ValueChanged="SetLanguageAsync">
+                <MudStack Spacing="0">
+                    <MudRadio Value="@("system")" Color="Color.Primary">@Pick("Igual que el sistema", "Same as system")</MudRadio>
+                    <MudRadio Value="@("es")" Color="Color.Primary">Español</MudRadio>
+                    <MudRadio Value="@("en")" Color="Color.Primary">English</MudRadio>
+                </MudStack>
+            </MudRadioGroup>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+            <MudText Typo="Typo.subtitle1" Class="mb-2">@Pick("Tema", "Theme")</MudText>
             <MudRadioGroup T="ThemePreference" Value="ThemeState.Preference" ValueChanged="ThemeState.SetAsync">
                 <MudStack Spacing="0">
-                    <MudRadio Value="ThemePreference.System" Color="Color.Primary">Igual que el sistema</MudRadio>
-                    <MudRadio Value="ThemePreference.Light" Color="Color.Primary">Claro</MudRadio>
-                    <MudRadio Value="ThemePreference.Dark" Color="Color.Primary">Oscuro</MudRadio>
+                    <MudRadio Value="ThemePreference.System" Color="Color.Primary">@Pick("Igual que el sistema", "Same as system")</MudRadio>
+                    <MudRadio Value="ThemePreference.Light" Color="Color.Primary">@Pick("Claro", "Light")</MudRadio>
+                    <MudRadio Value="ThemePreference.Dark" Color="Color.Primary">@Pick("Oscuro", "Dark")</MudRadio>
                 </MudStack>
             </MudRadioGroup>
         </MudPaper>
@@ -48,11 +62,10 @@
             <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start">
                 <MudIcon Icon="@Icons.Material.Rounded.Lock" Color="Color.Primary" />
                 <div>
-                    <MudText Typo="Typo.subtitle1">Privacidad</MudText>
+                    <MudText Typo="Typo.subtitle1">@Pick("Privacidad", "Privacy")</MudText>
                     <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                        Tus datos y las fotos de recibos se guardan cifrados solo en este dispositivo; nada se envía a
-                        internet y el reconocimiento de texto funciona sin conexión. Para pasarlos a otro teléfono usa
-                        el respaldo cifrado con contraseña.
+                        @Pick("Tus datos y las fotos de recibos se guardan cifrados solo en este dispositivo; nada se envía a internet y el reconocimiento de texto funciona sin conexión. Para pasarlos a otro teléfono usa el respaldo cifrado con contraseña.",
+                              "Your data and receipt photos are stored encrypted on this device only; nothing is sent to the internet and text recognition works offline. To move them to another phone, use the password-encrypted backup.")
                     </MudText>
                 </div>
             </MudStack>
@@ -73,13 +86,22 @@
     private async Task SaveHomeTitleAsync()
     {
         _homeTitle = await HomeTitleState.SetAsync(_homeTitle);
-        Snackbar.Add("Título guardado.", Severity.Success);
+        Snackbar.Add(Pick("Título guardado.", "Title saved."), Severity.Success);
     }
 
     private async Task ResetHomeTitleAsync()
     {
         _homeTitle = await HomeTitleState.SetAsync(null);
-        Snackbar.Add("Título restablecido.", Severity.Success);
+        Snackbar.Add(Pick("Título restablecido.", "Title reset."), Severity.Success);
+    }
+
+    private string LanguageCode => Language.Preference is { } preference ? AppLocale.Code(preference) : "system";
+
+    private async Task SetLanguageAsync(string? code)
+    {
+        await Language.SetAsync(AppLocale.ParseCode(code));
+        // Recarga la interfaz para que todos los textos, fechas y montos salgan en el idioma nuevo.
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
     }
 
     private async Task SetBaseCurrencyAsync(Currency currency)

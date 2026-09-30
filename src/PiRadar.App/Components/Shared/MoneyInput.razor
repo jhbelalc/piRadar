@@ -1,6 +1,6 @@
-@* Monto en formato colombiano. Interpreta con MoneyParser y reformatea al salir del campo (el cambio llega al salir). *@
+@* Monto en el formato del idioma vigente (1.234,50 o 1,234.50). Interpreta con MoneyParser y reformatea al salir del campo (el cambio llega al salir). *@
 <MudTextField T="string" @ref="_field" Label="@Label" Value="_text" ValueChanged="OnTextChanged"
-              Validation="@((Func<string?, string?>)Validate)" Required="Required" RequiredError="Ingresa un monto."
+              Validation="@((Func<string?, string?>)Validate)" Required="Required" RequiredError="@Pick("Ingresa un monto.", "Enter an amount.")"
               Adornment="Adornment.Start" AdornmentText="@Currency.Symbol()" InputMode="@(InputMode.@decimal)"
               Variant="Variant" Disabled="Disabled" HelperText="@HelperText" />
 
@@ -13,7 +13,7 @@
     [Parameter] public Money? Value { get; set; }
     [Parameter] public EventCallback<Money?> ValueChanged { get; set; }
     [Parameter] public Currency Currency { get; set; } = Currency.COP;
-    [Parameter] public string Label { get; set; } = "Monto";
+    [Parameter] public string Label { get; set; } = Pick("Monto", "Amount");
     [Parameter] public string? HelperText { get; set; }
     [Parameter] public bool Required { get; set; } = true;
 
@@ -68,7 +68,7 @@
     {
         if (string.IsNullOrWhiteSpace(text))
         {
-            return Required ? "Ingresa un monto." : null;
+            return Required ? Pick("Ingresa un monto.", "Enter an amount.") : null;
         }
 
         if (!MoneyParser.TryParse(text, Currency, out var money, out var error))
@@ -76,6 +76,6 @@
             return error;
         }
 
-        return !AllowZero && money.IsZero ? "El monto debe ser mayor que cero." : null;
+        return !AllowZero && money.IsZero ? Pick("El monto debe ser mayor que cero.", "The amount must be greater than zero.") : null;
     }
 }

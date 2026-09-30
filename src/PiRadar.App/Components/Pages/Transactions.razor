@@ -5,7 +5,7 @@
 @inject IPaymentMethodRepository PaymentMethodRepository
 @inject TransactionsViewState State
 
-<PageBar Title="Movimientos" />
+<PageBar Title="@Pick("Movimientos", "Transactions")" />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
     <MudStack Spacing="3">
@@ -16,9 +16,9 @@
             <MudPaper Elevation="0" Outlined="true" Class="pa-3">
                 <div class="totals-grid">
                     <span></span>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Gastos</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Ingresos</MudText>
-                    <MudText Typo="Typo.caption" Class="mud-text-secondary">Balance</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Gastos", "Expenses")</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Ingresos", "Income")</MudText>
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Balance", "Balance")</MudText>
                     @foreach (var totals in _totals)
                     {
                         <MudText Typo="Typo.subtitle2">@totals.Currency</MudText>
@@ -32,9 +32,9 @@
 
         <MudChipSet T="string" SelectedValue="@(State.Type?.ToString() ?? AllTypes)" SelectedValueChanged="SetTypeAsync"
                     SelectionMode="SelectionMode.SingleSelection" CheckMark="false" Color="Color.Primary" Variant="Variant.Text">
-            <MudChip T="string" Value="AllTypes" Text="Todos" id="filter-all" />
-            <MudChip T="string" Value="@nameof(TransactionType.Expense)" Text="Gastos" id="filter-expense" />
-            <MudChip T="string" Value="@nameof(TransactionType.Income)" Text="Ingresos" id="filter-income" />
+            <MudChip T="string" Value="AllTypes" Text="@Pick("Todos", "All")" id="filter-all" />
+            <MudChip T="string" Value="@nameof(TransactionType.Expense)" Text="@Pick("Gastos", "Expenses")" id="filter-expense" />
+            <MudChip T="string" Value="@nameof(TransactionType.Income)" Text="@Pick("Ingresos", "Income")" id="filter-income" />
         </MudChipSet>
 
         @if (_transactions is null)
@@ -45,9 +45,9 @@
         {
             <MudStack AlignItems="AlignItems.Center" Class="py-8" Spacing="3">
                 <MudIcon Icon="@Icons.Material.Rounded.ReceiptLong" Size="Size.Large" Class="mud-text-secondary" />
-                <MudText Class="mud-text-secondary">No hay movimientos en este periodo.</MudText>
+                <MudText Class="mud-text-secondary">@Pick("No hay movimientos en este periodo.", "No transactions in this period.")</MudText>
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="transactions/new"
-                           StartIcon="@Icons.Material.Rounded.Add">Registrar movimiento</MudButton>
+                           StartIcon="@Icons.Material.Rounded.Add">@Pick("Registrar movimiento", "Add transaction")</MudButton>
             </MudStack>
         }
         else

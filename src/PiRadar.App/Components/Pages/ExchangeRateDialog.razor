@@ -9,33 +9,33 @@
                     <MudAlert Severity="Severity.Error" Dense="true">@_error</MudAlert>
                 }
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                    <MudSelect T="Currency" @bind-Value="_from" Label="De" Variant="Variant.Outlined">
+                    <MudSelect T="Currency" @bind-Value="_from" Label="@Pick("De", "From")" Variant="Variant.Outlined">
                         @foreach (var currency in Enum.GetValues<Currency>())
                         {
                             <MudSelectItem Value="currency">@currency</MudSelectItem>
                         }
                     </MudSelect>
-                    <MudIconButton Icon="@Icons.Material.Rounded.SwapHoriz" aria-label="Invertir monedas" OnClick="Swap" />
-                    <MudSelect T="Currency" @bind-Value="_to" Label="A" Variant="Variant.Outlined">
+                    <MudIconButton Icon="@Icons.Material.Rounded.SwapHoriz" aria-label="@Pick("Invertir monedas", "Swap currencies")" OnClick="Swap" />
+                    <MudSelect T="Currency" @bind-Value="_to" Label="@Pick("A", "To")" Variant="Variant.Outlined">
                         @foreach (var currency in Enum.GetValues<Currency>())
                         {
                             <MudSelectItem Value="currency">@currency</MudSelectItem>
                         }
                     </MudSelect>
                 </MudStack>
-                <MudTextField T="string" @bind-Value="_rateText" Label="@($"1 {_from} equivale a ({_to})")"
+                <MudTextField T="string" @bind-Value="_rateText" Label="@Pick($"1 {_from} equivale a ({_to})", $"1 {_from} equals ({_to})")"
                               InputMode="@(InputMode.@decimal)" Variant="Variant.Outlined" Required="true"
-                              RequiredError="Escribe la tasa." Validation="@((Func<string?, string?>)ValidateRate)" />
-                <MudDatePicker @bind-Date="_date" Label="Aplica desde" Variant="Variant.Outlined" DateFormat="dd/MM/yyyy"
+                              RequiredError="@Pick("Escribe la tasa.", "Enter the rate.")" Validation="@((Func<string?, string?>)ValidateRate)" />
+                <MudDatePicker @bind-Date="_date" Label="@Pick("Aplica desde", "Applies from")" Variant="Variant.Outlined" DateFormat="@(IsEnglish ? "MM/dd/yyyy" : "dd/MM/yyyy")"
                                PickerVariant="PickerVariant.Dialog" AutoClose="true" Required="true"
-                               RequiredError="Elige la fecha." ShowToolbar="false"
-                               HelperText="Si ya hay una tasa de ese par para ese día, se reemplaza." />
+                               RequiredError="@Pick("Elige la fecha.", "Choose the date.")" ShowToolbar="false"
+                               HelperText="@Pick("Si ya hay una tasa de ese par para ese día, se reemplaza.", "If a rate for that pair already exists for that day, it is replaced.")" />
             </MudStack>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="() => MudDialog.Cancel()">Cancelar</MudButton>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync" Disabled="_busy">Guardar</MudButton>
+        <MudButton OnClick="() => MudDialog.Cancel()">@Pick("Cancelar", "Cancel")</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync" Disabled="_busy">@Pick("Guardar", "Save")</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -70,15 +70,15 @@
     {
         if (!MoneyParser.TryParseDecimal(text, out var value))
         {
-            return "La tasa no es válida.";
+            return Pick("La tasa no es válida.", "The rate is not valid.");
         }
 
         if (value <= 0)
         {
-            return "La tasa debe ser mayor que cero.";
+            return Pick("La tasa debe ser mayor que cero.", "The rate must be greater than zero.");
         }
 
-        return decimal.Round(value, MaxRateDecimals) != value ? $"Máximo {MaxRateDecimals} decimales." : null;
+        return decimal.Round(value, MaxRateDecimals) != value ? Pick($"Máximo {MaxRateDecimals} decimales.", $"At most {MaxRateDecimals} decimals.") : null;
     }
 
     private async Task SaveAsync()
@@ -102,7 +102,7 @@
                 await ExchangeRateRepository.DeleteAsync(Rate.Id);
             }
 
-            MudDialog.Close(DialogResult.Ok("Tasa guardada."));
+            MudDialog.Close(DialogResult.Ok(Pick("Tasa guardada.", "Rate saved.")));
         }
         catch (DomainValidationException ex)
         {

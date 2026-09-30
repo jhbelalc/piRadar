@@ -3,9 +3,9 @@
 @inject IDialogService Dialogs
 @inject ISnackbar Snackbar
 
-<PageBar Title="Categorías" BackHref="more">
+<PageBar Title="@Pick("Categorías", "Categories")" BackHref="more">
     <Actions>
-        <MudIconButton id="add-category" Icon="@Icons.Material.Rounded.Add" Color="Color.Inherit" aria-label="Nueva categoría"
+        <MudIconButton id="add-category" Icon="@Icons.Material.Rounded.Add" Color="Color.Inherit" aria-label="@Pick("Nueva categoría", "New category")"
                        OnClick="AddAsync" />
     </Actions>
 </PageBar>
@@ -14,11 +14,11 @@
     <MudStack Spacing="2">
         <MudToggleGroup T="TransactionType" Value="_kind" ValueChanged="SetKindAsync" SelectionMode="SelectionMode.SingleSelection"
                         Color="Color.Primary" CheckMark="false" Style="width: 100%">
-            <MudToggleItem Value="TransactionType.Expense" Text="Gastos" />
-            <MudToggleItem Value="TransactionType.Income" Text="Ingresos" />
+            <MudToggleItem Value="TransactionType.Expense" Text="@Pick("Gastos", "Expenses")" />
+            <MudToggleItem Value="TransactionType.Income" Text="@Pick("Ingresos", "Income")" />
         </MudToggleGroup>
 
-        <MudSwitch T="bool" Value="_showArchived" ValueChanged="SetShowArchivedAsync" Color="Color.Primary" Label="Mostrar archivadas" />
+        <MudSwitch T="bool" Value="_showArchived" ValueChanged="SetShowArchivedAsync" Color="Color.Primary" Label="@Pick("Mostrar archivadas", "Show archived")" />
 
         @if (_items is null)
         {
@@ -26,7 +26,7 @@
         }
         else if (_items.Count == 0)
         {
-            <MudText Class="mud-text-secondary py-8" Align="Align.Center" >No hay categorías. Crea una con +.</MudText>
+            <MudText Class="mud-text-secondary py-8" Align="Align.Center" >@Pick("No hay categorías. Crea una con +.", "No categories. Create one with +.")</MudText>
         }
         else
         {
@@ -43,7 +43,7 @@
                                 <MudSpacer />
                                 @if (category.IsArchived)
                                 {
-                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">Archivada</MudChip>
+                                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@Pick("Archivada", "Archived")</MudChip>
                                 }
                             </div>
                         </MudListItem>
@@ -51,8 +51,8 @@
                 </MudList>
             </MudPaper>
             <MudText Typo="Typo.caption" Class="mud-text-secondary">
-                Las categorías con movimientos se archivan en vez de borrarse: no se ofrecen para movimientos nuevos,
-                pero los anteriores las conservan.
+                @Pick("Las categorías con movimientos se archivan en vez de borrarse: no se ofrecen para movimientos nuevos, pero los anteriores las conservan.",
+                      "Categories with transactions are archived instead of deleted: they are not offered for new transactions, but earlier ones keep them.")
             </MudText>
         }
     </MudStack>
@@ -98,7 +98,7 @@
             { d => d.Parents, all.Where(c => c.ParentId is null && !c.IsArchived && c.Id != category?.Id).ToList() },
             { d => d.HasChildren, category is not null && all.Any(c => c.ParentId == category.Id) },
         };
-        var title = category is null ? "Nueva categoría" : "Editar categoría";
+        var title = category is null ? Pick("Nueva categoría", "New category") : Pick("Editar categoría", "Edit category");
         var dialog = await Dialogs.ShowAsync<CategoryDialog>(title, parameters, DialogExtensions.FormOptions);
         var result = await dialog.Result;
         if (result is { Canceled: false, Data: string message })

@@ -36,10 +36,12 @@ public static class BackupCrypto
     {
         if (string.IsNullOrEmpty(password) || password.Length < MinPasswordLength)
         {
-            return $"La contraseña debe tener al menos {MinPasswordLength} caracteres.";
+            return AppLocale.Pick(
+                $"La contraseña debe tener al menos {MinPasswordLength} caracteres.",
+                $"The password must be at least {MinPasswordLength} characters long.");
         }
 
-        return password == confirmation ? null : "Las contraseñas no coinciden.";
+        return password == confirmation ? null : AppLocale.Pick("Las contraseñas no coinciden.", "The passwords do not match.");
     }
 
     public static byte[] Encrypt(ReadOnlySpan<byte> plaintext, string password, int schemaVersion, int iterations = DefaultIterations)

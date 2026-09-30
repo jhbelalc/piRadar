@@ -4,12 +4,12 @@
    del teléfono si el usuario lo copia. *@
 <MudDialog>
     <DialogContent>
-        <MudText Typo="Typo.body2" Class="mud-text-secondary mb-2">Filas tal como las leyó el teléfono.</MudText>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary mb-2">@Pick("Filas tal como las leyó el teléfono.", "Rows exactly as the phone read them.")</MudText>
         <pre id="receipt-text-rows" class="receipt-text">@Text</pre>
     </DialogContent>
     <DialogActions>
-        <MudButton id="receipt-text-copy" StartIcon="@Icons.Material.Rounded.ContentCopy" OnClick="CopyAsync">Copiar</MudButton>
-        <MudButton id="receipt-text-close" Color="Color.Primary" Variant="Variant.Filled" OnClick="() => MudDialog.Close()">Cerrar</MudButton>
+        <MudButton id="receipt-text-copy" StartIcon="@Icons.Material.Rounded.ContentCopy" OnClick="CopyAsync">@Pick("Copiar", "Copy")</MudButton>
+        <MudButton id="receipt-text-close" Color="Color.Primary" Variant="Variant.Filled" OnClick="() => MudDialog.Close()">@Pick("Cerrar", "Close")</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -21,6 +21,6 @@
     private async Task CopyAsync()
     {
         await MainThread.InvokeOnMainThreadAsync(() => Clipboard.Default.SetTextAsync(Text));
-        Snackbar.Add("Texto copiado.", Severity.Success);
+        Snackbar.Add(Pick("Texto copiado.", "Text copied."), Severity.Success);
     }
 }

@@ -1,6 +1,6 @@
 @page "/not-found"
 
-<PageBar Title="No encontrado" BackHref="" />
+<PageBar Title="@Pick("No encontrado", "Not found")" BackHref="" />
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
-    <MudText>Esta página no existe.</MudText>
+    <MudText>@Pick("Esta página no existe.", "This page does not exist.")</MudText>
 </MudContainer>

@@ -11,14 +11,14 @@
                 }
                 @if (PaymentMethod?.IsArchived == true)
                 {
-                    <MudAlert Severity="Severity.Info" Dense="true">Está archivado: no aparece al registrar movimientos.</MudAlert>
+                    <MudAlert Severity="Severity.Info" Dense="true">@Pick("Está archivado: no aparece al registrar movimientos.", "It is archived: it does not appear when adding transactions.")</MudAlert>
                 }
                 <div class="d-flex align-center gap-3">
                     <IconAvatar Icon="@_icon" Size="Size.Large" />
-                    <MudTextField T="string" @bind-Value="_name" Label="Nombre" Required="true"
-                                  RequiredError="Escribe un nombre." MaxLength="40" Variant="Variant.Outlined" />
+                    <MudTextField T="string" @bind-Value="_name" Label="@Pick("Nombre", "Name")" Required="true"
+                                  RequiredError="@Pick("Escribe un nombre.", "Enter a name.")" MaxLength="40" Variant="Variant.Outlined" />
                 </div>
-                <MudSelect T="PaymentMethodKind" Value="_kind" ValueChanged="SetKind" Label="Tipo" Variant="Variant.Outlined"
+                <MudSelect T="PaymentMethodKind" Value="_kind" ValueChanged="SetKind" Label="@Pick("Tipo", "Type")" Variant="Variant.Outlined"
                            ToStringFunc="PaymentMethodText.Kind">
                     @foreach (var kind in Enum.GetValues<PaymentMethodKind>())
                     {
@@ -27,10 +27,10 @@
                 </MudSelect>
                 @if (HasDigits(_kind))
                 {
-                    <MudTextField T="string" @bind-Value="_lastFour" Label="Últimos 4 dígitos (opcional)" MaxLength="4"
+                    <MudTextField T="string" @bind-Value="_lastFour" Label="@Pick("Últimos 4 dígitos (opcional)", "Last 4 digits (optional)")" MaxLength="4"
                                   InputMode="InputMode.numeric" Pattern="[0-9]*" Variant="Variant.Outlined"
                                   Validation="@((Func<string?, string?>)ValidateDigits)"
-                                  HelperText="Solo para distinguir tarjetas o cuentas; no se guarda el número completo." />
+                                  HelperText="@Pick("Solo para distinguir tarjetas o cuentas; no se guarda el número completo.", "Only to tell cards or accounts apart; the full number is not stored.")" />
                 }
                 <IconPicker Value="@_icon" ValueChanged="icon => { _icon = icon; _iconTouched = true; }" />
             </MudStack>
@@ -39,15 +39,15 @@
     <DialogActions>
         @if (PaymentMethod is { IsArchived: true })
         {
-            <MudButton Color="Color.Primary" OnClick="RestoreAsync" Disabled="_busy">Restaurar</MudButton>
+            <MudButton Color="Color.Primary" OnClick="RestoreAsync" Disabled="_busy">@Pick("Restaurar", "Restore")</MudButton>
         }
         else if (PaymentMethod is not null)
         {
-            <MudButton Color="Color.Error" OnClick="DeleteAsync" Disabled="_busy">Eliminar</MudButton>
+            <MudButton Color="Color.Error" OnClick="DeleteAsync" Disabled="_busy">@Pick("Eliminar", "Delete")</MudButton>
         }
         <MudSpacer />
-        <MudButton OnClick="() => MudDialog.Cancel()">Cancelar</MudButton>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync" Disabled="_busy">Guardar</MudButton>
+        <MudButton OnClick="() => MudDialog.Cancel()">@Pick("Cancelar", "Cancel")</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="SaveAsync" Disabled="_busy">@Pick("Guardar", "Save")</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -98,7 +98,7 @@
     private static string? ValidateDigits(string? value) =>
         string.IsNullOrEmpty(value) || (value.Length == 4 && value.All(char.IsAsciiDigit))
             ? null
-            : "Deben ser 4 números.";
+            : Pick("Deben ser 4 números.", "Must be 4 digits.");
 
     private async Task SaveAsync()
     {
@@ -113,33 +113,34 @@
             if (PaymentMethod is null)
             {
                 await PaymentMethodRepository.AddAsync(Edited(archived: false));
-                return "Medio de pago creado.";
+                return Pick("Medio de pago creado.", "Payment method created.");
             }
 
             await PaymentMethodRepository.UpdateAsync(Edited(PaymentMethod.IsArchived));
-            return "Medio de pago guardado.";
+            return Pick("Medio de pago guardado.", "Payment method saved.");
         });
     }
 
     private Task RestoreAsync() => RunAsync(async () =>
     {
         await PaymentMethodRepository.UpdateAsync(Edited(archived: false));
-        return "Medio de pago restaurado.";
+        return Pick("Medio de pago restaurado.", "Payment method restored.");
     });
 
     private async Task DeleteAsync()
     {
-        var confirmed = await Dialogs.ConfirmAsync("Eliminar medio de pago",
-            $"¿Eliminar «{PaymentMethod!.Name}»? Si tiene movimientos se archivará para conservar el historial.",
-            "Eliminar");
+        var confirmed = await Dialogs.ConfirmAsync(Pick("Eliminar medio de pago", "Delete payment method"),
+            Pick($"¿Eliminar «{PaymentMethod!.Name}»? Si tiene movimientos se archivará para conservar el historial.",
+                 $"Delete “{PaymentMethod!.Name}”? If it has transactions it will be archived to keep the history."),
+            Pick("Eliminar", "Delete"));
         if (!confirmed)
         {
             return;
         }
 
         await RunAsync(async () => await PaymentMethodRepository.DeleteOrArchiveAsync(PaymentMethod.Id) == RemovalResult.Deleted
-            ? "Medio de pago eliminado."
-            : "Se archivó porque tiene movimientos.");
+            ? Pick("Medio de pago eliminado.", "Payment method deleted.")
+            : Pick("Se archivó porque tiene movimientos.", "It was archived because it has transactions."));
     }
 
     private PaymentMethod Edited(bool archived) => new()
@@ -168,7 +169,7 @@
         }
         catch (KeyNotFoundException)
         {
-            _error = "El medio de pago ya no existe.";
+            _error = Pick("El medio de pago ya no existe.", "The payment method no longer exists.");
         }
         finally
         {

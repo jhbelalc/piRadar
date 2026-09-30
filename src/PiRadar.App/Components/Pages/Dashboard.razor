@@ -17,9 +17,9 @@
             <MudText Typo="Typo.h6" id="dashboard-period">@_month.Label</MudText>
             <MudStack Row="true" Spacing="2">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="transactions/new"
-                           StartIcon="@Icons.Material.Rounded.Add">Registrar</MudButton>
+                           StartIcon="@Icons.Material.Rounded.Add">@Pick("Registrar", "Add")</MudButton>
                 <MudButton Variant="Variant.Outlined" Color="Color.Primary" Href="scan"
-                           StartIcon="@Icons.Material.Rounded.DocumentScanner">Escanear</MudButton>
+                           StartIcon="@Icons.Material.Rounded.DocumentScanner">@Pick("Escanear", "Scan")</MudButton>
             </MudStack>
         </MudStack>
 
@@ -33,10 +33,10 @@
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
                     <MudIcon Icon="@Icons.Material.Rounded.Radar" Color="Color.Primary" Style="font-size: 2.5rem" />
                     <div>
-                        <MudText Typo="Typo.h6">Hola</MudText>
+                        <MudText Typo="Typo.h6">@Pick("Hola", "Hello")</MudText>
                         <MudText Typo="Typo.body2" Class="mud-text-secondary">
-                            Registra tu primer gasto o ingreso, o escanea un recibo. Aquí verás el resumen del mes.
-                            Tus datos se guardan cifrados solo en este dispositivo.
+                            @Pick("Registra tu primer gasto o ingreso, o escanea un recibo. Aquí verás el resumen del mes. Tus datos se guardan cifrados solo en este dispositivo.",
+                                  "Add your first expense or income, or scan a receipt. You will see the month summary here. Your data is stored encrypted on this device only.")
                         </MudText>
                     </div>
                 </MudStack>
@@ -48,16 +48,17 @@
             {
                 <MudAlert Severity="Severity.Info" Dense="true" Icon="@Icons.Material.Rounded.CloudUpload" id="backup-reminder">
                     @(_lastBackup is { } last
-                        ? $"Tu último respaldo es del {DateLabels.Short(last.ToLocalTime())}."
-                        : "Aún no has hecho un respaldo de tus datos.")
-                    <MudLink Href="backup" Typo="Typo.body2">Hacer respaldo</MudLink>
+                        ? Pick($"Tu último respaldo es del {DateLabels.Short(last.ToLocalTime())}.",
+                               $"Your last backup is from {DateLabels.Short(last.ToLocalTime())}.")
+                        : Pick("Aún no has hecho un respaldo de tus datos.", "You have not backed up your data yet."))
+                    <MudLink Href="backup" Typo="Typo.body2">@Pick("Hacer respaldo", "Back up now")</MudLink>
                 </MudAlert>
             }
 
             @if (_totals.Count == 0)
             {
                 <MudPaper Class="pa-4" Elevation="0" Outlined="true">
-                    <MudText Class="mud-text-secondary">No hay movimientos este mes.</MudText>
+                    <MudText Class="mud-text-secondary">@Pick("No hay movimientos este mes.", "No transactions this month.")</MudText>
                 </MudPaper>
             }
             else
@@ -68,7 +69,7 @@
                         var comparison = _comparisons.FirstOrDefault(c => c.Currency == totals.Currency);
                         <MudItem xs="12" sm="@(_totals.Count > 1 ? 6 : 12)">
                             <MudPaper Class="pa-4" Elevation="0" Outlined="true" id="@($"summary-{totals.Currency}")">
-                                <MudText Typo="Typo.caption" Class="mud-text-secondary">Gastos del mes · @totals.Currency</MudText>
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Gastos del mes", "Expenses this month") · @totals.Currency</MudText>
                                 <MudText Typo="Typo.h5" Class="money-expense" Style="font-variant-numeric: tabular-nums">
                                     @totals.Expenses
                                 </MudText>
@@ -76,19 +77,19 @@
                                 {
                                     <MudText Typo="Typo.caption" Class="@(change > 0 ? "money-expense" : "money-income")">
                                         @(change > 0 ? "▲" : change < 0 ? "▼" : "=") @Math.Abs(change).ToString("P0")
-                                        <span class="mud-text-secondary">frente al @_previousLabel</span>
+                                        <span class="mud-text-secondary">@Pick("frente al", "vs.") @_previousLabel</span>
                                     </MudText>
                                 }
                                 <MudDivider Class="my-3" />
                                 <div class="d-flex justify-space-between gap-3">
                                     <div>
-                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Ingresos</MudText>
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Ingresos", "Income")</MudText>
                                         <MudText Typo="Typo.body2" Class="money-income" Style="font-variant-numeric: tabular-nums">
                                             @totals.Income
                                         </MudText>
                                     </div>
                                     <div style="text-align: right">
-                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">Balance</MudText>
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Balance", "Balance")</MudText>
                                         <MudText Typo="Typo.body2" Style="font-weight: 600; font-variant-numeric: tabular-nums">
                                             @totals.Balance
                                         </MudText>
@@ -104,7 +105,7 @@
             {
                 <div id="@($"categories-{currency}")">
                     <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">
-                        En qué gastas@(_shares.Count > 1 ? $" · {currency}" : "")
+                        @Pick("En qué gastas", "Where you spend")@(_shares.Count > 1 ? $" · {currency}" : "")
                     </MudText>
                     <MudPaper Elevation="0" Outlined="true" Class="pa-3">
                         <ShareList Rows="shares" MaxRows="TopCategories" />
@@ -114,9 +115,9 @@
 
             <div>
                 <div class="d-flex align-center justify-space-between">
-                    <MudText Typo="Typo.subtitle2" Class="mud-text-secondary ml-1">Últimos movimientos</MudText>
+                    <MudText Typo="Typo.subtitle2" Class="mud-text-secondary ml-1">@Pick("Últimos movimientos", "Recent transactions")</MudText>
                     <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="ShowAll" id="dashboard-all">
-                        Ver todos
+                        @Pick("Ver todos", "See all")
                     </MudButton>
                 </div>
                 <MudPaper Elevation="0" Outlined="true">
@@ -172,16 +173,21 @@
         _backupDue = BackupReminder.IsDue(_lastBackup, DateTime.UtcNow);
     }
 
-    /// <summary>"1–26 ago", "1 ago" o, para el mes completo, "mes de agosto".</summary>
+    /// <summary>"1–26 ago", "1 ago" o, para el mes completo, "mes de agosto" ("Aug 1–26", "Aug 1", "August").</summary>
     private static string SpanLabel(DateTime start, DateTime end)
     {
         var last = end.AddDays(-1);
         if (end == start.AddMonths(1))
         {
-            return $"mes de {DateLabels.MonthName(start.Month)}";
+            return Pick($"mes de {DateLabels.MonthName(start.Month)}", DateLabels.MonthName(start.Month));
         }
 
         var month = DateLabels.MonthAbbreviation(last.Month);
+        if (IsEnglish)
+        {
+            return last.Day == start.Day ? $"{month} {start.Day}" : $"{month} {start.Day}–{last.Day}";
+        }
+
         return last.Day == start.Day ? $"{start.Day} {month}" : $"{start.Day}–{last.Day} {month}";
     }
 
