@@ -1,12 +1,36 @@
+/* Teléfono: una fila por concepto (etiqueta a la izquierda, monto a la derecha) para que "COP $16,716,159" no se corte. */
 .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.summary-grid > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .summary-grid ::deep .mud-typography {
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     font-variant-numeric: tabular-nums;
+}
+
+/* Pantallas anchas: tres columnas con la etiqueta encima del monto. */
+@media (min-width: 600px) {
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        column-gap: 12px;
+    }
+
+    .summary-grid > div {
+        display: block;
+    }
+
+    .summary-grid ::deep .mud-typography {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }
