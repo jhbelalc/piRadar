@@ -81,6 +81,13 @@
                                     </MudText>
                                 }
                                 <MudDivider Class="my-3" />
+                                @if (totals.HasOpening)
+                                {
+                                    <div class="d-flex justify-space-between gap-3 mb-2" id="@($"opening-{totals.Currency}")">
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Saldo inicial del mes", "Opening balance")</MudText>
+                                        <MudText Typo="Typo.caption" Class="@(totals.Opening.AmountMinor < 0 ? "money-expense" : "money-income")" Style="white-space: nowrap; font-variant-numeric: tabular-nums">@totals.Opening</MudText>
+                                    </div>
+                                }
                                 <div class="d-flex justify-space-between gap-3">
                                     <div>
                                         <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Ingresos", "Income")</MudText>
@@ -161,7 +168,9 @@
 
         var twoMonths = await TransactionRepository.QueryAsync(TransactionFilter.Between(previousStart, _month.End));
         var month = twoMonths.Where(t => _month.Contains(t.OccurredAt)).ToList();
-        _totals = CurrencyTotals.ByCurrency(month);
+        // Saldo inicial del mes: lo que quedó con todo lo anterior (se hereda de un mes al siguiente).
+        var before = await TransactionRepository.QueryAsync(new TransactionFilter { To = _month.Start });
+        _totals = CurrencyTotals.ByCurrency(month, OpeningBalance.ByCurrency(before));
         _comparisons = ExpenseComparison.ByCurrency(twoMonths, _month, now);
         _shares = _totals
             .Where(t => !t.Expenses.IsZero)

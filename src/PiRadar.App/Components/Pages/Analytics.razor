@@ -60,6 +60,13 @@
                         <MudText Typo="Typo.subtitle1" Style="font-weight: 600">@_totals.Balance</MudText>
                     </div>
                 </div>
+                @if (_totals.HasOpening)
+                {
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary mt-2" id="analytics-opening">
+                        @Pick("Saldo inicial (incluido en el balance):", "Opening balance (included in the balance):")
+                        <b class="@(_totals.Opening.AmountMinor < 0 ? "money-expense" : "money-income")">@_totals.Opening</b>
+                    </MudText>
+                }
                 @if (_dailyAverage is { } average && State.Period.Granularity != PeriodGranularity.Day)
                 {
                     <MudText Typo="Typo.body2" Class="mud-text-secondary mt-2">
@@ -153,9 +160,11 @@
     {
         var period = State.Period;
         var all = await TransactionRepository.QueryAsync(TransactionFilter.Between(period.Start, period.End));
+        // Saldo inicial: lo que quedó con todo lo anterior al periodo (se hereda de un periodo al siguiente).
+        var before = await TransactionRepository.QueryAsync(new TransactionFilter { To = period.Start });
 
-        // Una opción por moneda con movimientos y, si hay más de una, todo convertido a la moneda base.
-        var currencies = all.Select(t => t.Amount.Currency).Distinct().Order().ToList();
+        // Una opción por moneda con movimientos (o con saldo heredado) y, si hay más de una, todo convertido a la moneda base.
+        var currencies = all.Concat(before).Select(t => t.Amount.Currency).Distinct().Order().ToList();
         _views = currencies.Select(c => (c.ToString(), c.ToString())).ToList();
         if (currencies.Count > 1)
         {
@@ -167,18 +176,22 @@
             : currencies.Contains(_baseCurrency) ? _baseCurrency.ToString()
             : currencies.Count > 0 ? currencies[0].ToString() : null;
 
+        IEnumerable<Transaction> priorInView;
         if (_view == ConsolidatedKey)
         {
             var consolidation = _converter.Consolidate(all, _baseCurrency);
             (_currency, _transactions, _missing) = (_baseCurrency, consolidation.Converted, consolidation.Missing);
+            priorInView = _converter.Consolidate(before, _baseCurrency).Converted;
         }
         else
         {
             _currency = _view is null ? _baseCurrency : CurrencyExtensions.ParseCode(_view);
             (_transactions, _missing) = (all.Where(t => t.Amount.Currency == _currency).ToList(), []);
+            priorInView = before.Where(t => t.Amount.Currency == _currency);
         }
 
-        _totals = CurrencyTotals.ByCurrency(_transactions).FirstOrDefault()
+        _totals = CurrencyTotals.ByCurrency(_transactions, OpeningBalance.ByCurrency(priorInView))
+            .FirstOrDefault(t => t.Currency == _currency)
             ?? new CurrencyTotals(Money.Zero(_currency), Money.Zero(_currency));
         _dailyAverage = SpendingAnalyzer.DailyAverage(_totals.Expenses, period, DateTime.Today);
         BuildSeries(period);
