@@ -88,9 +88,13 @@
                     <MudDatePicker @bind-Date="_date" Label="@Pick("Fecha", "Date")" Variant="Variant.Outlined" DateFormat="@(IsEnglish ? "MM/dd/yyyy" : "dd/MM/yyyy")"
                                    PickerVariant="PickerVariant.Dialog" AutoClose="true" Required="true"
                                    RequiredError="@Pick("Elige la fecha.", "Choose the date.")" ShowToolbar="false" />
-                    <MudTimePicker @bind-Time="_time" Label="@Pick("Hora", "Time")" Variant="Variant.Outlined" TimeFormat="@(IsEnglish ? "hh:mm tt" : "HH:mm")"
-                                   PickerVariant="PickerVariant.Dialog" AutoClose="true" AmPm="@IsEnglish" Required="true"
-                                   RequiredError="@Pick("Elige la hora.", "Choose the time.")" Style="@(IsEnglish ? "max-width: 165px" : "max-width: 130px")" />
+                    @* El ancho va en un contenedor: un Style en el MudTimePicker también se aplica a su diálogo y lo deja
+                       angosto y cortado. *@
+                    <div class="time-field">
+                        <MudTimePicker @bind-Time="_time" Label="@Pick("Hora", "Time")" Variant="Variant.Outlined" TimeFormat="@(IsEnglish ? "hh:mm tt" : "HH:mm")"
+                                       PickerVariant="PickerVariant.Dialog" AutoClose="true" AmPm="@IsEnglish" Required="true"
+                                       RequiredError="@Pick("Elige la hora.", "Choose the time.")" />
+                    </div>
                 </div>
 
                 <PaymentMethodPicker @bind-Value="_paymentMethodId" />

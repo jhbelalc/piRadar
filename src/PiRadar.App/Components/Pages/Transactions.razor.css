@@ -1,13 +1,37 @@
-.totals-grid {
-    display: grid;
-    grid-template-columns: auto 1fr 1fr 1fr;
-    column-gap: 12px;
-    row-gap: 4px;
-    align-items: baseline;
+.totals-block + .totals-block {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--mud-palette-lines-default);
 }
 
-.totals-grid ::deep > *:not(:nth-child(4n + 1)) {
-    text-align: right;
+/* Teléfono: una fila por concepto (etiqueta a la izquierda, monto a la derecha). */
+.totals-cols {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.totals-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.totals-item ::deep .mud-typography {
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+}
+
+/* Pantallas anchas: tres columnas con la etiqueta encima del monto. */
+@media (min-width: 600px) {
+    .totals-cols {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        column-gap: 12px;
+    }
+
+    .totals-item {
+        display: block;
+    }
 }
