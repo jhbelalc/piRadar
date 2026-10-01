@@ -35,3 +35,23 @@
         display: block;
     }
 }
+
+/* Fila "Saldo inicial" dentro del bloque de cada moneda. */
+.totals-opening {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 2px;
+}
+
+.totals-opening ::deep .mud-typography {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 600px) {
+    .totals-opening {
+        justify-content: flex-start;
+    }
+}

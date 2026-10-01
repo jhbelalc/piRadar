@@ -20,6 +20,13 @@
                 {
                     <div class="totals-block">
                         <MudText Typo="Typo.subtitle2">@totals.Currency</MudText>
+                        @if (totals.HasOpening)
+                        {
+                            <div class="totals-opening">
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Saldo inicial", "Opening balance")</MudText>
+                                <MudText Typo="Typo.body2" Class="@(totals.Opening.AmountMinor < 0 ? "money-expense" : "money-income")">@totals.Opening</MudText>
+                            </div>
+                        }
                         <div class="totals-cols">
                             <div class="totals-item">
                                 <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Gastos", "Expenses")</MudText>
@@ -52,6 +59,7 @@
         }
         else if (_transactions.Count == 0)
         {
+            @OpeningRows()
             <MudStack AlignItems="AlignItems.Center" Class="py-8" Spacing="3">
                 <MudIcon Icon="@Icons.Material.Rounded.ReceiptLong" Size="Size.Large" Class="mud-text-secondary" />
                 <MudText Class="mud-text-secondary">@Pick("No hay movimientos en este periodo.", "No transactions in this period.")</MudText>
@@ -78,11 +86,51 @@
                     </MudPaper>
                 </div>
             }
+
+            @OpeningRows()
         }
     </MudStack>
 </MudContainer>
 
 @code {
+    /// <summary>
+    /// "Saldo inicial": lo que quedó al cerrar el periodo anterior, una fila por moneda. Va al final porque la lista va
+    /// del más reciente al más antiguo y es lo primero que pasa en el periodo. No se muestra al filtrar por gastos o ingresos.
+    /// </summary>
+    private RenderFragment OpeningRows() => __builder =>
+    {
+        var rows = _totals.Where(t => t.HasOpening).ToList();
+        if (State.Type is null && rows.Count > 0)
+        {
+            <div>
+                <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">
+                    @DateLabels.Short(State.Period.Start)
+                </MudText>
+                <MudPaper Elevation="0" Outlined="true">
+                    <MudList T="string" Dense="true">
+                        @foreach (var totals in rows)
+                        {
+                            <MudListItem T="string" Class="opening-balance-item">
+                                <div class="d-flex align-center gap-3">
+                                    <IconAvatar Icon="account_balance_wallet" />
+                                    <div style="min-width: 0; flex: 1">
+                                        <MudText>@Pick("Saldo inicial", "Opening balance")</MudText>
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                            @Pick("Lo que quedó del periodo anterior", "Carried over from the previous period")
+                                        </MudText>
+                                    </div>
+                                    <MudText Class="@(totals.Opening.AmountMinor < 0 ? "money-expense" : "money-income")" Style="white-space: nowrap; font-variant-numeric: tabular-nums">
+                                        @totals.Opening
+                                    </MudText>
+                                </div>
+                            </MudListItem>
+                        }
+                    </MudList>
+                </MudPaper>
+            </div>
+        }
+    };
+
     private IReadOnlyList<Transaction>? _transactions;
     private IReadOnlyList<CurrencyTotals> _totals = [];
     private Dictionary<int, Category> _categories = [];
@@ -100,7 +148,9 @@
     {
         var all = await TransactionRepository.QueryAsync(
             TransactionFilter.Between(State.Period.Start, State.Period.End));
-        _totals = CurrencyTotals.ByCurrency(all);
+        // Saldo inicial: lo que quedó con todo lo anterior al periodo (se hereda de un mes al siguiente).
+        var before = await TransactionRepository.QueryAsync(new TransactionFilter { To = State.Period.Start });
+        _totals = CurrencyTotals.ByCurrency(all, OpeningBalance.ByCurrency(before));
         _transactions = State.Type is { } type ? all.Where(t => t.Type == type).ToList() : all;
     }
 
