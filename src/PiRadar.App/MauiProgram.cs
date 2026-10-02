@@ -51,6 +51,14 @@ public static class MauiProgram
 			"NoSafeAreaInsets",
 			(handler, _) => handler.PlatformView.ScrollView.ContentInsetAdjustmentBehavior =
 				UIKit.UIScrollViewContentInsetAdjustmentBehavior.Never);
+
+		// Barra inferior desplazada hacia arriba (visto en un iPhone, esporádico): tras usar el teclado, o al volver a la app,
+		// WKWebView puede dejar un margen en su scroll que corre la página; con el teléfono real subía casi lo que mide el
+		// teclado. Como la app maneja las áreas seguras con CSS, ese margen debe ser siempre cero: se limpia al ocultarse el
+		// teclado y al volver a primer plano.
+		Microsoft.AspNetCore.Components.WebView.Maui.BlazorWebViewHandler.BlazorWebViewMapper.AppendToMapping(
+			"ResetScrollInsets",
+			(handler, _) => IosScrollInsets.Watch(handler.PlatformView.ScrollView));
 #endif
 
 #if DEBUG
