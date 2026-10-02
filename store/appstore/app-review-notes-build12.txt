@@ -1,0 +1,29 @@
+Thank you for the review. This build (1.1, build 12) replaces build 7 that was under review, and answers the information request (Guideline 2.1).
+
+1. SCREEN RECORDING
+A screen recording on a physical iPhone was sent in the Resolution Center reply for this app (launch, add a transaction, scan a receipt, analytics, categories, encrypted backup, settings). This build has the same flow and adds an English interface and an opening-balance line. The app has no account registration, login, user-generated content, social features, or paid content/features, so none of those flows exist.
+
+2. PURPOSE AND TARGET AUDIENCE
+piRadar is a personal finance app for adults (18+) who want to track their own expenses and income. It solves the problem of seeing where one's money goes without sharing financial data with anyone: the user records transactions (manually or by photographing a receipt), organizes them by category and payment method, and sees reports by day, week, month and year in US dollars (USD) and Colombian pesos (COP). All data stays on the device.
+
+3. HOW TO ACCESS THE MAIN FEATURES
+No account, login or credentials are needed: every feature is available as soon as the app opens. The interface follows the device language (English or Spanish; Settings > Language can change it). Main screens: Home, Transactions, Analytics, More (Categories, Payment methods, Exchange rates, Backup, Settings, About).
+- Add a transaction: tap "Add" on Home or the green "+", enter the amount, choose a category, tap "Save".
+- Scan a receipt: tap "Scan" on Home, then "Take photo" or "Choose from gallery", pick any photo of a printed receipt; the app proposes the total, date and merchant (and "Other expenses" as category if it cannot detect one); the user confirms and saves.
+- Each month starts with an "Opening balance" line: what was left from the previous months.
+- More > Backup > "Create backup" creates an encrypted backup file with a password the user chooses; "Restore a backup" restores one.
+
+4. EXTERNAL SERVICES, TOOLS OR PLATFORMS
+None. The app has no server, no accounts, no analytics, no ads and no network requests. Everything runs on the device:
+- Data is stored in an encrypted SQLite database (SQLite3 Multiple Ciphers, SQLCipher-compatible); the key is generated on the device and kept in the iOS Keychain.
+- Receipt text recognition uses Apple's Vision framework on the device (no cloud OCR). The photo and the recognized text are not sent anywhere.
+- Backups are files encrypted on the device (AES-256-GCM); the user chooses where to save or share them with the system share sheet.
+- UI components: .NET MAUI Blazor Hybrid and MudBlazor (open source, run locally).
+
+5. REGIONAL DIFFERENCES
+None. The app works the same in all regions. It supports two currencies (USD and COP) in every region, with totals kept separate per currency; exchange rates are entered manually by the user.
+
+6. REGULATED INDUSTRY / PROTECTED MATERIAL
+Not applicable. piRadar is a personal record-keeping tool: it does not connect to banks, move money, give loans, trade securities or crypto, or provide financial advice. It contains no protected third-party content (open-source libraries are listed in the app under More > About > Third-party licenses).
+
+Contact: belvictodeveloper@gmail.com. Privacy policy: https://www.belvicto.com/piRadar/politica-privacidad.html
