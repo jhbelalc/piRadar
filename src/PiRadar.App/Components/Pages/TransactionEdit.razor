@@ -258,6 +258,15 @@
             _paymentMethodId = previous.PaymentMethodId ?? _paymentMethodId;
         }
 
+        // Sin categoría de la última vez para este comercio: "Otros gastos" por defecto (el usuario la cambia si quiere).
+        if (_categoryId is null
+            && DefaultCategories.FindOtherExpense(await CategoryRepository.GetAllAsync(TransactionType.Expense)) is { } other)
+        {
+            _categoryId = other.Id;
+            _scanHints.Add(Pick($"No se detectó la categoría: se puso «{other.Name}». Cámbiala si quieres.",
+                                $"The category was not detected: “{other.Name}” was set. Change it if you like."));
+        }
+
         if (parsed.Total is null)
         {
             _scanHints.Add(Pick("No se encontró el total: escríbelo.", "The total was not found: enter it."));
