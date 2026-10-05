@@ -254,4 +254,24 @@ public class ReceiptParserTests
         Assert.Equal(new DateTime(2026, 9, 24, 9, 15, 3), result.Date);
         Assert.Contains("Tiendas Ara Jeronimo Martins", result.MerchantCandidates);
     }
+
+    [Fact]
+    public void Card_terminal_slip_ignores_masked_card_digits()
+    {
+        var result = ReceiptParser.Parse(
+        [
+            "Redeban",
+            "2026/10/03 - 18:14:48 version: 2.106",
+            "LA CHOCOLATADA",
+            "CALLE 16 83A 20",
+            "TER: NNUZZ217 RECIBO: 023669",
+            "RRN: 26526 MASTERCARD**6381",
+            "ARQC: BDC37964DFC48468 VENTA APRO: 601453",
+            "OMPRA NETA $13.500",
+            "$13.500",
+            "***CLIENTE***",
+        ], new DateOnly(2026, 10, 4), Currency.COP);
+
+        Assert.Equal(new Money(13500, Currency.COP), result.Total);
+    }
 }

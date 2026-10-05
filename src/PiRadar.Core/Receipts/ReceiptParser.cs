@@ -106,7 +106,7 @@ public static partial class ReceiptParser
         ("TOTALAPAGAR", 3), ("TOTALCONPROPINA", 3), ("NETOAPAGAR", 3), ("VALORAPAGAR", 3),
         ("AMOUNTDUE", 3), ("BALANCEDUE", 3), ("TOTALDUE", 3),
         ("TOTALFACTURA", 2), ("VALORTOTAL", 2), ("TOTALVENTA", 2), ("ORDERTOTAL", 2), ("GRANDTOTAL", 2),
-        ("TOTALCOP", 2), ("TOTALNETO", 2), ("IMPORTETOTAL", 2), ("TOTALAMOUNT", 2),
+        ("COMPRANETA", 2), ("TOTALCOP", 2), ("TOTALNETO", 2), ("IMPORTETOTAL", 2), ("TOTALAMOUNT", 2),
         ("TOTAL", 1),
     ];
 
@@ -158,8 +158,9 @@ public static partial class ReceiptParser
         var payments = lines
             .Where(l => l.Has(PaymentKeywords) && !l.Has("AHORRO", "IMPUESTO", "CAMBIO") && !l.HasEnglishChange
                 && !l.HasEnglishExclusion && l.Amounts.Count > 0)
-            .Select(l => l.Amounts[^1].Value)
-            .Where(v => IsPlausible(v, currency))
+            .Select(l => PaymentAmount(l))
+            .Where(v => v is { } p && IsPlausible(p, currency))
+            .Select(v => v!.Value)
             .ToList();
 
         if (scored.Count == 0 && payments.Count > 0)
@@ -203,6 +204,27 @@ public static partial class ReceiptParser
         var confirmed = candidates.Count > 0
             && (payments.Contains(candidates[0].ToDecimal()) || MatchesSubtotalPlusTaxes(lines, candidates[0].ToDecimal()));
         return new TotalResult(candidates, confirmed);
+    }
+
+    /// <summary>
+    /// Último monto después de la palabra de medio de pago: "RRN: 26526 MASTERCARD" no paga 26.526.
+    /// Si hay un monto antes de la palabra y ninguno después ("$50.000 EFECTIVO"), se usa ese.
+    /// </summary>
+    private static decimal? PaymentAmount(Line line)
+    {
+        var keyword = PaymentKeywords.OrderByDescending(k => k.Length)
+            .FirstOrDefault(k => line.Compact.Contains(k, StringComparison.Ordinal));
+        var end = keyword is null ? 0 : KeywordEnd(line.Text, keyword);
+        var after = line.Amounts.Where(a => a.Start >= end).ToList();
+        if (after.Count > 0)
+        {
+            return after[^1].Value;
+        }
+
+        // Antes de la palabra solo vale con "$" o separadores (un número pelado es un código: RRN, recibo).
+        var before = line.Amounts.Where(a => a.HasCurrencySymbol || a.HasDecimals
+            || line.Text.AsSpan(a.Start, a.Length).Trim().IndexOfAny('.', ',', ' ') >= 0).ToList();
+        return before.Count > 0 ? before[^1].Value : null;
     }
 
     /// <summary>Monto de la fila siguiente o anterior cuando la etiqueta quedó sola (papel curvo, columnas).</summary>

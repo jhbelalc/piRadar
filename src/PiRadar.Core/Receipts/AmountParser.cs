@@ -108,9 +108,9 @@ internal static partial class AmountParser
     }
 
     // Separador de miles: punto o coma (con un espacio opcional tras él, "$82. 150") o un espacio.
-    // No debe empezar pegado a letras o dígitos (códigos como "RJ49175108"), ni terminar pegado a letras o a otro número.
+    // No debe empezar pegado a letras, dígitos o asteriscos (códigos como "RJ49175108"; "MASTERCARD**6381" son los últimos 4 de la tarjeta), ni terminar pegado a letras o a otro número.
     [GeneratedRegex("""
-        (?<![\p{L}\d.,])
+        (?<![\p{L}\d.,*])
         (?<cur>US\$|U\$S|\$|COP\b|USD\b)?\s?
         (?<num>\d{1,3}(?:(?:[.,]\ ?|\ )\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?)
         (?![\p{L}\d]|[.,]\d)
