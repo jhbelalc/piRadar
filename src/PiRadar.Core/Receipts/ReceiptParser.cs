@@ -98,6 +98,7 @@ public static partial class ReceiptParser
     [
         "SUBTOTAL", "SUBTOT", "SUBT", "TOTALIVA", "IMPTO", "IMPUESTO", "IMPC", "TOTALSIN", "ITEM", "LINEA",
         "AHORRO", "DESCUENTO", "DSCTO", "ARTICULO", "PRODUCTO", "UNIDADES", "BASE", "CAMBIO", "PUNTOS",
+        "VALORIVA", "VALORUNIT", "VALORBRUTO", "COSTO",
     ];
 
     // Prioridad: lo que efectivamente se pagó (con propina) le gana al valor de la factura.
@@ -108,6 +109,8 @@ public static partial class ReceiptParser
         ("TOTALFACTURA", 2), ("VALORTOTAL", 2), ("TOTALVENTA", 2), ("ORDERTOTAL", 2), ("GRANDTOTAL", 2),
         ("COMPRANETA", 2), ("TOTALCOP", 2), ("TOTALNETO", 2), ("IMPORTETOTAL", 2), ("TOTALAMOUNT", 2),
         ("TOTAL", 1),
+        // Comprobantes de transferencia ("Valor de la transferencia" y el monto en la fila de abajo): la etiqueta más débil.
+        ("VALOR", 0),
     ];
 
     private static readonly string[] PaymentKeywords =

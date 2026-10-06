@@ -274,4 +274,31 @@ public class ReceiptParserTests
 
         Assert.Equal(new Money(13500, Currency.COP), result.Total);
     }
+
+    [Fact]
+    public void Bank_transfer_confirmation_uses_the_transfer_value_not_the_account_digits()
+    {
+        // Datos inventados (nombre, celular y cuenta); la estructura es la de un comprobante real.
+        var result = ReceiptParser.Parse(
+        [
+            "¡Transferencia exitosa!",
+            "Comprobante No. ABCDEFG1HIJK",
+            "05 oct 2026 - 4:52 p.m.",
+            "Valor de la transferencia",
+            "94.000",
+            "$",
+            "Costo de la transferencia",
+            "$0,00",
+            "¿A quién le llegó la plata?",
+            "Enviado a MARIA PEREZ",
+            "GOMEZ",
+            "Celular 3001234567",
+            "¿De dónde salió?",
+            "Ahorros",
+            "Cuenta de Ahorros",
+            "*1234",
+        ], new DateOnly(2026, 10, 6), Currency.COP);
+
+        Assert.Equal(new Money(94000, Currency.COP), result.Total);
+    }
 }
