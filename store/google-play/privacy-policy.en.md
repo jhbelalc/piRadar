@@ -12,7 +12,7 @@ piRadar does not collect, send or share any personal data. Everything you record
 - **Receipts**: the photos you scan and the text read from them.
 - **Settings**: language, base currency, exchange rates, theme and the date of your last backup.
 
-All of this is stored only on your device, in an encrypted database. The encryption key is generated on your device and kept in its secure storage (Android Keystore or iOS Keychain). We have no access to it or to your data.
+All of this is stored only on your device, in an encrypted database. The encryption key is generated on your device and kept in your device's secure storage. We have no access to it or to your data.
 
 ## No internet connection
 The published version of piRadar does not have permission to access the internet. Receipt reading (text recognition) happens entirely on the device. The app uses no servers, user accounts, ads, analytics or tracking tools.

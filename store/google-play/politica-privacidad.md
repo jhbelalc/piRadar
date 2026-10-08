@@ -12,7 +12,7 @@ piRadar no recoge, no envía y no comparte ningún dato personal. Todo lo que re
 - **Recibos**: las fotos que escaneas y el texto que se lee de ellas.
 - **Configuración**: moneda base, tasas de cambio, tema y fecha del último respaldo.
 
-Todo esto se guarda solo en tu dispositivo, en una base de datos cifrada. La clave de cifrado se genera en tu dispositivo y se guarda en su almacén seguro (Android Keystore o Keychain de iOS). Nosotros no tenemos acceso a ella ni a tus datos.
+Todo esto se guarda solo en tu dispositivo, en una base de datos cifrada. La clave de cifrado se genera en tu dispositivo y se guarda en su almacén seguro dentro de su dispositivo. Nosotros no tenemos acceso a ella ni a tus datos.
 
 ## Sin conexión a Internet
 La versión publicada de piRadar no tiene permiso de acceso a Internet. La lectura de recibos (reconocimiento de texto) ocurre por completo en el dispositivo. La app no usa servidores, cuentas de usuario, anuncios, analítica ni herramientas de rastreo.
