@@ -7,6 +7,7 @@
 [![iOS](https://img.shields.io/badge/iOS-15%2B-000000?logo=apple&logoColor=white)](https://developer.apple.com/ios/)
 [![MudBlazor](https://img.shields.io/badge/UI-MudBlazor%209-594AE2)](https://mudblazor.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-encrypted-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-blue)](LICENSE)
 [![Offline](https://img.shields.io/badge/data-on--device%20only-2E7D32)](#privacy)
 
 A personal finance app for **Android** and **iPhone**: record expenses and income (by hand or from receipt photos read with on-device OCR), organize them by category and payment method, and analyze them by day, week, month or year in **COP** and **USD**. Everything stays on the device; there is no cloud. The interface is available in Spanish and in English (US).
@@ -74,6 +75,10 @@ dotnet test --project tests/PiRadar.Core.Tests               # a single test pro
 ```
 
 Release builds (signed APK, AAB for Google Play, IPA for the App Store) are produced with the scripts in `tools/`: `build-apk.sh`, `build-aab.sh` and `build-ipa.sh`. They need the signing keys, which are kept outside this repository.
+
+## License
+
+The source code is available under the [PolyForm Noncommercial License 1.0.0](LICENSE): you may read, study and use it for noncommercial purposes. Commercial use requires permission from the copyright holder. The name "piRadar", its icon and the store listing assets (`store/`) are not covered by this license. Third-party dependencies keep their own licenses.
 
 ## Contributing notes
 
