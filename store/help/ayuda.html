@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ayuda de piRadar</title>
+    <meta name="description" content="Gu&#237;a r&#225;pida para usar piRadar: registrar movimientos, escanear recibos, entender tus an&#225;lisis y cuidar tus datos. Toca una pregunta del &#237;ndice para ir directo a ella." />
+    <style>
+      :root {
+        --bg: #f6f8fb; --card: #ffffff; --text: #1f2937; --muted: #4b5563; --border: #e5e7eb;
+        --accent: #00796b; --accent-soft: #e0f2f1; --code: #f3f4f6;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1a19; --card: #16241f; --text: #e5eceb; --muted: #aab8b5; --border: #26403a;
+          --accent: #4db6ac; --accent-soft: #1d3a35; --code: #1d2f2b;
+        }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg); color: var(--text); line-height: 1.7; }
+      .container { max-width: 900px; margin: 32px auto; padding: 0 20px 40px; }
+      .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04); padding: 32px 28px; }
+      h1, h2, h3 { line-height: 1.3; margin-top: 0; scroll-margin-top: 16px; }
+      h1 { font-size: clamp(2rem, 4vw, 2.6rem); margin-bottom: 8px; }
+      h2 { font-size: 1.45rem; margin-top: 36px; margin-bottom: 12px; padding-top: 14px; border-top: 1px solid var(--border); }
+      h3 { font-size: 1.1rem; margin-top: 24px; margin-bottom: 8px; }
+      p { margin: 0 0 16px; color: var(--muted); }
+      ol, ul { margin: 0 0 16px 20px; padding-left: 10px; color: var(--muted); }
+      li { margin-bottom: 8px; }
+      strong { color: var(--text); }
+      code { background: var(--code); border-radius: 6px; padding: 1px 6px; font-size: 0.92em; }
+      .meta { display: inline-block; margin: 8px 0 20px; padding: 8px 12px; border-radius: 999px;
+        background: var(--accent-soft); color: var(--accent); font-size: 0.92rem; font-weight: 600; }
+      .tip { background: var(--accent-soft); border-radius: 12px; padding: 10px 14px; color: var(--text); margin: 0 0 16px; }
+      .toc { background: var(--accent-soft); border-radius: 14px; padding: 16px 20px; margin: 8px 0 8px; }
+      .toc ul { list-style: none; margin: 0; padding: 0; }
+      .toc li { margin: 0; }
+      .toc .sec { font-weight: 700; margin-top: 12px; color: var(--text); }
+      .toc .sec:first-child { margin-top: 0; }
+      .toc ul ul { margin-left: 16px; }
+      .toc ul ul li { margin-bottom: 2px; font-weight: 400; }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .lang { float: right; font-size: 0.95rem; }
+      @media (max-width: 600px) { .card { padding: 24px 18px; } .lang { float: none; display: block; margin-bottom: 8px; } }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <article class="card">
+        <a class="lang" href="help.html" hreflang="en">English</a>
+        <h1>Ayuda de piRadar</h1>
+        <div class="meta">Actualizado: 9 de octubre de 2026</div>
+        <p>Gu&#237;a r&#225;pida para usar piRadar: registrar movimientos, escanear recibos, entender tus an&#225;lisis y cuidar tus datos. Toca una pregunta del &#237;ndice para ir directo a ella.</p>
+        <nav class="toc" aria-label="Contenido">
+          <ul>
+            <li class="sec"><a href="#inicio-rapido">Inicio r&#225;pido</a>
+              <ul>
+                <li><a href="#primeros-pasos">&#191;C&#243;mo empiezo a usar piRadar?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#registrar">Registrar movimientos</a>
+              <ul>
+                <li><a href="#registrar-movimiento">&#191;C&#243;mo registro un gasto o un ingreso?</a></li>
+                <li><a href="#editar-borrar">&#191;C&#243;mo edito o borro un movimiento?</a></li>
+                <li><a href="#filtrar-movimientos">&#191;C&#243;mo busco o filtro mis movimientos?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#escanear-recibos">Escanear recibos</a>
+              <ul>
+                <li><a href="#escanear">&#191;C&#243;mo escaneo un recibo?</a></li>
+                <li><a href="#total-incorrecto">El total sali&#243; mal, &#191;qu&#233; hago?</a></li>
+                <li><a href="#mejor-foto">&#191;C&#243;mo tomo una foto que se lea bien?</a></li>
+                <li><a href="#permiso-camara">No se abre la c&#225;mara o la galer&#237;a</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#categorias-medios">Categor&#237;as y medios de pago</a>
+              <ul>
+                <li><a href="#crear-categoria">&#191;C&#243;mo creo una categor&#237;a o una subcategor&#237;a?</a></li>
+                <li><a href="#archivar">&#191;Qu&#233; pasa si borro una categor&#237;a o un medio de pago?</a></li>
+                <li><a href="#medios-de-pago">&#191;C&#243;mo agrego un medio de pago?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#analisis">An&#225;lisis y saldo</a>
+              <ul>
+                <li><a href="#ver-analisis">&#191;C&#243;mo veo en qu&#233; se va mi dinero?</a></li>
+                <li><a href="#saldo-inicial">&#191;Qu&#233; es el saldo inicial?</a></li>
+                <li><a href="#todo-en-moneda-base">&#191;C&#243;mo veo todo en una sola moneda?</a></li>
+                <li><a href="#tasas">&#191;C&#243;mo ingreso una tasa de cambio?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#respaldo">Respaldo</a>
+              <ul>
+                <li><a href="#crear-respaldo">&#191;C&#243;mo hago un respaldo?</a></li>
+                <li><a href="#restaurar-respaldo">&#191;C&#243;mo restauro un respaldo o paso mis datos a otro tel&#233;fono?</a></li>
+                <li><a href="#recordatorio-respaldo">&#191;Por qu&#233; me aparece un recordatorio de respaldo?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#ajustes">Ajustes</a>
+              <ul>
+                <li><a href="#idioma-tema">&#191;C&#243;mo cambio el idioma, el tema o la moneda base?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#privacidad">Privacidad y datos</a>
+              <ul>
+                <li><a href="#donde-estan-mis-datos">&#191;D&#243;nde se guardan mis datos?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#problemas">Problemas frecuentes</a>
+              <ul>
+                <li><a href="#olvide-contrasena">Olvid&#233; la contrase&#241;a de mi respaldo</a></li>
+                <li><a href="#pantalla-error-datos">Al abrir la app dice que no puede leer mis datos</a></li>
+                <li><a href="#contacto">Mi problema no est&#225; aqu&#237;</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+
+        <h2 id="inicio-rapido">Inicio r&#225;pido</h2>
+        <h3 id="primeros-pasos">&#191;C&#243;mo empiezo a usar piRadar?</h3>
+        <ol>
+          <li>Toca <strong>Registrar</strong> en Inicio (o el bot&#243;n verde <strong>+</strong>) y anota tu primer gasto o ingreso.</li>
+          <li>O toca <strong>Escanear</strong> y toma una foto de un recibo: piRadar propone el total, la fecha y el comercio, y t&#250; confirmas.</li>
+          <li>Mira c&#243;mo va tu mes en <strong>Inicio</strong> y en <strong>An&#225;lisis</strong>.</li>
+          <li>En <strong>M&#225;s &gt; Ajustes</strong> elige el idioma, el tema y tu moneda base.</li>
+          <li>En <strong>M&#225;s &gt; Respaldo</strong> crea tu primer respaldo cifrado y gu&#225;rdalo en un lugar seguro.</li>
+        </ol>
+        <p class="tip">No necesitas cuenta ni internet: todo se guarda cifrado en tu tel&#233;fono.</p>
+
+        <h2 id="registrar">Registrar movimientos</h2>
+        <h3 id="registrar-movimiento">&#191;C&#243;mo registro un gasto o un ingreso?</h3>
+        <ol>
+          <li>Toca <strong>Registrar</strong> en Inicio, o el bot&#243;n verde <strong>+</strong> de la barra inferior.</li>
+          <li>Elige <strong>Gasto</strong> o <strong>Ingreso</strong>.</li>
+          <li>Escribe el <strong>Monto</strong> y elige la moneda (COP o USD).</li>
+          <li>Elige la <strong>Categor&#237;a</strong> y, si quieres, el <strong>Medio de pago</strong>, la <strong>Fecha</strong> y la <strong>Hora</strong>.</li>
+          <li>Opcional: <strong>Comercio</strong>, <strong>Descripci&#243;n</strong> y <strong>Notas</strong> para encontrar el movimiento despu&#233;s.</li>
+          <li>Toca <strong>Guardar</strong>.</li>
+        </ol>
+        <h3 id="editar-borrar">&#191;C&#243;mo edito o borro un movimiento?</h3>
+        <ol>
+          <li>Abre <strong>Movimientos</strong> (o los &#250;ltimos movimientos de Inicio) y toca el movimiento.</li>
+          <li>Cambia lo que necesites y toca <strong>Guardar</strong>.</li>
+          <li>Para borrarlo, toca <strong>Eliminar</strong> y confirma. Si ten&#237;a foto de recibo, tambi&#233;n se borra.</li>
+        </ol>
+        <p class="tip">Borrar no se puede deshacer. Si dudas, haz antes un respaldo.</p>
+        <h3 id="filtrar-movimientos">&#191;C&#243;mo busco o filtro mis movimientos?</h3>
+        <ol>
+          <li>En <strong>Movimientos</strong>, usa las flechas del selector de periodo para ir al d&#237;a, semana, mes o a&#241;o que quieras.</li>
+          <li>Usa los filtros <strong>Todos</strong>, <strong>Gastos</strong> e <strong>Ingresos</strong> para ver solo un tipo.</li>
+        </ol>
+
+        <h2 id="escanear-recibos">Escanear recibos</h2>
+        <h3 id="escanear">&#191;C&#243;mo escaneo un recibo?</h3>
+        <ol>
+          <li>Toca <strong>Escanear</strong> en Inicio.</li>
+          <li>Toca <strong>Tomar foto</strong> o <strong>Elegir de la galer&#237;a</strong>.</li>
+          <li>Espera unos segundos: el recibo se lee en el tel&#233;fono, sin internet.</li>
+          <li>Revisa el total, la fecha, el comercio y la categor&#237;a que propone piRadar.</li>
+          <li>Corrige lo que haga falta y toca <strong>Guardar</strong>: se guardan el movimiento y la foto del recibo.</li>
+        </ol>
+        <p class="tip">piRadar solo propone: nada se guarda hasta que t&#250; confirmes.</p>
+        <h3 id="total-incorrecto">El total sali&#243; mal, &#191;qu&#233; hago?</h3>
+        <ol>
+          <li>Mira los botones <strong>&#191;Otro total?</strong> debajo del monto: toca el que sea correcto.</li>
+          <li>Si ninguno sirve, escribe el monto a mano.</li>
+          <li>Toca <strong>Ver texto le&#237;do</strong> para ver exactamente lo que ley&#243; el tel&#233;fono.</li>
+          <li>Los avisos sobre el total, la fecha o la categor&#237;a te dicen qu&#233; revisar antes de guardar.</li>
+        </ol>
+        <h3 id="mejor-foto">&#191;C&#243;mo tomo una foto que se lea bien?</h3>
+        <ol>
+          <li>Pon el recibo completo en la foto, derecho y sobre una superficie plana.</li>
+          <li>Usa buena luz y evita sombras y reflejos.</li>
+          <li>Si el papel est&#225; arrugado, al&#237;salo antes.</li>
+        </ol>
+        <h3 id="permiso-camara">No se abre la c&#225;mara o la galer&#237;a</h3>
+        <ol>
+          <li>Abre los ajustes del tel&#233;fono, busca piRadar y activa el permiso de la c&#225;mara y de las fotos.</li>
+          <li>Mientras tanto puedes usar <strong>Registrar a mano</strong>.</li>
+        </ol>
+
+        <h2 id="categorias-medios">Categor&#237;as y medios de pago</h2>
+        <h3 id="crear-categoria">&#191;C&#243;mo creo una categor&#237;a o una subcategor&#237;a?</h3>
+        <ol>
+          <li>Ve a <strong>M&#225;s &gt; Categor&#237;as</strong> y elige <strong>Gastos</strong> o <strong>Ingresos</strong>.</li>
+          <li>Toca <strong>+</strong>, escribe el <strong>Nombre</strong> y elige el &#237;cono y el color.</li>
+          <li>Para una subcategor&#237;a, en <strong>Dentro de</strong> elige la categor&#237;a principal.</li>
+          <li>Toca <strong>Guardar</strong>.</li>
+        </ol>
+        <h3 id="archivar">&#191;Qu&#233; pasa si borro una categor&#237;a o un medio de pago?</h3>
+        <ol>
+          <li>Si no tiene movimientos, se elimina.</li>
+          <li>Si tiene movimientos o subcategor&#237;as, se <strong>archiva</strong>: ya no aparece al registrar movimientos nuevos, pero los viejos la conservan.</li>
+          <li>Activa <strong>Mostrar archivadas</strong> para verla y <strong>Restaurar</strong> para volver a usarla.</li>
+        </ol>
+        <h3 id="medios-de-pago">&#191;C&#243;mo agrego un medio de pago?</h3>
+        <ol>
+          <li>Ve a <strong>M&#225;s &gt; Medios de pago</strong> y toca <strong>+</strong>.</li>
+          <li>Escribe el <strong>Nombre</strong>, elige el <strong>Tipo</strong> y el &#237;cono.</li>
+          <li>Si quieres distinguir dos tarjetas, escribe los <strong>&#218;ltimos 4 d&#237;gitos</strong>: el n&#250;mero completo nunca se guarda.</li>
+        </ol>
+
+        <h2 id="analisis">An&#225;lisis y saldo</h2>
+        <h3 id="ver-analisis">&#191;C&#243;mo veo en qu&#233; se va mi dinero?</h3>
+        <ol>
+          <li>Abre <strong>An&#225;lisis</strong>.</li>
+          <li>Elige el periodo: <strong>D&#237;a</strong>, <strong>Semana</strong>, <strong>Mes</strong> o <strong>A&#241;o</strong>, y mu&#233;vete con las flechas.</li>
+          <li>Elige la moneda y alterna entre <strong>Gastos</strong> e <strong>Ingresos</strong>.</li>
+          <li>Mira las barras en el tiempo, <strong>Por categor&#237;a</strong>, <strong>Por medio de pago</strong> y el gasto promedio por d&#237;a.</li>
+        </ol>
+        <h3 id="saldo-inicial">&#191;Qu&#233; es el saldo inicial?</h3>
+        <ol>
+          <li>Es lo que te qued&#243; de todos los periodos anteriores (ingresos menos gastos), por moneda.</li>
+          <li>Por eso un mes nuevo no empieza en cero: arranca con el saldo del anterior.</li>
+          <li>Se calcula solo: si corriges o borras un movimiento viejo, se actualiza. No cuenta como ingreso ni como gasto.</li>
+        </ol>
+        <h3 id="todo-en-moneda-base">&#191;C&#243;mo veo todo en una sola moneda?</h3>
+        <ol>
+          <li>En <strong>An&#225;lisis</strong>, si tienes movimientos en dos monedas, elige <strong>Todo en</strong> y tu moneda base.</li>
+          <li>Para convertir, piRadar usa las tasas que t&#250; ingresaste en <strong>M&#225;s &gt; Tasas de cambio</strong>.</li>
+          <li>Los movimientos sin tasa para su fecha quedan fuera del total y se avisa; toca <strong>Agregar tasa</strong> para completarla.</li>
+        </ol>
+        <h3 id="tasas">&#191;C&#243;mo ingreso una tasa de cambio?</h3>
+        <ol>
+          <li>Ve a <strong>M&#225;s &gt; Tasas de cambio</strong> y toca <strong>+</strong>.</li>
+          <li>Elige las monedas <strong>De</strong> y <strong>A</strong>, escribe la tasa y la fecha en <strong>Aplica desde</strong>.</li>
+          <li>Toca <strong>Guardar</strong>. Cada movimiento usa la &#250;ltima tasa con fecha igual o anterior a la suya.</li>
+        </ol>
+        <p class="tip">Las tasas solo se usan en la vista consolidada; los totales por moneda no cambian.</p>
+
+        <h2 id="respaldo">Respaldo</h2>
+        <h3 id="crear-respaldo">&#191;C&#243;mo hago un respaldo?</h3>
+        <ol>
+          <li>Ve a <strong>M&#225;s &gt; Respaldo</strong> y toca <strong>Crear respaldo</strong>.</li>
+          <li>Elige una contrase&#241;a y conf&#237;rmala.</li>
+          <li>Guarda el archivo <code>.piradar</code> donde quieras (correo, nube, archivos) con el men&#250; de compartir.</li>
+        </ol>
+        <p class="tip">La contrase&#241;a no se guarda en ning&#250;n sitio: si la olvidas, el respaldo no se puede abrir. An&#243;tala en un lugar seguro.</p>
+        <h3 id="restaurar-respaldo">&#191;C&#243;mo restauro un respaldo o paso mis datos a otro tel&#233;fono?</h3>
+        <ol>
+          <li>Instala piRadar en el tel&#233;fono nuevo y pasa el archivo <code>.piradar</code> a &#233;l.</li>
+          <li>Ve a <strong>M&#225;s &gt; Respaldo</strong> y toca <strong>Restaurar un respaldo</strong>.</li>
+          <li>Elige el archivo y escribe la contrase&#241;a con la que lo creaste.</li>
+          <li>Revisa el resumen y confirma con <strong>Reemplazar</strong>. Esto sustituye todos los datos que tengas en ese tel&#233;fono.</li>
+        </ol>
+        <h3 id="recordatorio-respaldo">&#191;Por qu&#233; me aparece un recordatorio de respaldo?</h3>
+        <ol>
+          <li>Inicio te avisa cuando nunca hiciste un respaldo o pasaron m&#225;s de 30 d&#237;as desde el &#250;ltimo.</li>
+          <li>Toca <strong>Hacer respaldo</strong> para crearlo en el momento.</li>
+        </ol>
+
+        <h2 id="ajustes">Ajustes</h2>
+        <h3 id="idioma-tema">&#191;C&#243;mo cambio el idioma, el tema o la moneda base?</h3>
+        <ol>
+          <li>Ve a <strong>M&#225;s &gt; Ajustes</strong>.</li>
+          <li>En <strong>Idioma</strong> elige espa&#241;ol, ingl&#233;s o <strong>Igual que el sistema</strong>.</li>
+          <li>En <strong>Tema</strong> elige <strong>Claro</strong>, <strong>Oscuro</strong> o el del sistema.</li>
+          <li>En <strong>Moneda base</strong> elige la moneda en la que quieres ver los totales consolidados.</li>
+          <li>En <strong>T&#237;tulo de inicio</strong> puedes cambiar el t&#237;tulo de la pantalla de Inicio, y <strong>Restablecer</strong> lo devuelve al original.</li>
+        </ol>
+
+        <h2 id="privacidad">Privacidad y datos</h2>
+        <h3 id="donde-estan-mis-datos">&#191;D&#243;nde se guardan mis datos?</h3>
+        <ol>
+          <li>Solo en tu tel&#233;fono, en una base de datos cifrada. No hay cuenta, nube, anuncios ni rastreo.</li>
+          <li>La app no usa internet: el texto de los recibos se lee en el propio tel&#233;fono.</li>
+          <li>Por eso no podemos recuperar tus datos si pierdes el tel&#233;fono: haz respaldos.</li>
+        </ol>
+
+        <h2 id="problemas">Problemas frecuentes</h2>
+        <h3 id="olvide-contrasena">Olvid&#233; la contrase&#241;a de mi respaldo</h3>
+        <ol>
+          <li>No se puede recuperar: el respaldo est&#225; cifrado con esa contrase&#241;a y piRadar no la guarda.</li>
+          <li>Prueba las contrase&#241;as que sueles usar, con y sin tildes y may&#250;sculas.</li>
+          <li>Si todav&#237;a tienes la app con tus datos, crea un respaldo nuevo con una contrase&#241;a que anotes.</li>
+        </ol>
+        <h3 id="pantalla-error-datos">Al abrir la app dice que no puede leer mis datos</h3>
+        <ol>
+          <li>Esto pasa si los datos cifrados ya no se pueden abrir con la clave del tel&#233;fono, por ejemplo tras restaurar el tel&#233;fono desde una copia.</li>
+          <li>Si tienes un respaldo <code>.piradar</code>, toca <strong>Empezar de cero…</strong> en esa pantalla y luego usa <strong>Restaurar un respaldo</strong>.</li>
+          <li><strong>Borrar y empezar de cero</strong> elimina lo que haya en la app: la pantalla te pide confirmar antes.</li>
+        </ol>
+        <h3 id="contacto">Mi problema no est&#225; aqu&#237;</h3>
+        <ol>
+          <li>Escr&#237;benos a belvictodeveloper@gmail.com contando qu&#233; pantalla estabas viendo y qu&#233; esperabas que pasara.</li>
+          <li>No env&#237;es tu contrase&#241;a ni tus archivos de respaldo.</li>
+        </ol>
+
+        <h2>Contacto</h2>
+        <p>¿Sigues con dudas? Escríbenos a <a href="mailto:belvictodeveloper@gmail.com">belvictodeveloper@gmail.com</a>.</p>
+      </article>
+    </main>
+  </body>
+</html>

@@ -157,6 +157,11 @@ Versión de esquema en `PRAGMA user_version`.
 - **Plataforma**: iOS `Platforms/iOS/Resources/{es,en}.lproj/InfoPlist.strings` + `CFBundleLocalizations` (textos de permisos). Android no tiene recursos de texto propios.
 - **Tienda**: `store/google-play/ficha.md` (español) y `ficha-en.md` (inglés: nombre, subtítulo, palabras clave, descripción, notas de revisión), `politica-privacidad.{md,html}` y `privacy-policy.en.{md,html}`. Las capturas en inglés se hacen igual que las de español con el simulador/emulador en inglés (`AppleLanguages en-US`); el respaldo de demostración traduce sus nombres al restaurar. Tras restaurar un respaldo la app recarga la página (mata un `UiScript` en curso: usar dos scripts).
 
+## Ayuda para usuarios
+- **Fuente única**: `PiRadar.Core/Help/HelpContent.cs` (secciones → preguntas → pasos, cada texto en español **e** inglés, con `**negritas**` para nombres de botones y `` `código` ``). Al cambiar un botón o menú de la app, actualizar la ayuda. `HelpContentTests` revisa ids únicos, ambos idiomas completos y que no se nombren otras plataformas ni tiendas (la web se enlaza desde la ficha de App Store: guideline 2.3.10).
+- **Web**: `dotnet run tools/help/build-help.cs` genera `store/help/ayuda.html` y `store/help/help.html` (autocontenidos, claro/oscuro, anclas por pregunta, enlace ES↔EN). Se suben a mano a `https://www.belvicto.com/piRadar/` (junto a las políticas). Regenerar y volver a subir cuando cambie el contenido.
+- **En la app** (pendiente, build 16): pantalla `/help` (`Help.razor`) que lee `HelpContent` con `AppLocale`, entrada en `NavItems.MoreItems` antes de "Acerca de" y enlace "Ayuda en línea" que abre el navegador.
+
 ## Ramas de entrega
 - `main` tiene el código de lo publicado o en revisión; `release/1.1-under-review` y la etiqueta `release/1.1-build8` congelan el commit de las versiones enviadas a revisión (iOS 1.1 build 7, Android código 8): si Apple o Google piden un arreglo, salir de ahí, no de `main`.
 

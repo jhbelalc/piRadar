@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>piRadar Help</title>
+    <meta name="description" content="A quick guide to using piRadar: adding transactions, scanning receipts, understanding your analytics and taking care of your data. Tap a question in the contents to jump straight to it." />
+    <style>
+      :root {
+        --bg: #f6f8fb; --card: #ffffff; --text: #1f2937; --muted: #4b5563; --border: #e5e7eb;
+        --accent: #00796b; --accent-soft: #e0f2f1; --code: #f3f4f6;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0f1a19; --card: #16241f; --text: #e5eceb; --muted: #aab8b5; --border: #26403a;
+          --accent: #4db6ac; --accent-soft: #1d3a35; --code: #1d2f2b;
+        }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg); color: var(--text); line-height: 1.7; }
+      .container { max-width: 900px; margin: 32px auto; padding: 0 20px 40px; }
+      .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04); padding: 32px 28px; }
+      h1, h2, h3 { line-height: 1.3; margin-top: 0; scroll-margin-top: 16px; }
+      h1 { font-size: clamp(2rem, 4vw, 2.6rem); margin-bottom: 8px; }
+      h2 { font-size: 1.45rem; margin-top: 36px; margin-bottom: 12px; padding-top: 14px; border-top: 1px solid var(--border); }
+      h3 { font-size: 1.1rem; margin-top: 24px; margin-bottom: 8px; }
+      p { margin: 0 0 16px; color: var(--muted); }
+      ol, ul { margin: 0 0 16px 20px; padding-left: 10px; color: var(--muted); }
+      li { margin-bottom: 8px; }
+      strong { color: var(--text); }
+      code { background: var(--code); border-radius: 6px; padding: 1px 6px; font-size: 0.92em; }
+      .meta { display: inline-block; margin: 8px 0 20px; padding: 8px 12px; border-radius: 999px;
+        background: var(--accent-soft); color: var(--accent); font-size: 0.92rem; font-weight: 600; }
+      .tip { background: var(--accent-soft); border-radius: 12px; padding: 10px 14px; color: var(--text); margin: 0 0 16px; }
+      .toc { background: var(--accent-soft); border-radius: 14px; padding: 16px 20px; margin: 8px 0 8px; }
+      .toc ul { list-style: none; margin: 0; padding: 0; }
+      .toc li { margin: 0; }
+      .toc .sec { font-weight: 700; margin-top: 12px; color: var(--text); }
+      .toc .sec:first-child { margin-top: 0; }
+      .toc ul ul { margin-left: 16px; }
+      .toc ul ul li { margin-bottom: 2px; font-weight: 400; }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .lang { float: right; font-size: 0.95rem; }
+      @media (max-width: 600px) { .card { padding: 24px 18px; } .lang { float: none; display: block; margin-bottom: 8px; } }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <article class="card">
+        <a class="lang" href="ayuda.html" hreflang="es">Español</a>
+        <h1>piRadar Help</h1>
+        <div class="meta">Updated: October 9, 2026</div>
+        <p>A quick guide to using piRadar: adding transactions, scanning receipts, understanding your analytics and taking care of your data. Tap a question in the contents to jump straight to it.</p>
+        <nav class="toc" aria-label="Contents">
+          <ul>
+            <li class="sec"><a href="#inicio-rapido">Quick start</a>
+              <ul>
+                <li><a href="#primeros-pasos">How do I start using piRadar?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#registrar">Adding transactions</a>
+              <ul>
+                <li><a href="#registrar-movimiento">How do I add an expense or an income?</a></li>
+                <li><a href="#editar-borrar">How do I edit or delete a transaction?</a></li>
+                <li><a href="#filtrar-movimientos">How do I filter my transactions?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#escanear-recibos">Scanning receipts</a>
+              <ul>
+                <li><a href="#escanear">How do I scan a receipt?</a></li>
+                <li><a href="#total-incorrecto">The total is wrong, what do I do?</a></li>
+                <li><a href="#mejor-foto">How do I take a photo that reads well?</a></li>
+                <li><a href="#permiso-camara">The camera or gallery does not open</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#categorias-medios">Categories and payment methods</a>
+              <ul>
+                <li><a href="#crear-categoria">How do I create a category or a subcategory?</a></li>
+                <li><a href="#archivar">What happens if I delete a category or payment method?</a></li>
+                <li><a href="#medios-de-pago">How do I add a payment method?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#analisis">Analytics and balance</a>
+              <ul>
+                <li><a href="#ver-analisis">How do I see where my money goes?</a></li>
+                <li><a href="#saldo-inicial">What is the opening balance?</a></li>
+                <li><a href="#todo-en-moneda-base">How do I see everything in one currency?</a></li>
+                <li><a href="#tasas">How do I enter an exchange rate?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#respaldo">Backup</a>
+              <ul>
+                <li><a href="#crear-respaldo">How do I make a backup?</a></li>
+                <li><a href="#restaurar-respaldo">How do I restore a backup or move my data to another phone?</a></li>
+                <li><a href="#recordatorio-respaldo">Why do I see a backup reminder?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#ajustes">Settings</a>
+              <ul>
+                <li><a href="#idioma-tema">How do I change the language, theme or base currency?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#privacidad">Privacy and data</a>
+              <ul>
+                <li><a href="#donde-estan-mis-datos">Where is my data stored?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#problemas">Troubleshooting</a>
+              <ul>
+                <li><a href="#olvide-contrasena">I forgot my backup password</a></li>
+                <li><a href="#pantalla-error-datos">The app says it cannot read my data when I open it</a></li>
+                <li><a href="#contacto">My problem is not here</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+
+        <h2 id="inicio-rapido">Quick start</h2>
+        <h3 id="primeros-pasos">How do I start using piRadar?</h3>
+        <ol>
+          <li>Tap <strong>Add</strong> on Home (or the green <strong>+</strong> button) and enter your first expense or income.</li>
+          <li>Or tap <strong>Scan</strong> and take a photo of a receipt: piRadar suggests the total, date and merchant, and you confirm.</li>
+          <li>See how your month is going on <strong>Home</strong> and <strong>Analytics</strong>.</li>
+          <li>In <strong>More &gt; Settings</strong> choose the language, the theme and your base currency.</li>
+          <li>In <strong>More &gt; Backup</strong> create your first encrypted backup and keep it somewhere safe.</li>
+        </ol>
+        <p class="tip">You do not need an account or internet: everything is stored encrypted on your phone.</p>
+
+        <h2 id="registrar">Adding transactions</h2>
+        <h3 id="registrar-movimiento">How do I add an expense or an income?</h3>
+        <ol>
+          <li>Tap <strong>Add</strong> on Home, or the green <strong>+</strong> button in the bottom bar.</li>
+          <li>Choose <strong>Expense</strong> or <strong>Income</strong>.</li>
+          <li>Enter the <strong>Amount</strong> and choose the currency (COP or USD).</li>
+          <li>Choose the <strong>Category</strong> and, if you like, the <strong>Payment method</strong>, the <strong>Date</strong> and the <strong>Time</strong>.</li>
+          <li>Optional: <strong>Merchant</strong>, <strong>Description</strong> and <strong>Notes</strong> to find the transaction later.</li>
+          <li>Tap <strong>Save</strong>.</li>
+        </ol>
+        <h3 id="editar-borrar">How do I edit or delete a transaction?</h3>
+        <ol>
+          <li>Open <strong>Transactions</strong> (or the recent transactions on Home) and tap the transaction.</li>
+          <li>Change what you need and tap <strong>Save</strong>.</li>
+          <li>To remove it, tap <strong>Delete</strong> and confirm. If it had a receipt photo, the photo is deleted too.</li>
+        </ol>
+        <p class="tip">Deleting cannot be undone. If in doubt, make a backup first.</p>
+        <h3 id="filtrar-movimientos">How do I filter my transactions?</h3>
+        <ol>
+          <li>In <strong>Transactions</strong>, use the arrows of the period selector to go to the day, week, month or year you want.</li>
+          <li>Use the <strong>All</strong>, <strong>Expenses</strong> and <strong>Income</strong> filters to see only one type.</li>
+        </ol>
+
+        <h2 id="escanear-recibos">Scanning receipts</h2>
+        <h3 id="escanear">How do I scan a receipt?</h3>
+        <ol>
+          <li>Tap <strong>Scan</strong> on Home.</li>
+          <li>Tap <strong>Take photo</strong> or <strong>Choose from gallery</strong>.</li>
+          <li>Wait a few seconds: the receipt is read on the phone, without internet.</li>
+          <li>Check the total, date, merchant and category that piRadar suggests.</li>
+          <li>Fix anything that is off and tap <strong>Save</strong>: the transaction and the receipt photo are saved.</li>
+        </ol>
+        <p class="tip">piRadar only suggests: nothing is saved until you confirm.</p>
+        <h3 id="total-incorrecto">The total is wrong, what do I do?</h3>
+        <ol>
+          <li>Look at the <strong>Another total?</strong> chips under the amount: tap the right one.</li>
+          <li>If none is right, type the amount by hand.</li>
+          <li>Tap <strong>View text read</strong> to see exactly what the phone read.</li>
+          <li>The warnings about the total, the date or the category tell you what to check before saving.</li>
+        </ol>
+        <h3 id="mejor-foto">How do I take a photo that reads well?</h3>
+        <ol>
+          <li>Put the whole receipt in the photo, straight and on a flat surface.</li>
+          <li>Use good light and avoid shadows and glare.</li>
+          <li>If the paper is wrinkled, smooth it out first.</li>
+        </ol>
+        <h3 id="permiso-camara">The camera or gallery does not open</h3>
+        <ol>
+          <li>Open the phone settings, find piRadar and turn on the camera and photos permission.</li>
+          <li>Meanwhile you can use <strong>Enter manually</strong>.</li>
+        </ol>
+
+        <h2 id="categorias-medios">Categories and payment methods</h2>
+        <h3 id="crear-categoria">How do I create a category or a subcategory?</h3>
+        <ol>
+          <li>Go to <strong>More &gt; Categories</strong> and choose <strong>Expenses</strong> or <strong>Income</strong>.</li>
+          <li>Tap <strong>+</strong>, enter the <strong>Name</strong> and choose the icon and color.</li>
+          <li>For a subcategory, choose the main category in <strong>Inside</strong>.</li>
+          <li>Tap <strong>Save</strong>.</li>
+        </ol>
+        <h3 id="archivar">What happens if I delete a category or payment method?</h3>
+        <ol>
+          <li>If it has no transactions, it is deleted.</li>
+          <li>If it has transactions or subcategories, it is <strong>archived</strong>: it no longer appears when adding new transactions, but old ones keep it.</li>
+          <li>Turn on <strong>Show archived</strong> to see it and <strong>Restore</strong> to use it again.</li>
+        </ol>
+        <h3 id="medios-de-pago">How do I add a payment method?</h3>
+        <ol>
+          <li>Go to <strong>More &gt; Payment methods</strong> and tap <strong>+</strong>.</li>
+          <li>Enter the <strong>Name</strong>, choose the <strong>Type</strong> and the icon.</li>
+          <li>To tell two cards apart, enter the <strong>Last 4 digits</strong>: the full number is never stored.</li>
+        </ol>
+
+        <h2 id="analisis">Analytics and balance</h2>
+        <h3 id="ver-analisis">How do I see where my money goes?</h3>
+        <ol>
+          <li>Open <strong>Analytics</strong>.</li>
+          <li>Choose the period: <strong>Day</strong>, <strong>Week</strong>, <strong>Month</strong> or <strong>Year</strong>, and move with the arrows.</li>
+          <li>Choose the currency and switch between <strong>Expenses</strong> and <strong>Income</strong>.</li>
+          <li>See the bars over time, <strong>By category</strong>, <strong>By payment method</strong> and the average spending per day.</li>
+        </ol>
+        <h3 id="saldo-inicial">What is the opening balance?</h3>
+        <ol>
+          <li>It is what was left from all previous periods (income minus expenses), per currency.</li>
+          <li>That is why a new month does not start at zero: it starts with the previous balance.</li>
+          <li>It is calculated automatically: if you fix or delete an old transaction, it updates. It does not count as income or expense.</li>
+        </ol>
+        <h3 id="todo-en-moneda-base">How do I see everything in one currency?</h3>
+        <ol>
+          <li>In <strong>Analytics</strong>, if you have transactions in two currencies, choose <strong>All in</strong> and your base currency.</li>
+          <li>To convert, piRadar uses the rates you entered in <strong>More &gt; Exchange rates</strong>.</li>
+          <li>Transactions with no rate for their date are left out of the total with a warning; tap <strong>Add rate</strong> to fill it in.</li>
+        </ol>
+        <h3 id="tasas">How do I enter an exchange rate?</h3>
+        <ol>
+          <li>Go to <strong>More &gt; Exchange rates</strong> and tap <strong>+</strong>.</li>
+          <li>Choose the <strong>From</strong> and <strong>To</strong> currencies, enter the rate and the date in <strong>Applies from</strong>.</li>
+          <li>Tap <strong>Save</strong>. Each transaction uses the latest rate dated on or before it.</li>
+        </ol>
+        <p class="tip">Rates are only used in the combined view; the totals per currency do not change.</p>
+
+        <h2 id="respaldo">Backup</h2>
+        <h3 id="crear-respaldo">How do I make a backup?</h3>
+        <ol>
+          <li>Go to <strong>More &gt; Backup</strong> and tap <strong>Create backup</strong>.</li>
+          <li>Choose a password and confirm it.</li>
+          <li>Save the <code>.piradar</code> file wherever you like (email, cloud, files) using the share menu.</li>
+        </ol>
+        <p class="tip">The password is not stored anywhere: if you forget it, the backup cannot be opened. Write it down somewhere safe.</p>
+        <h3 id="restaurar-respaldo">How do I restore a backup or move my data to another phone?</h3>
+        <ol>
+          <li>Install piRadar on the new phone and move the <code>.piradar</code> file to it.</li>
+          <li>Go to <strong>More &gt; Backup</strong> and tap <strong>Restore a backup</strong>.</li>
+          <li>Choose the file and enter the password you used to create it.</li>
+          <li>Review the summary and confirm with <strong>Replace</strong>. This replaces all the data on that phone.</li>
+        </ol>
+        <h3 id="recordatorio-respaldo">Why do I see a backup reminder?</h3>
+        <ol>
+          <li>Home reminds you when you have never made a backup or more than 30 days have passed since the last one.</li>
+          <li>Tap <strong>Back up now</strong> to create it right away.</li>
+        </ol>
+
+        <h2 id="ajustes">Settings</h2>
+        <h3 id="idioma-tema">How do I change the language, theme or base currency?</h3>
+        <ol>
+          <li>Go to <strong>More &gt; Settings</strong>.</li>
+          <li>In <strong>Language</strong> choose Spanish, English or <strong>Same as system</strong>.</li>
+          <li>In <strong>Theme</strong> choose <strong>Light</strong>, <strong>Dark</strong> or the system one.</li>
+          <li>In <strong>Base currency</strong> choose the currency in which you want to see combined totals.</li>
+          <li>In <strong>Home title</strong> you can change the title of the Home screen, and <strong>Reset</strong> puts the original back.</li>
+        </ol>
+
+        <h2 id="privacidad">Privacy and data</h2>
+        <h3 id="donde-estan-mis-datos">Where is my data stored?</h3>
+        <ol>
+          <li>Only on your phone, in an encrypted database. There is no account, cloud, ads or tracking.</li>
+          <li>The app does not use the internet: receipt text is read on the phone itself.</li>
+          <li>That is why we cannot recover your data if you lose your phone: make backups.</li>
+        </ol>
+
+        <h2 id="problemas">Troubleshooting</h2>
+        <h3 id="olvide-contrasena">I forgot my backup password</h3>
+        <ol>
+          <li>It cannot be recovered: the backup is encrypted with that password and piRadar does not keep it.</li>
+          <li>Try the passwords you usually use, with and without accents and capital letters.</li>
+          <li>If you still have the app with your data, create a new backup with a password you write down.</li>
+        </ol>
+        <h3 id="pantalla-error-datos">The app says it cannot read my data when I open it</h3>
+        <ol>
+          <li>This happens when the encrypted data can no longer be opened with the phone&#39;s key, for example after restoring the phone from a copy.</li>
+          <li>If you have a <code>.piradar</code> backup, tap <strong>Start over…</strong> on that screen and then use <strong>Restore a backup</strong>.</li>
+          <li><strong>Erase and start over</strong> removes what is in the app: the screen asks you to confirm first.</li>
+        </ol>
+        <h3 id="contacto">My problem is not here</h3>
+        <ol>
+          <li>Write to belvictodeveloper@gmail.com telling us which screen you were on and what you expected to happen.</li>
+          <li>Do not send your password or your backup files.</li>
+        </ol>
+
+        <h2>Contact</h2>
+        <p>Still have questions? Write to <a href="mailto:belvictodeveloper@gmail.com">belvictodeveloper@gmail.com</a>.</p>
+      </article>
+    </main>
+  </body>
+</html>
