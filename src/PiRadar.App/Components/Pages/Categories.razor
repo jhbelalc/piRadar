@@ -3,7 +3,7 @@
 @inject IDialogService Dialogs
 @inject ISnackbar Snackbar
 
-<PageBar Title="@Pick("Categorías", "Categories")" BackHref="more">
+<PageBar Title="@Pick("Categorías", "Categories")" BackHref="more" HelpTopics="HelpTopics.Categories">
     <Actions>
         <MudIconButton id="add-category" Icon="@Icons.Material.Rounded.Add" Color="Color.Inherit" aria-label="@Pick("Nueva categoría", "New category")"
                        OnClick="AddAsync" />

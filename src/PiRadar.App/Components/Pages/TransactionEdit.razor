@@ -10,7 +10,7 @@
 @inject ScanState ScanState
 @using PiRadar.Core.Receipts
 
-<PageBar Title="@PageTitle" BackHref="@(_scan is null ? "transactions" : "scan")">
+<PageBar Title="@PageTitle" BackHref="@(_scan is null ? "transactions" : "scan")" HelpTopics="HelpTopics.Transaction">
     <Actions>
         @if (!IsNew && _loaded)
         {

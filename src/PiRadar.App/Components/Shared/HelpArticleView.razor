@@ -1,0 +1,18 @@
+
+@* Pasos y consejo de un artículo de ayuda; lo usan la pantalla Ayuda y el botón "?" de cada pantalla. *@
+<ol class="help-steps">
+    @foreach (var step in Article.Steps)
+    {
+        <li>@((MarkupString)HelpMarkup.ToHtml(step.In(AppLocale.Language)))</li>
+    }
+</ol>
+@if (Article.Tip is { } tip)
+{
+    <MudAlert Severity="Severity.Info" Dense="true" Class="mt-2">
+        @((MarkupString)HelpMarkup.ToHtml(tip.In(AppLocale.Language)))
+    </MudAlert>
+}
+
+@code {
+    [Parameter, EditorRequired] public required HelpArticle Article { get; set; }
+}

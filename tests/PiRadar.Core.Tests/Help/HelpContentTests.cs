@@ -55,9 +55,9 @@ public class HelpContentTests
     }
 
     [Fact]
-    public void Web_urls_point_to_the_page_of_each_language()
+    public void Every_contextual_help_topic_exists()
     {
-        Assert.EndsWith("/piRadar/ayuda.html", HelpContent.WebUrl(AppLanguage.Spanish));
-        Assert.EndsWith("/piRadar/help.html", HelpContent.WebUrl(AppLanguage.English));
+        Assert.All(HelpTopics.All.SelectMany(t => t), id => Assert.NotNull(HelpContent.FindArticle(id)));
+        Assert.All(HelpTopics.All, topics => Assert.Equal(topics.Length, topics.Distinct().Count()));
     }
 }

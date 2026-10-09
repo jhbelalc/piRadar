@@ -1,0 +1,36 @@
+@inject NavigationManager Navigation
+
+@* Ayuda contextual: las preguntas de la pantalla actual, sin salir de ella (así no se pierde lo que se estaba escribiendo). *@
+<MudDialog>
+    <DialogContent>
+        <div class="help-dialog-body">
+            <MudExpansionPanels Outlined="true" Elevation="0">
+                @for (var i = 0; i < Articles.Count; i++)
+                {
+                    var article = Articles[i];
+                    <MudExpansionPanel Text="@article.Question.In(AppLocale.Language)" Expanded="@(i == 0)">
+                        <HelpArticleView Article="article" />
+                    </MudExpansionPanel>
+                }
+            </MudExpansionPanels>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton id="help-all" StartIcon="@Icons.Material.Rounded.HelpOutline" OnClick="OpenAll">@Pick("Toda la ayuda", "All help")</MudButton>
+        <MudButton id="help-close" Color="Color.Primary" Variant="Variant.Filled" OnClick="() => MudDialog.Close()">@Pick("Cerrar", "Close")</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public required IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string[] Topics { get; set; } = [];
+
+    private IReadOnlyList<HelpArticle> Articles => Topics.Select(HelpContent.FindArticle).OfType<HelpArticle>().ToList();
+
+    private void OpenAll()
+    {
+        MudDialog.Close();
+        Navigation.NavigateTo("help");
+    }
+}

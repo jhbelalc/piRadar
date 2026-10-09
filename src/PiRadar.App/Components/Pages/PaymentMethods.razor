@@ -3,7 +3,7 @@
 @inject IDialogService Dialogs
 @inject ISnackbar Snackbar
 
-<PageBar Title="@Pick("Medios de pago", "Payment methods")" BackHref="more">
+<PageBar Title="@Pick("Medios de pago", "Payment methods")" BackHref="more" HelpTopics="HelpTopics.PaymentMethods">
     <Actions>
         <MudIconButton id="add-payment-method" Icon="@Icons.Material.Rounded.Add" Color="Color.Inherit"
                        aria-label="@Pick("Nuevo medio de pago", "New payment method")" OnClick="() => ShowDialogAsync(null)" />

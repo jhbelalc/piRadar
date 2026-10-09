@@ -1,0 +1,20 @@
+@inject IDialogService Dialogs
+
+<MudIconButton Icon="@Icons.Material.Rounded.HelpOutline" Color="Color.Inherit" OnClick="OpenAsync"
+               aria-label="@Pick("Ayuda de esta pantalla", "Help for this screen")" id="help-button" />
+
+@code {
+    /// <summary>Ids de <c>HelpContent</c> que se muestran (ver <c>HelpTopics</c>).</summary>
+    [Parameter, EditorRequired] public string[] Topics { get; set; } = [];
+
+    private Task OpenAsync()
+    {
+        var parameters = new DialogParameters<HelpDialog> { { d => d.Topics, Topics } };
+        return Dialogs.ShowAsync<HelpDialog>(Pick("Ayuda", "Help"), parameters, new DialogOptions
+        {
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            CloseButton = true,
+        });
+    }
+}

@@ -1,5 +1,4 @@
 @page "/help"
-@using PiRadar.Core.Help
 @inject LinkOpener Links
 
 <PageBar Title="@Pick("Ayuda", "Help")" BackHref="more" />
@@ -18,39 +17,16 @@
                     @foreach (var article in section.Articles)
                     {
                         <MudExpansionPanel Text="@article.Question.In(AppLocale.Language)" id="@("help-" + article.Id)">
-                            <ol class="help-steps">
-                                @foreach (var step in article.Steps)
-                                {
-                                    <li>@((MarkupString)HelpMarkup.ToHtml(step.In(AppLocale.Language)))</li>
-                                }
-                            </ol>
-                            @if (article.Tip is { } tip)
-                            {
-                                <MudAlert Severity="Severity.Info" Dense="true" Class="mt-2">
-                                    @((MarkupString)HelpMarkup.ToHtml(tip.In(AppLocale.Language)))
-                                </MudAlert>
-                            }
+                            <HelpArticleView Article="article" />
                         </MudExpansionPanel>
                     }
                 </MudExpansionPanels>
             </MudStack>
         }
 
-        <MudPaper Class="pa-4" Elevation="0" Outlined="true">
-            <MudText Typo="Typo.subtitle2">@Pick("¿Quieres compartir esta ayuda o leerla en pantalla grande?", "Want to share this help or read it on a bigger screen?")</MudText>
-            <MudText Typo="Typo.body2" Class="mud-text-secondary mt-1">
-                @Pick("La misma guía está en la web. Se abre en el navegador del teléfono: piRadar sigue sin usar internet.",
-                      "The same guide is on the web. It opens in the phone's browser: piRadar still does not use the internet.")
-            </MudText>
-            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Class="mt-2" id="help-online"
-                       StartIcon="@Icons.Material.Rounded.OpenInNew"
-                       OnClick="@(() => Links.OpenAsync(HelpContent.WebUrl(AppLocale.Language)))">
-                @Pick("Ayuda en línea", "Online help")
-            </MudButton>
-            <MudText Typo="Typo.body2" Class="mud-text-secondary mt-3">
-                @Pick("¿No encuentras tu duda? Escribe a", "Cannot find your question? Write to")
-                <MudLink Typo="Typo.body2" OnClick="@(() => Links.OpenAsync("mailto:" + HelpContent.ContactEmail))">@HelpContent.ContactEmail</MudLink>
-            </MudText>
-        </MudPaper>
+        <MudText Typo="Typo.body2" Class="mud-text-secondary" id="help-contact">
+            @Pick("¿No encuentras tu duda? Escribe a", "Cannot find your question? Write to")
+            <MudLink Typo="Typo.body2" OnClick="@(() => Links.OpenAsync("mailto:" + HelpContent.ContactEmail))">@HelpContent.ContactEmail</MudLink>
+        </MudText>
     </MudStack>
 </MudContainer>

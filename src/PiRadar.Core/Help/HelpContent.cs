@@ -21,9 +21,9 @@ public static class HelpContent
 {
     public const string ContactEmail = "belvictodeveloper@gmail.com";
 
-    /// <summary>Página web de la ayuda (la misma fuente, generada con <c>tools/help/build-help.cs</c>).</summary>
-    public static string WebUrl(AppLanguage language) =>
-        "https://www.belvicto.com/piRadar/" + (language == AppLanguage.English ? "help.html" : "ayuda.html");
+    /// <summary>Busca un artículo por id (los de <see cref="HelpTopics"/>); <c>null</c> si no existe.</summary>
+    public static HelpArticle? FindArticle(string id) =>
+        Sections.SelectMany(s => s.Articles).FirstOrDefault(a => a.Id == id);
 
     public static IReadOnlyList<HelpSection> Sections { get; } =
     [
