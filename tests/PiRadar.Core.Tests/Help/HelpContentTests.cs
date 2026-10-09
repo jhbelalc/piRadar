@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using PiRadar.Core.Domain;
 using PiRadar.Core.Help;
 
 namespace PiRadar.Core.Tests.Help;
@@ -45,5 +46,18 @@ public class HelpContentTests
     {
         // La ficha de la App Store no puede hablar de otras plataformas (guideline 2.3.10) y la web de ayuda se enlaza desde ella.
         Assert.All(AllTexts(), t => Assert.DoesNotContain(OtherPlatforms, p => Regex.IsMatch(t, $@"\b{Regex.Escape(p)}\b", RegexOptions.IgnoreCase)));
+    }
+
+    [Fact]
+    public void Markup_escapes_html_and_formats_bold_and_code()
+    {
+        Assert.Equal("Toca <strong>Guardar</strong> &lt;ya&gt; y abre <code>.piradar</code>", HelpMarkup.ToHtml("Toca **Guardar** <ya> y abre `.piradar`"));
+    }
+
+    [Fact]
+    public void Web_urls_point_to_the_page_of_each_language()
+    {
+        Assert.EndsWith("/piRadar/ayuda.html", HelpContent.WebUrl(AppLanguage.Spanish));
+        Assert.EndsWith("/piRadar/help.html", HelpContent.WebUrl(AppLanguage.English));
     }
 }

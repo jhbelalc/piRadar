@@ -30,6 +30,7 @@ public static class NavItems
         new(AppLocale.Pick("Tasas de cambio", "Exchange rates"), Icons.Material.Rounded.CurrencyExchange, "exchange-rates"),
         new(AppLocale.Pick("Respaldo", "Backup"), Icons.Material.Rounded.CloudUpload, "backup"),
         new(AppLocale.Pick("Ajustes", "Settings"), Icons.Material.Rounded.Settings, "settings"),
+        new(AppLocale.Pick("Ayuda", "Help"), Icons.Material.Rounded.HelpOutline, "help"),
         new(AppLocale.Pick("Acerca de", "About"), Icons.Material.Rounded.Info, "about"),
     ];
 }

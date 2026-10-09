@@ -35,6 +35,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<TransactionsViewState>();
 		builder.Services.AddSingleton<AnalyticsViewState>();
 		builder.Services.AddSingleton<ScanState>();
+		builder.Services.AddScoped<LinkOpener>();
 
 		builder.Services.AddSingleton<IClock, SystemClock>();
 		builder.Services.AddSingleton(SecureStorage.Default);

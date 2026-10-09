@@ -1,5 +1,5 @@
 @page "/about"
-@inject ISnackbar Snackbar
+@inject LinkOpener Links
 
 <PageBar Title="@Pick("Acerca de", "About")" BackHref="more" />
 
@@ -82,19 +82,5 @@
     private const string Email = "belvictodeveloper@gmail.com";
     private const string Website = "https://belvicto.com";
 
-    // Abre la app de correo o el navegador del teléfono; piRadar en sí no usa internet.
-    private async Task OpenAsync(string uri)
-    {
-        try
-        {
-            if (!await Launcher.Default.TryOpenAsync(new Uri(uri)))
-            {
-                Snackbar.Add(Pick("No hay una app en este teléfono para abrir el enlace.", "There is no app on this phone to open the link."), Severity.Warning);
-            }
-        }
-        catch (Exception)
-        {
-            Snackbar.Add(Pick("No se pudo abrir el enlace.", "The link could not be opened."), Severity.Warning);
-        }
-    }
+    private Task OpenAsync(string uri) => Links.OpenAsync(uri);
 }

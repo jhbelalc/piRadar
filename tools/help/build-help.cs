@@ -6,7 +6,6 @@
 // Luego subir ayuda.html y help.html a https://www.belvicto.com/piRadar/ (publicación manual).
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using PiRadar.Core.Domain;
 using PiRadar.Core.Help;
 
@@ -18,13 +17,7 @@ File.WriteAllText(Path.Combine(outDir, "ayuda.html"), Render(AppLanguage.Spanish
 File.WriteAllText(Path.Combine(outDir, "help.html"), Render(AppLanguage.English, today), new UTF8Encoding(false));
 Console.WriteLine($"Escrito en {Path.GetFullPath(outDir)}: ayuda.html, help.html");
 
-static string Rich(string text)
-{
-    var html = WebUtility.HtmlEncode(text);
-    html = Regex.Replace(html, @"\*\*(.+?)\*\*", "<strong>$1</strong>");
-    html = Regex.Replace(html, @"`(.+?)`", "<code>$1</code>");
-    return html;
-}
+static string Rich(string text) => HelpMarkup.ToHtml(text);
 
 static string Render(AppLanguage lang, DateTime today)
 {

@@ -21,6 +21,10 @@ public static class HelpContent
 {
     public const string ContactEmail = "belvictodeveloper@gmail.com";
 
+    /// <summary>Página web de la ayuda (la misma fuente, generada con <c>tools/help/build-help.cs</c>).</summary>
+    public static string WebUrl(AppLanguage language) =>
+        "https://www.belvicto.com/piRadar/" + (language == AppLanguage.English ? "help.html" : "ayuda.html");
+
     public static IReadOnlyList<HelpSection> Sections { get; } =
     [
         Section("inicio-rapido", "Inicio rápido", "Quick start",
