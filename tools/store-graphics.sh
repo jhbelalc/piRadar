@@ -8,4 +8,5 @@ render() { "$chrome" --headless --disable-gpu --hide-scrollbars --force-device-s
     --window-size=$3 --screenshot="$PWD/$2" "file://$PWD/$1" 2>/dev/null; }
 render icon.html icon-512.png 512,512
 render feature-graphic.html feature-graphic-1024x500.png 1024,500
-sips -g pixelWidth -g pixelHeight icon-512.png feature-graphic-1024x500.png
+render feature-graphic-en.html feature-graphic-en-1024x500.png 1024,500
+sips -g pixelWidth -g pixelHeight icon-512.png feature-graphic-1024x500.png feature-graphic-en-1024x500.png

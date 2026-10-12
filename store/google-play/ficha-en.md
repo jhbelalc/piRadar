@@ -62,7 +62,7 @@ PRIVATE BY DESIGN
 
 YOUR BACKUP, IN YOUR HANDS
 • Export an encrypted backup file with a password you choose.
-• Save it wherever you like and restore it on another phone, even between iPhone and Android.
+• Save it wherever you like and restore it on another phone.
 • piRadar reminds you to back up if more than a month has passed.
 
 Also: light, dark or system theme, in English or Spanish, and a layout that adapts to phones and tablets.
