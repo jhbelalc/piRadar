@@ -45,6 +45,45 @@ public class UsReceiptTests
     }
 
     [Fact]
+    public void Gas_pump_receipt_uses_the_fuel_total_not_the_gallons_or_price()
+    {
+        // Real receipt (photo), merchant and address anonymized.
+        var result = ReceiptParser.Parse(
+        [
+            "Corner Kitchen 100",
+            "100 Main St",
+            "Anytown SC 29000",
+            "10/12/2026",
+            "18:09:13",
+            "Pump # 02 - Self",
+            "Unleaded 10.131g",
+            "Price/Gal 3.949",
+            "Fuel Ttl $40.01",
+            "Authorization",
+            "Visa",
+            "XXXXXXXXXXXX0773",
+            "Contactless",
+            "US DEBIT",
+            "Mode: Issuer",
+            "AID: A0000000980840",
+            "TVR: 0000000000",
+            "TSI: 0000",
+            "ARC: 00",
+            "10/12/2026 18:06:59",
+            "I agree to pay the",
+            "above Total Amount",
+            "according to Card",
+            "Issuer Agreement.",
+            "TRAN:1414842",
+            "Thank You!",
+        ], new DateOnly(2026, 10, 12), Currency.USD);
+
+        Assert.Equal(Currency.USD, result.Currency);
+        Assert.Equal(new Money(4001, Currency.USD), result.Total);
+        Assert.Equal(new DateOnly(2026, 10, 12), result.Date is { } d ? DateOnly.FromDateTime(d) : default);
+    }
+
+    [Fact]
     public void Restaurant_with_tip_uses_the_amount_due()
     {
         var result = Parse(
