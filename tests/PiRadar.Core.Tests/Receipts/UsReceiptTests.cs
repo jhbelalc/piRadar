@@ -83,6 +83,165 @@ public class UsReceiptTests
         Assert.Equal(new DateOnly(2026, 10, 12), result.Date is { } d ? DateOnly.FromDateTime(d) : default);
     }
 
+    // Recibos reales (fotos), con comercio, dirección y datos personales anonimizados.
+    private static readonly DateOnly RealToday = new(2026, 10, 13);
+
+    [Fact]
+    public void Coffee_shop_receipt_without_a_total_line_uses_the_payment()
+    {
+        var result = ReceiptParser.Parse(
+        [
+            "Welcome to Coffee Shop",
+            "Store #: 100000",
+            "100 MAIN AVE",
+            "ANYTOWN, SC 29000",
+            "CHK 9835",
+            "10/13/2026 4:27 PM",
+            "Eat In",
+            "1 Md Ice Orig Cof 3.49",
+            "2 French Vanilla Swl",
+            "3 Almond Milk",
+            "1 Sm Hot Orig Cof 2.59",
+            "Visa $6.62",
+            "************1980",
+            "Tran Type : Purchase",
+            "Entry Mode : TAPPED",
+            "Auth Code : 022774",
+            "VISA DEBIT",
+            "AID: A0000000031010",
+            "No Signature Required",
+            "Subtotal $6.08",
+            "Goose Creek $0.06",
+            "Berkeley Co Tr $0.06",
+            "BCECIT $0.06",
+            "South Carolina $0.36",
+            "Payment $6.62",
+            "Change Due $0.00",
+            "Check Closed",
+            "10/13/2026 4:27 PM",
+        ], RealToday, Currency.USD);
+
+        Assert.Equal(new Money(662, Currency.USD), result.Total);
+        Assert.Equal(new DateOnly(2026, 10, 13), result.Date is { } d ? DateOnly.FromDateTime(d) : default);
+    }
+
+    [Fact]
+    public void Long_grocery_receipt_uses_the_balance_due_not_savings_or_tax()
+    {
+        var result = ReceiptParser.Parse(
+        [
+            "GROCERY STORE",
+            "Store #1000 (555) 555-0100",
+            "100 Main Ave, Anytown, SC",
+            "FROZEN/DAIRY",
+            "FL FRUIT EXPLOSION 3.49 A",
+            "FL MANGO CHUNKS 3.49 A",
+            "GROCERY",
+            "MAHATMA BROWN RICE 4.99 A",
+            "SCOTT BTH 12 RL 1PLY 14.59 B",
+            "Savings",
+            "You saved:",
+            "HUNTS NSA DCD TOMATO -0.31",
+            "SCOTT BTH 12 RL 1PLY -2.70",
+            "Tax Paid",
+            "2.00% Tax 1 51.07 1.02",
+            "9.00% Tax 2 34.87 3.14",
+            "TOTAL TAX 4.16",
+            "40 BALANCE DUE 90.10",
+            "Debit Card $90.10",
+            "SALE",
+            "XXXXXXXXXXXX5429",
+            "Debit Card",
+            "10/13/2026",
+            "INVOICE: 064697",
+            "US DEBIT",
+            "AID: A0000000980840",
+            "Total: USD$ 90.10",
+            "APPROVED",
+            "PIN VERIFIED",
+            "CHANGE 0.00",
+            "You saved $13.21!",
+            "Year to Date",
+            "Savings 235.30",
+        ], RealToday, Currency.USD);
+
+        Assert.Equal(new Money(9010, Currency.USD), result.Total);
+    }
+
+    [Fact]
+    public void Superstore_receipt_uses_the_total_not_the_tax_or_subtotal()
+    {
+        var result = ReceiptParser.Parse(
+        [
+            "Give us feedback @ survey.example.com",
+            "Walmart",
+            "WM Supercenter",
+            "843-555-0100 Mgr. NAME",
+            "100 MAIN AVE",
+            "ANYTOWN SC 29000",
+            "ST# 02928 OP# 009001 TE# 01 TR# 00535",
+            "# ITEMS SOLD 4",
+            "TC# 7834 3547 3004 8135 1392",
+            "STB FS HWN 022000332810 F 3.96 R",
+            "SKT SHRKR 022000333140 F 3.96 R",
+            "LDY MITCH 2P 309973105910 6.97 X",
+            "96/20 PAPER 842356061680 7.92 X",
+            "SUBTOTAL 22.81",
+            "TAX1 9.0000 % 1.34",
+            "TAX2 2.0000 % 0.16",
+            "TOTAL 24.31",
+            "DEBIT TEND 24.31",
+            "CHANGE DUE 0.00",
+            "EFT DEBIT PAY FROM PRIMARY",
+            "24.31 TOTAL PURCHASE",
+            "US DEBIT- 0773 C 0",
+            "REF # U061FZ257442",
+            "NETWORK ID. 0008 APPR. CODE 731938",
+            "AID A0000000980840",
+            "TERMINAL # 55932508",
+            "*No Signature Required",
+            "10/13/26 16:40:39",
+        ], RealToday, Currency.USD);
+
+        Assert.Equal(new Money(2431, Currency.USD), result.Total);
+        Assert.Equal(new DateOnly(2026, 10, 13), result.Date is { } d ? DateOnly.FromDateTime(d) : default);
+    }
+
+    [Fact]
+    public void Car_wash_receipt_with_zero_tax()
+    {
+        var result = ReceiptParser.Parse(
+        [
+            "CAR WASH",
+            "906 - Plantation",
+            "100 Main Avenue",
+            "Anytown, SC, 29000",
+            "+1(555)555-0100",
+            "XPT2, 10/13/26, 02:55 PM",
+            "Shift-1, Empl-1,",
+            "Sale#000610132610506",
+            "1 Deluxe Wax 30.00",
+            "1 Deluxe Wax Raincheck 0.00",
+            "Subtotal 30.00",
+            "Sales Tax 0.00",
+            "Total 30.00",
+            "XXXX0773 30.00",
+            "(Sale Appr #421745)",
+            "Please verify or complete the",
+            "following vehicle and contact",
+            "information.",
+            "Customer Name: JOHN Q PUBLIC",
+            "Vehicle Year :",
+            "TVR 0000000000",
+            "AID A0000000031010",
+            "IAD 06011203A00000",
+            "000/Approval",
+        ], RealToday, Currency.USD);
+
+        Assert.Equal(new Money(3000, Currency.USD), result.Total);
+        Assert.Equal(new DateOnly(2026, 10, 13), result.Date is { } d ? DateOnly.FromDateTime(d) : default);
+    }
+
     [Fact]
     public void Restaurant_with_tip_uses_the_amount_due()
     {
