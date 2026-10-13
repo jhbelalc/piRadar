@@ -10,6 +10,8 @@
 @inject ScanState ScanState
 @using PiRadar.Core.Receipts
 
+<NavigationLock OnBeforeInternalNavigation="ConfirmLeaveAsync" />
+
 <PageBar Title="@PageTitle" BackHref="@(_scan is null ? "transactions" : "scan")" HelpTopics="HelpTopics.Transaction">
     <Actions>
         @if (!IsNew && _loaded)
@@ -205,7 +207,33 @@
             _notFound = true;
         }
 
+        _initialSnapshot = Snapshot();
         _loaded = true;
+    }
+
+    // Huella del formulario al abrirlo: si cambia (o viene de un escaneo, que se perdería) hay algo sin guardar.
+    private string? _initialSnapshot;
+    private bool _leaving;
+
+    private string Snapshot() => string.Join('|', _type, _amount, _currency, _categoryId, _date, _time,
+        _paymentMethodId, _merchant, _description, _notes);
+
+    private bool IsDirty => _loaded && !_notFound && (_scan is not null || Snapshot() != _initialSnapshot);
+
+    private async Task ConfirmLeaveAsync(LocationChangingContext context)
+    {
+        if (_leaving || !IsDirty)
+        {
+            return;
+        }
+
+        var message = _scan is null
+            ? Pick("Perderás los datos de este movimiento.", "You will lose the data of this transaction.")
+            : Pick("Perderás los datos de este movimiento y el recibo leído.", "You will lose the data of this transaction and the receipt that was read.");
+        if (!await Dialogs.ConfirmAsync(Pick("¿Salir sin guardar?", "Leave without saving?"), message, Pick("Salir", "Leave")))
+        {
+            context.PreventNavigation();
+        }
     }
 
     // Moneda y medio de pago del último movimiento: lo más probable es que se repitan.
@@ -392,6 +420,7 @@
                 Snackbar.Add(Pick("Cambios guardados.", "Changes saved."), Severity.Success);
             }
 
+            _leaving = true;
             Navigation.NavigateTo("transactions");
         }
         catch (DomainValidationException ex)
@@ -420,6 +449,7 @@
 
         await TransactionRepository.DeleteAsync(Id!.Value);
         Snackbar.Add(Pick("Movimiento eliminado.", "Transaction deleted."), Severity.Success);
+        _leaving = true;
         Navigation.NavigateTo("transactions");
     }
 }
