@@ -113,6 +113,17 @@ public class ReceiptParserFixtureTests
         Assert.Contains(result.MerchantCandidates, c => Fold(c).Contains(expected.Merchant, StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void Parse_BancolombiaButton_UsesTotalPaidNotTheMaskedAccount()
+    {
+        // Captura de pantalla de "Botón Bancolombia" (PSE) leída con ML Kit: etiquetas y valores en columnas, y la
+        // cuenta "Cuenta de ahorros **** 7753" separada de los asteriscos. Referencias y cuenta anonimizadas.
+        var result = ReceiptParser.Parse(Load("android", "bancolombia-boton"), new DateOnly(2026, 10, 14));
+
+        Assert.Equal(Currency.COP, result.Currency);
+        Assert.Equal(new Money(25958, Currency.COP), result.Total);
+    }
+
     [Theory]
     [InlineData("ios")]
     [InlineData("android")]

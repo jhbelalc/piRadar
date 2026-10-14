@@ -1,0 +1,278 @@
+{
+ "Elements": [
+  {
+   "Text": "11:59",
+   "X": 42,
+   "Y": 30,
+   "Width": 60,
+   "Height": 23
+  },
+  {
+   "Text": "O0",
+   "X": 160,
+   "Y": 31,
+   "Width": 48,
+   "Height": 23
+  },
+  {
+   "Text": "<",
+   "X": 36,
+   "Y": 97,
+   "Width": 43,
+   "Height": 41
+  },
+  {
+   "Text": "Botón",
+   "X": 127,
+   "Y": 97,
+   "Width": 131,
+   "Height": 41
+  },
+  {
+   "Text": "Bancolombia",
+   "X": 280,
+   "Y": 97,
+   "Width": 295,
+   "Height": 41
+  },
+  {
+   "Text": "factura:",
+   "X": 73,
+   "Y": 219,
+   "Width": 180,
+   "Height": 38
+  },
+  {
+   "Text": "Descripció",
+   "X": 78,
+   "Y": 356,
+   "Width": 236,
+   "Height": 50
+  },
+  {
+   "Text": "pago:",
+   "X": 78,
+   "Y": 438,
+   "Width": 122,
+   "Height": 38
+  },
+  {
+   "Text": "Referencia",
+   "X": 77,
+   "Y": 562,
+   "Width": 236,
+   "Height": 41
+  },
+  {
+   "Text": "1:",
+   "X": 78,
+   "Y": 636,
+   "Width": 34,
+   "Height": 36
+  },
+  {
+   "Text": "Referencia",
+   "X": 78,
+   "Y": 736,
+   "Width": 236,
+   "Height": 38
+  },
+  {
+   "Text": "2:",
+   "X": 76,
+   "Y": 808,
+   "Width": 36,
+   "Height": 36
+  },
+  {
+   "Text": "Referencia",
+   "X": 78,
+   "Y": 909,
+   "Width": 236,
+   "Height": 37
+  },
+  {
+   "Text": "3:",
+   "X": 76,
+   "Y": 980,
+   "Width": 36,
+   "Height": 36
+  },
+  {
+   "Text": "Producto",
+   "X": 78,
+   "Y": 1116,
+   "Width": 204,
+   "Height": 38
+  },
+  {
+   "Text": "origen:",
+   "X": 75,
+   "Y": 1185,
+   "Width": 159,
+   "Height": 48
+  },
+  {
+   "Text": "Total",
+   "X": 74,
+   "Y": 1322,
+   "Width": 113,
+   "Height": 37
+  },
+  {
+   "Text": "pagado:",
+   "X": 76,
+   "Y": 1389,
+   "Width": 182,
+   "Height": 55
+  },
+  {
+   "Text": "100000000001",
+   "X": 352,
+   "Y": 186,
+   "Width": 319,
+   "Height": 36
+  },
+  {
+   "Text": "Pago",
+   "X": 351,
+   "Y": 323,
+   "Width": 104,
+   "Height": 47
+  },
+  {
+   "Text": "a",
+   "X": 495,
+   "Y": 322,
+   "Width": 11,
+   "Height": 44
+  },
+  {
+   "Text": "traves",
+   "X": 511,
+   "Y": 318,
+   "Width": 136,
+   "Height": 48
+  },
+  {
+   "Text": "de",
+   "X": 350,
+   "Y": 391,
+   "Width": 52,
+   "Height": 38
+  },
+  {
+   "Text": "PSE",
+   "X": 422,
+   "Y": 391,
+   "Width": 75,
+   "Height": 38
+  },
+  {
+   "Text": "100000000001",
+   "X": 352,
+   "Y": 463,
+   "Width": 319,
+   "Height": 36
+  },
+  {
+   "Text": "02",
+   "X": 350,
+   "Y": 600,
+   "Width": 50,
+   "Height": 36
+  },
+  {
+   "Text": "A",
+   "X": 596,
+   "Y": 32,
+   "Width": 7,
+   "Height": 24
+  },
+  {
+   "Text": "40%",
+   "X": 633,
+   "Y": 32,
+   "Width": 47,
+   "Height": 24
+  },
+  {
+   "Text": "9000000001",
+   "X": 350,
+   "Y": 768,
+   "Width": 272,
+   "Height": 43
+  },
+  {
+   "Text": "4761",
+   "X": 348,
+   "Y": 945,
+   "Width": 100,
+   "Height": 36
+  },
+  {
+   "Text": "Cuenta",
+   "X": 350,
+   "Y": 1082,
+   "Width": 156,
+   "Height": 36
+  },
+  {
+   "Text": "de",
+   "X": 524,
+   "Y": 1082,
+   "Width": 54,
+   "Height": 36
+  },
+  {
+   "Text": "ahorros",
+   "X": 348,
+   "Y": 1145,
+   "Width": 174,
+   "Height": 51
+  },
+  {
+   "Text": "****",
+   "X": 539,
+   "Y": 1140,
+   "Width": 104,
+   "Height": 47
+  },
+  {
+   "Text": "1234",
+   "X": 349,
+   "Y": 1222,
+   "Width": 107,
+   "Height": 36
+  },
+  {
+   "Text": "$",
+   "X": 350,
+   "Y": 1358,
+   "Width": 22,
+   "Height": 40
+  },
+  {
+   "Text": "25.958",
+   "X": 390,
+   "Y": 1358,
+   "Width": 148,
+   "Height": 40
+  },
+  {
+   "Text": "COP",
+   "X": 556,
+   "Y": 1358,
+   "Width": 92,
+   "Height": 40
+  },
+  {
+   "Text": "<",
+   "X": 565,
+   "Y": 1535,
+   "Width": 17,
+   "Height": 33
+  }
+ ],
+ "Engine": "Plugin.Maui.OCR/Android"
+}

@@ -301,4 +301,25 @@ public class ReceiptParserTests
 
         Assert.Equal(new Money(94000, Currency.COP), result.Total);
     }
+
+    [Theory]
+    [InlineData("Cuenta de ahorros **** 7753")]
+    [InlineData("Cuenta de ahorros ****7753")]
+    [InlineData("Producto origen: Cuenta de ahorros **** 7753")]
+    public void Bank_button_receipt_uses_the_total_paid_not_the_masked_account(string accountRow)
+    {
+        // Pantalla de "Botón Bancolombia" (PSE); referencias y cuenta anonimizadas.
+        var result = ReceiptParser.Parse(
+        [
+            "No. de factura: 100000000001",
+            "Descripción pago: Pago a traves de PSE 100000000001",
+            "Referencia 1: 02",
+            "Referencia 2: 9000000001",
+            "Referencia 3: 4761",
+            accountRow.StartsWith("Producto") ? accountRow : "Producto origen: " + accountRow,
+            "Total pagado: $ 25.958 COP",
+        ], new DateOnly(2026, 10, 14), Currency.COP);
+
+        Assert.Equal(new Money(25958, Currency.COP), result.Total);
+    }
 }

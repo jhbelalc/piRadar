@@ -87,6 +87,8 @@ public static partial class ReceiptParser
                     rest = rest.Remove(a.Start, Math.Min(a.Length, rest.Length - a.Start));
                 }
 
+                // "$ 25.958 COP": el código de moneda no cuenta como texto.
+                rest = CurrencyCode().Replace(rest, " ");
                 return rest.Count(char.IsLetter) <= 2;
             }
         }
@@ -233,15 +235,14 @@ public static partial class ReceiptParser
     /// <summary>Monto de la fila siguiente o anterior cuando la etiqueta quedó sola (papel curvo, columnas).</summary>
     private static AmountToken? NeighborAmount(List<Line> lines, int index)
     {
-        foreach (var i in (int[])[index + 1, index - 1])
-        {
-            if (i >= 0 && i < lines.Count && lines[i].IsAmountOnly)
-            {
-                return lines[i].Amounts[0];
-            }
-        }
-
-        return null;
+        // Con "$" gana la fila que lo trae: un número pelado de la fila contigua puede ser una cuenta o un código.
+        var neighbors = ((int[])[index + 1, index - 1])
+            .Where(i => i >= 0 && i < lines.Count && lines[i].IsAmountOnly)
+            .Select(i => lines[i].Amounts[0])
+            .ToList();
+        return neighbors.FirstOrDefault(a => a.HasCurrencySymbol) is { Length: > 0 } withSymbol
+            ? withSymbol
+            : neighbors.Count > 0 ? neighbors[0] : null;
     }
 
     /// <summary>Subtotal + impuestos/propina de las filas entre el subtotal y el total = total.</summary>
@@ -445,6 +446,9 @@ public static partial class ReceiptParser
 
     [GeneratedRegex(@"(?<![\d.])(?<num>\d{2,3}\.\d{3}\.\d{3}|\d{9})\s?-\s?(?<dv>\d|[LI]\b)(?!\d)")]
     private static partial Regex NitWithoutKeyword();
+
+    [GeneratedRegex(@"\b(?:COP|USD|US|MXN)\b", RegexOptions.IgnoreCase)]
+    private static partial Regex CurrencyCode();
 
     [GeneratedRegex(@"NIT\s?/\s?C\.?\s?C|C\.?\s?C\.?\s?/\s?NIT")]
     private static partial Regex CustomerNitCc();
