@@ -77,6 +77,10 @@ public static class HelpContent
                   "In **Transactions**, use the arrows of the period selector to go to the day, week, month or year you want."),
                 T("Usa los filtros **Todos**, **Gastos** e **Ingresos** para ver solo un tipo.",
                   "Use the **All**, **Expenses** and **Income** filters to see only one type."),
+                T("Para saber si ya registraste un gasto, toca la lupa de **Movimientos** y escribe una palabra del comercio, la descripción o las notas, o un monto. Busca en todo tu historial, sin importar mayúsculas ni tildes.",
+                  "To check whether you already recorded an expense, tap the magnifier in **Transactions** and type a word from the merchant, description or notes, or an amount. It searches your whole history, ignoring capitals and accents."),
+                T("Elige una **Categoría** para ver solo esa (incluye sus subcategorías); puedes combinarla con el texto. Borra la búsqueda o toca la lupa otra vez para volver al periodo.",
+                  "Choose a **Category** to see only that one (subcategories included); you can combine it with text. Clear the search or tap the magnifier again to go back to the period."),
             ]),
         ]),
 

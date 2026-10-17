@@ -5,11 +5,41 @@
 @inject IPaymentMethodRepository PaymentMethodRepository
 @inject TransactionsViewState State
 
-<PageBar Title="@Pick("Movimientos", "Transactions")" HelpTopics="HelpTopics.Transactions" />
+<PageBar Title="@Pick("Movimientos", "Transactions")" HelpTopics="HelpTopics.Transactions">
+    <Actions>
+        <MudIconButton Icon="@Icons.Material.Rounded.Search" Color="Color.Inherit" id="search-button"
+                       aria-label="@Pick("Buscar", "Search")" OnClick="ToggleSearchAsync" />
+    </Actions>
+</PageBar>
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
     <MudStack Spacing="3">
-        <PeriodSelector Value="State.Period" ValueChanged="SetPeriodAsync" />
+        @if (State.SearchOpen)
+        {
+            <MudPaper Elevation="0" Outlined="true" Class="pa-3">
+                <MudStack Spacing="2">
+                    <MudTextField T="string" Value="State.SearchText" ValueChanged="SetSearchTextAsync" Immediate="true" DebounceInterval="250"
+                                  Label="@Pick("Buscar movimientos", "Search transactions")" id="search-text"
+                                  Placeholder="@Pick("Comercio, descripción, notas, monto…", "Merchant, description, notes, amount…")"
+                                  Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true"
+                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Rounded.Search" AutoFocus="true" />
+                    <CategoryFilterPicker Value="State.SearchCategoryId" ValueChanged="SetSearchCategoryAsync" Kind="State.Type" />
+                </MudStack>
+            </MudPaper>
+        }
+
+        @if (State.IsSearching)
+        {
+            <MudText Typo="Typo.body2" Class="mud-text-secondary" id="search-count">
+                @(_transactions is null ? "" : _transactions.Count == 1
+                    ? Pick("1 resultado en todo el historial", "1 result in your whole history")
+                    : Pick($"{_transactions.Count} resultados en todo el historial", $"{_transactions.Count} results in your whole history"))
+            </MudText>
+        }
+        else
+        {
+            <PeriodSelector Value="State.Period" ValueChanged="SetPeriodAsync" />
+        }
 
         @if (_totals.Count > 0)
         {
@@ -62,14 +92,21 @@
             @OpeningRows()
             <MudStack AlignItems="AlignItems.Center" Class="py-8" Spacing="3">
                 <MudIcon Icon="@Icons.Material.Rounded.ReceiptLong" Size="Size.Large" Class="mud-text-secondary" />
-                <MudText Class="mud-text-secondary">@Pick("No hay movimientos en este periodo.", "No transactions in this period.")</MudText>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="transactions/new"
-                           StartIcon="@Icons.Material.Rounded.Add">@Pick("Registrar movimiento", "Add transaction")</MudButton>
+                @if (State.IsSearching)
+                {
+                    <MudText Class="mud-text-secondary">@Pick("No se encontró nada con esa búsqueda.", "Nothing matches that search.")</MudText>
+                }
+                else
+                {
+                    <MudText Class="mud-text-secondary">@Pick("No hay movimientos en este periodo.", "No transactions in this period.")</MudText>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="transactions/new"
+                               StartIcon="@Icons.Material.Rounded.Add">@Pick("Registrar movimiento", "Add transaction")</MudButton>
+                }
             </MudStack>
         }
         else
         {
-            @foreach (var day in _transactions.GroupBy(t => t.OccurredAt.Date))
+            @foreach (var day in _transactions.Take(MaxSearchRows).GroupBy(t => t.OccurredAt.Date))
             {
                 <div>
                     <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">
@@ -87,6 +124,14 @@
                 </div>
             }
 
+            @if (State.IsSearching && _transactions.Count > MaxSearchRows)
+            {
+                <MudText Typo="Typo.caption" Class="mud-text-secondary text-center">
+                    @Pick($"Se muestran los {MaxSearchRows} más recientes. Afina la búsqueda para ver el resto.",
+                          $"Showing the {MaxSearchRows} most recent. Narrow the search to see the rest.")
+                </MudText>
+            }
+
             @OpeningRows()
         }
     </MudStack>
@@ -100,7 +145,7 @@
     private RenderFragment OpeningRows() => __builder =>
     {
         var rows = _totals.Where(t => t.HasOpening).ToList();
-        if (State.Type is null && rows.Count > 0)
+        if (State.Type is null && rows.Count > 0 && !State.IsSearching)
         {
             <div>
                 <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">
@@ -144,14 +189,59 @@
         await LoadAsync();
     }
 
+    private const int MaxSearchRows = 300;
+
     private async Task LoadAsync()
     {
+        if (State.IsSearching)
+        {
+            await SearchAsync();
+            return;
+        }
+
         var all = await TransactionRepository.QueryAsync(
             TransactionFilter.Between(State.Period.Start, State.Period.End));
         // Saldo inicial: lo que quedó con todo lo anterior al periodo (se hereda de un mes al siguiente).
         var before = await TransactionRepository.QueryAsync(new TransactionFilter { To = State.Period.Start });
         _totals = CurrencyTotals.ByCurrency(all, OpeningBalance.ByCurrency(before));
         _transactions = State.Type is { } type ? all.Where(t => t.Type == type).ToList() : all;
+    }
+
+    /// <summary>Busca en todo el historial (ignora el periodo); el texto y la categoría se evalúan en memoria sin tildes ni mayúsculas.</summary>
+    private async Task SearchAsync()
+    {
+        var all = await TransactionRepository.QueryAsync(new TransactionFilter { Type = State.Type });
+        var tokens = TransactionSearch.Tokens(State.SearchText);
+        var categoryIds = State.SearchCategoryId is { } id
+            ? TransactionSearch.CategoryAndChildren(id, _categories.Values)
+            : null;
+        _transactions = all.Where(t => TransactionSearch.Matches(t,
+            _categories.GetValueOrDefault(t.CategoryId)?.Name, PaymentMethodOf(t)?.Name, tokens, categoryIds)).ToList();
+        _totals = CurrencyTotals.ByCurrency(_transactions);
+    }
+
+    private Task ToggleSearchAsync()
+    {
+        State.SearchOpen = !State.SearchOpen;
+        if (!State.SearchOpen)
+        {
+            State.SearchText = string.Empty;
+            State.SearchCategoryId = null;
+        }
+
+        return LoadAsync();
+    }
+
+    private Task SetSearchTextAsync(string? text)
+    {
+        State.SearchText = text ?? string.Empty;
+        return LoadAsync();
+    }
+
+    private Task SetSearchCategoryAsync(int? categoryId)
+    {
+        State.SearchCategoryId = categoryId;
+        return LoadAsync();
     }
 
     private Task SetPeriodAsync(Period period)

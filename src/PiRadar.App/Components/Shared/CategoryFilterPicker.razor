@@ -1,0 +1,39 @@
+@inject ICategoryRepository Categories
+
+@* Filtro de categoría para búsquedas: "Todas" (null) más todas las categorías, gastos e ingresos, con sus subcategorías debajo. *@
+<MudSelect T="int?" Label="@Pick("Categoría", "Category")" Value="Value" ValueChanged="ValueChanged" Variant="Variant.Outlined"
+           Clearable="true" AnchorOrigin="Origin.BottomCenter" Margin="Margin.Dense" id="search-category"
+           ToStringFunc="@(id => _items.FirstOrDefault(c => c.Id == id)?.Name ?? string.Empty)">
+    <MudSelectItem T="int?" Value="@((int?)null)">@Pick("Todas", "All")</MudSelectItem>
+    @foreach (var category in _items)
+    {
+        <MudSelectItem T="int?" Value="category.Id">
+            <div class="d-flex align-center gap-3 @(category.ParentId is null ? "" : "pl-6")">
+                <IconAvatar Icon="@category.Icon" Color="@category.Color" Size="Size.Small" />
+                <span>@category.Name</span>
+                @if (category.IsArchived)
+                {
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@Pick("Archivada", "Archived")</MudChip>
+                }
+            </div>
+        </MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    private IReadOnlyList<Category> _items = [];
+
+    [Parameter] public int? Value { get; set; }
+    [Parameter] public EventCallback<int?> ValueChanged { get; set; }
+
+    /// <summary>Si se indica, solo se ofrecen categorías de ese tipo.</summary>
+    [Parameter] public TransactionType? Kind { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var all = await Categories.GetAllAsync(includeArchived: true);
+        var shown = Kind is { } kind ? all.Where(c => c.Kind == kind).ToList() : all.ToList();
+        _items = [.. CategoryPicker.Order(shown.Where(c => c.Kind == TransactionType.Expense).ToList()),
+                  .. CategoryPicker.Order(shown.Where(c => c.Kind == TransactionType.Income).ToList())];
+    }
+}

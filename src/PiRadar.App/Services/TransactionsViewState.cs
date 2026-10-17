@@ -10,4 +10,16 @@ public sealed class TransactionsViewState
 
     /// <summary><c>null</c> = gastos e ingresos.</summary>
     public TransactionType? Type { get; set; }
+
+    /// <summary>Barra de búsqueda abierta.</summary>
+    public bool SearchOpen { get; set; }
+
+    /// <summary>Palabras clave de la búsqueda (vacío = sin texto).</summary>
+    public string SearchText { get; set; } = string.Empty;
+
+    /// <summary>Categoría de la búsqueda (incluye sus subcategorías); <c>null</c> = todas.</summary>
+    public int? SearchCategoryId { get; set; }
+
+    /// <summary>Con texto o categoría la lista ignora el periodo y recorre todo el historial.</summary>
+    public bool IsSearching => SearchOpen && (!string.IsNullOrWhiteSpace(SearchText) || SearchCategoryId is not null);
 }
