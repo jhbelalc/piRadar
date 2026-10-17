@@ -12,7 +12,8 @@ func b64url(_ data: Data) -> String {
         .replacingOccurrences(of: "=", with: "")
 }
 
-let now = Int(Date().timeIntervalSince1970)
+// iat un minuto atrás: si el reloj del Mac va adelantado, Apple rechaza un iat "futuro" con 401 intermitentes.
+let now = Int(Date().timeIntervalSince1970) - 60
 let header = try JSONSerialization.data(withJSONObject: ["alg": "ES256", "kid": args[2], "typ": "JWT"])
 let payload = try JSONSerialization.data(withJSONObject: [
     "iss": args[3], "iat": now, "exp": now + 1200, "aud": "appstoreconnect-v1",
