@@ -106,3 +106,61 @@ h1:focus {
     .blazor-error-boundary::after {
         content: "Ocurrió un error.";
     }
+
+/* Visor de la foto del recibo (ImageViewer): pantalla completa sobre la barra superior y la inferior. */
+.image-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.image-viewer img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transform-origin: center center;
+    will-change: transform;
+    pointer-events: none;
+}
+
+.image-viewer .image-viewer-close {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
+    right: calc(env(safe-area-inset-right, 0px) + 8px);
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.receipt-photo {
+    position: relative;
+    cursor: zoom-in;
+}
+
+.receipt-photo-hint {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    font-size: 0.75rem;
+}

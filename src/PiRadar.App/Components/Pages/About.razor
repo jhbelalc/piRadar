@@ -62,6 +62,15 @@
 
         <MudPaper Elevation="0" Outlined="true">
             <MudList T="string">
+                <MudListItem T="string" Icon="@Icons.Material.Rounded.SystemUpdate" id="about-update" OnClick="@(() => OpenAsync(StoreUrl))">
+                    <div class="d-flex align-center justify-space-between">
+                        <div>
+                            <div>@Pick("Buscar actualizaciones", "Check for updates")</div>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Abre la tienda de tu teléfono", "Opens the store on your phone")</MudText>
+                        </div>
+                        <MudIcon Icon="@Icons.Material.Rounded.OpenInNew" Color="Color.Default" Size="Size.Small" />
+                    </div>
+                </MudListItem>
                 <MudListItem T="string" Href="about/licenses" Icon="@Icons.Material.Rounded.Gavel" id="about-licenses">
                     <div class="d-flex align-center justify-space-between">
                         <span>@Pick("Licencias de terceros", "Third-party licenses")</span>
@@ -81,6 +90,13 @@
     private const string DeveloperName = "John Harold Belalcazar Lozano";
     private const string Email = "belvictodeveloper@gmail.com";
     private const string Website = "https://belvicto.com";
+
+    // Página de piRadar en la tienda: si hay versión nueva, ahí aparece "Actualizar". piRadar no consulta nada por su cuenta.
+#if ANDROID
+    private const string StoreUrl = "https://play.google.com/store/apps/details?id=com.jhbelalc.piradar";
+#else
+    private const string StoreUrl = "https://apps.apple.com/app/id6817079629";
+#endif
 
     private Task OpenAsync(string uri) => Links.OpenAsync(uri);
 }

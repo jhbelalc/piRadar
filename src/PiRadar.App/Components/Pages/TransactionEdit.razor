@@ -127,7 +127,12 @@
                 {
                     <MudPaper Elevation="0" Outlined="true" Class="pa-2">
                         <MudText Typo="Typo.subtitle2" Class="mb-2">@Pick("Recibo", "Receipt")</MudText>
-                        <img src="@_receiptImage" alt="@Pick("Foto del recibo", "Receipt photo")" style="width: 100%; border-radius: 8px" />
+                        <div class="receipt-photo" id="receipt-photo" role="button" @onclick="@(() => _viewerOpen = true)">
+                            <img src="@_receiptImage" alt="@Pick("Foto del recibo", "Receipt photo")" style="width: 100%; border-radius: 8px; display: block" />
+                            <span class="receipt-photo-hint">
+                                <MudIcon Icon="@Icons.Material.Rounded.ZoomIn" Style="font-size: 1rem" />@Pick("Toca para ampliar", "Tap to zoom")
+                            </span>
+                        </div>
                         @if (!string.IsNullOrWhiteSpace(_receiptText))
                         {
                             <MudButton id="receipt-text" Variant="Variant.Text" Color="Color.Primary" Class="mt-1"
@@ -146,6 +151,8 @@
         </MudForm>
     }
 </MudContainer>
+
+<ImageViewer Src="@(_viewerOpen ? _receiptImage : null)" Alt="@Pick("Foto del recibo", "Receipt photo")" OnClose="@(() => _viewerOpen = false)" />
 
 @code {
     private MudForm? _form;
@@ -167,6 +174,7 @@
     private string? _notes;
     private TransactionSource _source = TransactionSource.Manual;
     private string? _receiptImage;
+    private bool _viewerOpen;
     private string? _receiptText;
     private IReadOnlyList<string> _merchants = [];
     private PendingScan? _scan;
@@ -222,6 +230,14 @@
 
     private async Task ConfirmLeaveAsync(LocationChangingContext context)
     {
+        // Con la foto ampliada, "atrás" (sistema o barra) solo cierra el visor.
+        if (_viewerOpen)
+        {
+            _viewerOpen = false;
+            context.PreventNavigation();
+            return;
+        }
+
         if (_leaving || !IsDirty)
         {
             return;

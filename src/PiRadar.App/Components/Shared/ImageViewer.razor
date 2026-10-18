@@ -1,0 +1,92 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@* Foto a pantalla completa con zoom (pellizcar, arrastrar, doble toque); ver wwwroot/js/image-zoom.js. *@
+@if (Src is not null)
+{
+    <div class="image-viewer" id="image-viewer" @ref="_container">
+        <img src="@Src" alt="@Alt" @ref="_image" draggable="false" />
+        @* Botón nativo: un MudIconButton se destruye en medio de su propio clic (el visor desaparece al cerrar)
+           y MudBlazor lanza ObjectDisposedException. *@
+        <button type="button" class="image-viewer-close" id="image-viewer-close" aria-label="@Pick("Cerrar", "Close")"
+                @onclick="CloseAsync">
+            <MudIcon Icon="@Icons.Material.Rounded.Close" />
+        </button>
+    </div>
+}
+
+@code {
+    private ElementReference _container;
+    private ElementReference _image;
+    private IJSObjectReference? _module;
+    private IJSObjectReference? _zoom;
+    private string? _attachedTo;
+
+    /// <summary>Imagen a mostrar (data URI); <c>null</c> = visor cerrado.</summary>
+    [Parameter] public string? Src { get; set; }
+    [Parameter] public string Alt { get; set; } = string.Empty;
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Src is null)
+        {
+            // Visor cerrado: se sueltan los eventos de la imagen anterior.
+            await DetachAsync();
+            return;
+        }
+
+        if (_attachedTo == Src)
+        {
+            return;
+        }
+
+        _attachedTo = Src;
+        _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/image-zoom.js");
+        await DetachAsync();
+        _zoom = await _module.InvokeAsync<IJSObjectReference>("attach", _container, _image);
+    }
+
+    // Solo avisa: al volver a pintarse sin imagen, OnAfterRenderAsync suelta el zoom (una sola vez).
+    private Task CloseAsync() => OnClose.InvokeAsync();
+
+    /// <summary>Toma la referencia antes de esperar: un repintado intermedio no puede liberarla dos veces.</summary>
+    private async Task DetachAsync()
+    {
+        var zoom = _zoom;
+        _zoom = null;
+        if (Src is null)
+        {
+            _attachedTo = null;
+        }
+
+        if (zoom is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await zoom.InvokeVoidAsync("detach");
+            await zoom.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DetachAsync();
+        if (_module is not null)
+        {
+            try
+            {
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+    }
+}
