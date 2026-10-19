@@ -7,7 +7,7 @@ using PiRadar.Core.Receipts;
 namespace PiRadar.Core.Tests.Receipts;
 
 /// <summary>
-/// OCR real (Vision en iOS 18.1 y ML Kit en Android 35) de 19 recibos fotografiados con iPhone más el recibo de
+/// OCR real (Vision en iOS 18.1 y ML Kit en Android 35) de 20 recibos fotografiados con iPhone más el recibo de
 /// muestra, anonimizados. Cada campo que el parser acierta queda fijado; los que el OCR no alcanzó a leer se marcan
 /// como no verificados con el motivo.
 /// </summary>
@@ -51,6 +51,9 @@ public class ReceiptParserFixtureTests
         new Expected("ios", "tribal", 31000, "2026-09-20", "18:45", "900980767-9", "tribal"),
         // Montos con formato inglés ("$ 4,000.00"); fecha ISO de salida; el único NIT es del proveedor del software.
         new Expected("ios", "parqueadero-la-5ta", 4000, "2026-09-26", "00:24", "—", "parqueadero la 5ta"),
+        // Factura de talonario escrita a mano: la fecha manuscrita no se lee. El texto vertical del borde
+        // ("IMPRESO POR ... NIT ... TEL ... CEL") queda en la fila de "TOTAL $ 120.000" y no la vuelve un resumen.
+        new Expected("ios", "factura-manual", 120000, "—", null, "900123456-8", "constru-repuestos"),
 
         // ML Kit lee la hora "09:15:03" como "69 15:03" y el NIT como "9004B0569-L".
         new Expected("android", "ara", 17190, "2026-09-26", null, null, "tiendas ara"),

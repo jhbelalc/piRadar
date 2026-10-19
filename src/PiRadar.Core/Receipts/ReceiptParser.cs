@@ -147,8 +147,9 @@ public static partial class ReceiptParser
             var keywordEnd = KeywordEnd(line.Text, match.Keyword);
             var amounts = line.Amounts.Where(a => a.Start + a.Length > keywordEnd).ToList();
 
-            // Resumen de impuestos: "TOTAL 93,400 84,034 9,366".
-            if (amounts.Count >= 3 && match.Priority < 3)
+            // Resumen de impuestos: "TOTAL 93,400 84,034 9,366". Solo cuentan los montos seguidos: lo que viene
+            // después de una palabra es otra cosa pegada a la fila ("TOTAL $ 120.000 IMPRESO POR ... NIT ... TEL").
+            if (ConsecutiveCount(line.Text, amounts) >= 3 && match.Priority < 3)
             {
                 continue;
             }
@@ -209,6 +210,24 @@ public static partial class ReceiptParser
         var confirmed = candidates.Count > 0
             && (payments.Contains(candidates[0].ToDecimal()) || MatchesSubtotalPlusTaxes(lines, candidates[0].ToDecimal()));
         return new TotalResult(candidates, confirmed);
+    }
+
+    /// <summary>Cuántos montos van seguidos desde el primero, sin letras entre ellos.</summary>
+    private static int ConsecutiveCount(string text, List<AmountToken> amounts)
+    {
+        var count = Math.Min(amounts.Count, 1);
+        for (var i = 1; i < amounts.Count; i++)
+        {
+            var gapStart = amounts[i - 1].Start + amounts[i - 1].Length;
+            if (text.AsSpan(gapStart, Math.Max(0, amounts[i].Start - gapStart)).ContainsAnyExcept(" $.,:|-\t"))
+            {
+                break;
+            }
+
+            count++;
+        }
+
+        return count;
     }
 
     /// <summary>
