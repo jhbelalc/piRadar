@@ -30,8 +30,19 @@ public static class RowBuilder
 
     public static IReadOnlyList<ReceiptRow> Build(IEnumerable<OcrElement> elements)
     {
+        var chunks = ToChunks(elements).ToList();
+
+        // El texto vertical (al borde de la factura: imprenta, resoluciones, avisos del comercio) nunca trae el total
+        // ni los datos de la compra, y pegado a las filas las daña ("TOTAL $ 120.000 IMPRESO POR ... NIT ... TEL").
+        // Si casi todo es vertical, la foto quedó de lado: entonces no se quita nada.
+        var vertical = chunks.Where(IsVertical).ToList();
+        if (vertical.Count * 2 < chunks.Count)
+        {
+            chunks = chunks.Except(vertical).ToList();
+        }
+
         var rows = new List<List<OcrChunk>>();
-        foreach (var chunk in ToChunks(elements).OrderBy(c => c.CenterY).ThenBy(c => c.Left))
+        foreach (var chunk in chunks.OrderBy(c => c.CenterY).ThenBy(c => c.Left))
         {
             var best = rows
                 .Select(row => (row, score: Fit(row, chunk)))
@@ -87,6 +98,13 @@ public static class RowBuilder
             yield return ToChunk(current, words);
         }
     }
+
+    /// <summary>
+    /// Recuadro alto y angosto con varias letras: texto girado 90°. Una palabra horizontal de 3+ caracteres siempre es
+    /// más ancha que alta; se exige el doble para no descartar palabras cortas mal recortadas.
+    /// </summary>
+    private static bool IsVertical(OcrChunk chunk) =>
+        chunk.Text.Count(c => !char.IsWhiteSpace(c)) >= 3 && chunk.Height >= 2 * (chunk.Right - chunk.Left);
 
     private static bool SameBox(OcrElement a, OcrElement b) =>
         a.X == b.X && a.Y == b.Y && a.Width == b.Width && a.Height == b.Height;

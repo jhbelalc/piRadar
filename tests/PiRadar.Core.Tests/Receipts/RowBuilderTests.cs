@@ -65,4 +65,33 @@ public class RowBuilderTests
     {
         Assert.Empty(RowBuilder.Build([]));
     }
+
+    [Fact]
+    public void VerticalText_AtTheEdge_IsLeftOut()
+    {
+        // Texto girado al borde de la factura (imprenta, resoluciones): alto y angosto, a la altura del total.
+        OcrElement[] elements =
+        [
+            new("TOTAL", 550, 1030, 110, 25), new("$", 550, 1030, 110, 25),
+            new("120.000", 680, 1020, 135, 35),
+            new("IMPRESO", 830, 1010, 24, 420), new("POR", 830, 1010, 24, 420), new("TEL.555", 830, 1010, 24, 420),
+        ];
+
+        var rows = RowBuilder.Build(elements);
+
+        Assert.Equal(["TOTAL $ 120.000"], rows.Select(r => r.Text));
+    }
+
+    [Fact]
+    public void SidewaysPhoto_KeepsItsVerticalText()
+    {
+        // Si casi todo es vertical, la foto quedó de lado: descartarlo todo dejaría el recibo vacío.
+        OcrElement[] elements =
+        [
+            new("TOTAL", 100, 100, 25, 110), new("120.000", 100, 300, 30, 140),
+            new("TIENDA", 140, 100, 25, 120),
+        ];
+
+        Assert.Equal(3, RowBuilder.Build(elements).Sum(r => r.Chunks.Count));
+    }
 }
