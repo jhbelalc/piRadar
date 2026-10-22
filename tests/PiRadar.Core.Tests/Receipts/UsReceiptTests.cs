@@ -4,8 +4,8 @@ using PiRadar.Core.Receipts;
 namespace PiRadar.Core.Tests.Receipts;
 
 /// <summary>
-/// Recibos estadounidenses inventados (comercios y datos ficticios) con la estructura típica de un punto de venta.
-/// Reemplazar o ampliar con recibos reales anonimizados cuando haya (ver tools/ocr-fixtures/README.md).
+/// Recibos estadounidenses: primero inventados (comercios y datos ficticios) con la estructura típica de un punto de
+/// venta; al final, cinco reales anonimizados (ver tools/ocr-fixtures/README.md).
 /// </summary>
 public class UsReceiptTests
 {
