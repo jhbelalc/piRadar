@@ -60,4 +60,14 @@ public class HelpContentTests
         Assert.All(HelpTopics.All.SelectMany(t => t), id => Assert.NotNull(HelpContent.FindArticle(id)));
         Assert.All(HelpTopics.All, topics => Assert.Equal(topics.Length, topics.Distinct().Count()));
     }
+
+    [Fact]
+    public void Filter_article_explains_the_search_dates()
+    {
+        // Los nombres en negrita deben ser los de la pantalla Movimientos.
+        var steps = HelpContent.FindArticle("filtrar-movimientos")!.Steps;
+        Assert.Contains(steps, t => t.Es.Contains("**Desde**") && t.Es.Contains("**Hasta**") && t.Es.Contains("**Todo el historial**"));
+        Assert.Contains(steps, t => t.En.Contains("**From**") && t.En.Contains("**To**") && t.En.Contains("**Whole history**"));
+        Assert.DoesNotContain(steps, t => t.Es.Contains("todo tu historial") || t.En.Contains("searches your whole history"));
+    }
 }
