@@ -69,5 +69,8 @@ public class HelpContentTests
         Assert.Contains(steps, t => t.Es.Contains("**Desde**") && t.Es.Contains("**Hasta**") && t.Es.Contains("**Todo el historial**"));
         Assert.Contains(steps, t => t.En.Contains("**From**") && t.En.Contains("**To**") && t.En.Contains("**Whole history**"));
         Assert.DoesNotContain(steps, t => t.Es.Contains("todo tu historial") || t.En.Contains("searches your whole history"));
+        // Las fechas solo cuentan con texto o categoría: si la ayuda no lo dice, parecen no funcionar.
+        Assert.Contains(steps, t => t.Es.Contains("Al abrirla") && t.Es.Contains("escribes algo o eliges una categoría"));
+        Assert.Contains(steps, t => t.En.Contains("When you open it") && t.En.Contains("type something or choose a category"));
     }
 }
