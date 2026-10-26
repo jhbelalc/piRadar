@@ -27,9 +27,9 @@
         <ApplicationId>com.jhbelalc.piradar</ApplicationId>
 
         <!-- Versions -->
-        <ApplicationDisplayVersion>1.2.1</ApplicationDisplayVersion>
+        <ApplicationDisplayVersion>1.2.2</ApplicationDisplayVersion>
         <!-- Subir en cada APK o AAB que se entrega: Android no instala encima una versión con número menor. -->
-        <ApplicationVersion>20</ApplicationVersion>
+        <ApplicationVersion>21</ApplicationVersion>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
