@@ -23,13 +23,15 @@ necesita acotar los resultados a fechas sueltas (p. ej. 15 mar – 10 abr), por 
 - C. `<input type="date">` nativo: se ve distinto en iPhone y Android y su idioma/formato sigue al teléfono, no a
   Ajustes > Idioma.
 
-## Decisiones mías (revisar)
-- **Con la búsqueda abierta siempre se aplican sus filtros**, aunque no haya texto ni categoría: abrir la lupa muestra
-  el mes en curso hasta hoy (antes, sin texto se veía el selector de periodo). El selector de periodo se oculta mientras
-  la búsqueda está abierta, como hoy al buscar.
+## Decisiones (revisadas con el usuario)
+- **Cuándo aplican las fechas** (corregido por el usuario): igual que hoy, abrir la lupa no cambia nada; la lista sigue
+  el selector de periodo de arriba. En cuanto hay texto o categoría (`IsSearching`), la lista deja de usar el periodo
+  y pasa a usar Desde/Hasta (o todo el historial con el interruptor). Las fechas se ven en el panel desde que se abre
+  la lupa.
 - Rango inclusivo por día: `From` = Desde a las 00:00, `To` = día siguiente a Hasta a las 00:00 (exclusivo), en
   `TransactionFilter`, o sea en la consulta a la BD; texto y categoría siguen evaluándose en memoria.
-- Fechas al revés: si se elige un Desde posterior a Hasta, Hasta pasa a ser ese mismo día (y al revés), sin error.
+- Fechas al revés (aprobado): si se elige un Desde posterior a Hasta, Hasta pasa a ser ese mismo día; si se elige un
+  Hasta anterior a Desde, Desde pasa a ser ese mismo día. Sin error.
 - Las fechas y el interruptor se guardan en `TransactionsViewState` (se conservan al editar un movimiento y volver);
   al cerrar la lupa vuelven al mes en curso y el interruptor se apaga.
 - Contador: "N resultados del 1 oct. al 26 oct." / "N results from Oct 1 to Oct 26" (formato de `DateLabels`), y
