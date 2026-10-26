@@ -24,17 +24,29 @@
                                   Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true"
                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Rounded.Search" AutoFocus="true" />
                     <CategoryFilterPicker Value="State.SearchCategoryId" ValueChanged="SetSearchCategoryAsync" Kind="State.Type" />
+                    <div class="d-flex gap-3">
+                        <div id="search-from" style="flex: 1">
+                            <MudDatePicker Date="State.SearchRange.Start" DateChanged="SetSearchFromAsync" Label="@Pick("Desde", "From")"
+                                           Variant="Variant.Outlined" Margin="Margin.Dense" DateFormat="@DateFormat"
+                                           PickerVariant="PickerVariant.Dialog" AutoClose="true" ShowToolbar="false"
+                                           Disabled="State.SearchWholeHistory" />
+                        </div>
+                        <div id="search-to" style="flex: 1">
+                            <MudDatePicker Date="State.SearchRange.To.ToDateTime(TimeOnly.MinValue)" DateChanged="SetSearchToAsync" Label="@Pick("Hasta", "To")"
+                                           Variant="Variant.Outlined" Margin="Margin.Dense" DateFormat="@DateFormat"
+                                           PickerVariant="PickerVariant.Dialog" AutoClose="true" ShowToolbar="false"
+                                           Disabled="State.SearchWholeHistory" />
+                        </div>
+                    </div>
+                    <MudSwitch T="bool" Value="State.SearchWholeHistory" ValueChanged="SetSearchWholeHistoryAsync" Color="Color.Primary"
+                               Label="@Pick("Todo el historial", "Whole history")" id="search-whole-history" />
                 </MudStack>
             </MudPaper>
         }
 
         @if (State.IsSearching)
         {
-            <MudText Typo="Typo.body2" Class="mud-text-secondary" id="search-count">
-                @(_transactions is null ? "" : _transactions.Count == 1
-                    ? Pick("1 resultado en todo el historial", "1 result in your whole history")
-                    : Pick($"{_transactions.Count} resultados en todo el historial", $"{_transactions.Count} results in your whole history"))
-            </MudText>
+            <MudText Typo="Typo.body2" Class="mud-text-secondary" id="search-count">@SearchCount()</MudText>
         }
         else
         {
@@ -207,10 +219,19 @@
         _transactions = State.Type is { } type ? all.Where(t => t.Type == type).ToList() : all;
     }
 
-    /// <summary>Busca en todo el historial (ignora el periodo); el texto y la categoría se evalúan en memoria sin tildes ni mayúsculas.</summary>
+    /// <summary>
+    /// Busca entre Desde y Hasta, o en todo el historial (ignora el periodo); las fechas van en la consulta y el texto y la
+    /// categoría se evalúan en memoria sin tildes ni mayúsculas.
+    /// </summary>
     private async Task SearchAsync()
     {
-        var all = await TransactionRepository.QueryAsync(new TransactionFilter { Type = State.Type });
+        var whole = State.SearchWholeHistory;
+        var all = await TransactionRepository.QueryAsync(new TransactionFilter
+        {
+            Type = State.Type,
+            From = whole ? null : State.SearchRange.Start,
+            To = whole ? null : State.SearchRange.EndExclusive,
+        });
         var tokens = TransactionSearch.Tokens(State.SearchText);
         var categoryIds = State.SearchCategoryId is { } id
             ? TransactionSearch.CategoryAndChildren(id, _categories.Values)
@@ -223,6 +244,9 @@
     private Task ToggleSearchAsync()
     {
         State.SearchOpen = !State.SearchOpen;
+        // Al abrir y al cerrar: si la app quedó abierta de un mes a otro, se sugiere el mes nuevo.
+        State.SearchRange = SearchDateRange.MonthToDate(DateOnly.FromDateTime(DateTime.Today));
+        State.SearchWholeHistory = false;
         if (!State.SearchOpen)
         {
             State.SearchText = string.Empty;
@@ -230,6 +254,50 @@
         }
 
         return LoadAsync();
+    }
+
+    private string DateFormat => IsEnglish ? "MM/dd/yyyy" : "dd/MM/yyyy";
+
+    private Task SetSearchFromAsync(DateTime? date) =>
+        date is { } d ? SetSearchRangeAsync(State.SearchRange.WithFrom(DateOnly.FromDateTime(d))) : Task.CompletedTask;
+
+    private Task SetSearchToAsync(DateTime? date) =>
+        date is { } d ? SetSearchRangeAsync(State.SearchRange.WithTo(DateOnly.FromDateTime(d))) : Task.CompletedTask;
+
+    private Task SetSearchRangeAsync(SearchDateRange range)
+    {
+        State.SearchRange = range;
+        return LoadAsync();
+    }
+
+    private Task SetSearchWholeHistoryAsync(bool whole)
+    {
+        State.SearchWholeHistory = whole;
+        return LoadAsync();
+    }
+
+    /// <summary>"12 resultados del 1 oct 2026 al 26 oct 2026", "… el 26 oct 2026" o "… en todo el historial".</summary>
+    private string SearchCount()
+    {
+        if (_transactions is null)
+        {
+            return string.Empty;
+        }
+
+        var n = _transactions.Count;
+        if (State.SearchWholeHistory)
+        {
+            return n == 1
+                ? Pick("1 resultado en todo el historial", "1 result in your whole history")
+                : Pick($"{n} resultados en todo el historial", $"{n} results in your whole history");
+        }
+
+        var from = DateLabels.Short(State.SearchRange.Start);
+        var to = DateLabels.Short(State.SearchRange.To.ToDateTime(TimeOnly.MinValue));
+        var results = n == 1 ? Pick("1 resultado", "1 result") : Pick($"{n} resultados", $"{n} results");
+        return State.SearchRange.From == State.SearchRange.To
+            ? Pick($"{results} el {from}", $"{results} on {from}")
+            : Pick($"{results} del {from} al {to}", $"{results} from {from} to {to}");
     }
 
     private Task SetSearchTextAsync(string? text)

@@ -20,6 +20,12 @@ public sealed class TransactionsViewState
     /// <summary>Categoría de la búsqueda (incluye sus subcategorías); <c>null</c> = todas.</summary>
     public int? SearchCategoryId { get; set; }
 
-    /// <summary>Con texto o categoría la lista ignora el periodo y recorre todo el historial.</summary>
+    /// <summary>Fechas de la búsqueda; al abrir y al cerrar la lupa vuelven al mes en curso hasta hoy.</summary>
+    public SearchDateRange SearchRange { get; set; } = SearchDateRange.MonthToDate(DateOnly.FromDateTime(DateTime.Today));
+
+    /// <summary>"Todo el historial": la búsqueda ignora <see cref="SearchRange"/> (que se conserva para cuando se apague).</summary>
+    public bool SearchWholeHistory { get; set; }
+
+    /// <summary>Con texto o categoría la lista ignora el periodo y usa el rango de la búsqueda o todo el historial.</summary>
     public bool IsSearching => SearchOpen && (!string.IsNullOrWhiteSpace(SearchText) || SearchCategoryId is not null);
 }
