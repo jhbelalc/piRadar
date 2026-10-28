@@ -13,6 +13,7 @@
 A personal finance app for **Android** and **iPhone**: record expenses and income (by hand or from receipt photos read with on-device OCR), organize them by category and payment method, and analyze them by day, week, month or year in **COP** and **USD**. Everything stays on the device; there is no cloud. The interface is available in Spanish and in English (US).
 
 - **App Store**: [piRadar on the App Store](https://apps.apple.com/app/id6817079629)
+- **Google Play**: [piRadar on Google Play](https://play.google.com/store/apps/details?id=com.jhbelalc.piradar)
 - **Help**: [English](https://www.belvicto.com/piRadar/help.html) · [Español](https://www.belvicto.com/piRadar/ayuda.html)
 - **Privacy policy**: [English](https://www.belvicto.com/piRadar/privacy-policy.en.html) · [Español](https://www.belvicto.com/piRadar/politica-privacidad.html)
 
