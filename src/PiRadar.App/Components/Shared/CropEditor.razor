@@ -1,0 +1,154 @@
+@using PiRadar.Core.Images
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@* Pantalla completa para recortar la foto del recibo con un marco rectangular; ver wwwroot/js/crop-frame.js. *@
+@if (Src is not null)
+{
+    <div class="crop-editor" id="crop-editor">
+        <div class="crop-editor-bar">
+            @* Botones nativos: la pantalla desaparece al tocarlos (ver ImageViewer). *@
+            <button type="button" class="crop-editor-icon" id="crop-cancel" aria-label="@Pick("Cancelar", "Cancel")" @onclick="CancelAsync">
+                <MudIcon Icon="@Icons.Material.Rounded.Close" />
+            </button>
+            <span class="crop-editor-title">@Pick("Recortar recibo", "Crop receipt")</span>
+        </div>
+
+        <div class="crop-editor-area">
+            <div class="crop-editor-stage" @ref="_stage">
+                <img src="@Src" alt="@Pick("Foto del recibo", "Receipt photo")" draggable="false" />
+                <div class="crop-frame" @ref="_frame" data-edge="move">
+                    @foreach (var edge in Edges)
+                    {
+                        <span class="crop-handle crop-handle-@edge" data-edge="@edge"></span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="crop-editor-actions">
+            @if (Message is not null)
+            {
+                <div class="crop-editor-message" id="crop-message">@Message</div>
+            }
+            <div class="crop-editor-row">
+                <button type="button" class="crop-editor-text" id="crop-full" @onclick="UseFullAsync">
+                    <MudIcon Icon="@Icons.Material.Rounded.Fullscreen" />@Pick("Foto completa", "Whole photo")
+                </button>
+                <button type="button" class="crop-editor-text" id="crop-auto" @onclick="UseAutoAsync">
+                    <MudIcon Icon="@Icons.Material.Rounded.AutoFixHigh" />@Pick("Ajustar automático", "Auto adjust")
+                </button>
+            </div>
+            <button type="button" class="crop-editor-confirm" id="crop-confirm" @onclick="ConfirmAsync">@ConfirmText</button>
+        </div>
+    </div>
+}
+
+@code {
+    private static readonly string[] Edges = ["n", "s", "e", "w", "nw", "ne", "sw", "se"];
+
+    private ElementReference _stage;
+    private ElementReference _frame;
+    private IJSObjectReference? _module;
+    private IJSObjectReference? _crop;
+    private string? _attachedTo;
+
+    /// <summary>Foto a recortar (data URI); <c>null</c> = pantalla cerrada.</summary>
+    [Parameter] public string? Src { get; set; }
+
+    /// <summary>Marco automático: con el que abre la pantalla y al que vuelve "Ajustar automático".</summary>
+    [Parameter] public CropRect Auto { get; set; } = CropRect.Full;
+
+    [Parameter] public string ConfirmText { get; set; } = string.Empty;
+
+    /// <summary>Aviso sobre el marco elegido (p. ej. que no quedó texto dentro); <c>null</c> = sin aviso.</summary>
+    [Parameter] public string? Message { get; set; }
+
+    [Parameter] public EventCallback<CropRect> OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Src is null)
+        {
+            await DetachAsync();
+            return;
+        }
+
+        if (_attachedTo == Src)
+        {
+            return;
+        }
+
+        _attachedTo = Src;
+        _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/crop-frame.js");
+        await DetachAsync();
+        _crop = await _module.InvokeAsync<IJSObjectReference>("attach", _stage, _frame,
+            new { left = Auto.Left, top = Auto.Top, right = Auto.Right, bottom = Auto.Bottom });
+    }
+
+    private Task UseAutoAsync() => SetAsync(Auto);
+
+    private Task UseFullAsync() => SetAsync(CropRect.Full);
+
+    private async Task SetAsync(CropRect rect)
+    {
+        if (_crop is not null)
+        {
+            await _crop.InvokeVoidAsync("set", rect.Left, rect.Top, rect.Right, rect.Bottom);
+        }
+    }
+
+    private async Task ConfirmAsync()
+    {
+        if (_crop is null)
+        {
+            return;
+        }
+
+        var r = await _crop.InvokeAsync<double[]>("get");
+        await OnConfirm.InvokeAsync(new CropRect(r[0], r[1], r[2], r[3]).Normalize());
+    }
+
+    private Task CancelAsync() => OnCancel.InvokeAsync();
+
+    /// <summary>Toma la referencia antes de esperar: un repintado intermedio no puede liberarla dos veces.</summary>
+    private async Task DetachAsync()
+    {
+        var crop = _crop;
+        _crop = null;
+        if (Src is null)
+        {
+            _attachedTo = null;
+        }
+
+        if (crop is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await crop.InvokeVoidAsync("detach");
+            await crop.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DetachAsync();
+        if (_module is not null)
+        {
+            try
+            {
+                await _module.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+        }
+    }
+}

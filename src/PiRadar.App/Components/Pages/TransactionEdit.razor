@@ -8,6 +8,8 @@
 @inject IDialogService Dialogs
 @inject ISnackbar Snackbar
 @inject ScanState ScanState
+@inject IOcrService Ocr
+@using PiRadar.Core.Images
 @using PiRadar.Core.Receipts
 
 <NavigationLock OnBeforeInternalNavigation="ConfirmLeaveAsync" />
@@ -133,11 +135,20 @@
                                 <MudIcon Icon="@Icons.Material.Rounded.ZoomIn" Style="font-size: 1rem" />@Pick("Toca para ampliar", "Tap to zoom")
                             </span>
                         </div>
-                        @if (!string.IsNullOrWhiteSpace(_receiptText))
-                        {
-                            <MudButton id="receipt-text" Variant="Variant.Text" Color="Color.Primary" Class="mt-1"
-                                       StartIcon="@Icons.Material.Rounded.Notes" OnClick="ShowReceiptTextAsync">@Pick("Ver texto leído", "View text read")</MudButton>
-                        }
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            @if (_savedImage is not null)
+                            {
+                                <MudButton id="receipt-crop" Variant="Variant.Text" Color="Color.Primary" Disabled="_cropBusy"
+                                           StartIcon="@Icons.Material.Rounded.Crop" OnClick="StartCropAsync">
+                                    @(_cropBusy ? Pick("Buscando el recibo…", "Finding the receipt…") : Pick("Recortar", "Crop"))
+                                </MudButton>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(_receiptText))
+                            {
+                                <MudButton id="receipt-text" Variant="Variant.Text" Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Rounded.Notes" OnClick="ShowReceiptTextAsync">@Pick("Ver texto leído", "View text read")</MudButton>
+                            }
+                        </div>
                     </MudPaper>
                 }
                 else if (_source == TransactionSource.Ocr)
@@ -153,6 +164,9 @@
 </MudContainer>
 
 <ImageViewer Src="@(_viewerOpen ? _receiptImage : null)" Alt="@Pick("Foto del recibo", "Receipt photo")" OnClose="@(() => _viewerOpen = false)" />
+
+<CropEditor Src="@(_cropAuto is null ? null : _receiptImage)" Auto="@(_cropAuto ?? CropRect.Full)"
+            ConfirmText="@Pick("Recortar", "Crop")" OnConfirm="ApplyCropAsync" OnCancel="@(() => _cropAuto = null)" />
 
 @code {
     private MudForm? _form;
@@ -175,6 +189,13 @@
     private TransactionSource _source = TransactionSource.Manual;
     private string? _receiptImage;
     private bool _viewerOpen;
+
+    /// <summary>Foto de un recibo ya guardado (se puede recortar); <c>null</c> en un movimiento nuevo.</summary>
+    private ReceiptImage? _savedImage;
+    private bool _cropBusy;
+
+    /// <summary>Marco automático mientras la pantalla de recorte está abierta; <c>null</c> = cerrada.</summary>
+    private CropRect? _cropAuto;
     private string? _receiptText;
     private IReadOnlyList<string> _merchants = [];
     private PendingScan? _scan;
@@ -343,10 +364,64 @@
 
         if (t.ReceiptId is { } receiptId && await ReceiptRepository.GetImageAsync(receiptId) is { } image)
         {
+            _savedImage = image;
             _receiptImage = "data:image/jpeg;base64," + Convert.ToBase64String(image.Jpeg);
             _receiptText = (await ReceiptRepository.GetAsync(receiptId))?.OcrText;
         }
     }
+
+    /// <summary>
+    /// La posición del texto no se guarda: se lee otra vez la foto guardada (en el teléfono) para proponer el marco.
+    /// Si no se encuentra texto, la pantalla abre con la foto completa para recortarla a mano.
+    /// </summary>
+    private async Task StartCropAsync()
+    {
+        if (_savedImage is not { } image)
+        {
+            return;
+        }
+
+        _cropBusy = true;
+        try
+        {
+            var page = await Ocr.RecognizeAsync(image.Jpeg);
+            _cropAuto = ReceiptAutoCrop.Suggest(page.Elements, image.Width, image.Height);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or IOException)
+        {
+            _cropAuto = CropRect.Full;
+        }
+        finally
+        {
+            _cropBusy = false;
+        }
+    }
+
+    /// <summary>Reemplaza la foto guardada por la recortada al confirmar; el movimiento no cambia.</summary>
+    private async Task ApplyCropAsync(CropRect crop)
+    {
+        _cropAuto = null;
+        if (_savedImage is not { } image || crop.IsFull)
+        {
+            return;
+        }
+
+        try
+        {
+            var cropped = await Task.Run(() => ReceiptPhoto.Crop(image, crop));
+            await ReceiptRepository.ReplaceImageAsync(image.ReceiptId, cropped);
+            _savedImage = cropped;
+            _receiptImage = "data:image/jpeg;base64," + Convert.ToBase64String(cropped.Jpeg);
+            Snackbar.Add(Pick($"Foto recortada: de {Kilobytes(image)} a {Kilobytes(cropped)}.",
+                $"Photo cropped: from {Kilobytes(image)} to {Kilobytes(cropped)}."), Severity.Success);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or KeyNotFoundException)
+        {
+            Snackbar.Add(Pick("No se pudo recortar la foto.", "The photo could not be cropped."), Severity.Error);
+        }
+    }
+
+    private static string Kilobytes(ReceiptImage image) => $"{Math.Max(1, image.Jpeg.Length / 1024)} KB";
 
     private async Task ShowReceiptTextAsync()
     {

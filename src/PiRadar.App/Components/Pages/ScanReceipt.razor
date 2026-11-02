@@ -1,4 +1,5 @@
 @page "/scan"
+@using PiRadar.Core.Images
 @using PiRadar.Core.Receipts
 @implements IDisposable
 @inject IOcrService Ocr
@@ -59,12 +60,21 @@
     </MudStack>
 </MudContainer>
 
+<CropEditor Src="@(_read is null ? null : _preview)" Auto="@(_read?.Auto ?? CropRect.Full)" Message="@_cropMessage"
+            ConfirmText="@Pick("Continuar", "Continue")" OnConfirm="FinishAsync" OnCancel="CancelCrop" />
+
 @code {
     private CancellationTokenSource? _cts;
     private bool _busy;
     private string? _status;
     private string? _error;
     private string? _preview;
+
+    /// <summary>Foto leída que espera el recorte: marco automático, foto preparada y texto del OCR.</summary>
+    private sealed record ReadPhoto(PreparedPhoto Photo, OcrPage Page, CropRect Auto);
+
+    private ReadPhoto? _read;
+    private string? _cropMessage;
 
     /// <summary>Solo Debug: foto copiada con simctl/adb para probar sin cámara ni galería.</summary>
     private static string DebugPhotoPath => Path.Combine(FileSystem.AppDataDirectory, "scan-in.jpg");
@@ -133,8 +143,8 @@
         {
             _status = Pick("Preparando la foto…", "Preparing the photo…");
             StateHasChanged();
-            var image = await Task.Run(() => ReceiptPhoto.Prepare(photo), _cts.Token);
-            _preview = "data:image/jpeg;base64," + Convert.ToBase64String(image.Jpeg);
+            var prepared = await Task.Run(() => ReceiptPhoto.Prepare(photo), _cts.Token);
+            _preview = "data:image/jpeg;base64," + Convert.ToBase64String(prepared.Image.Jpeg);
 
             _status = Pick("Leyendo el recibo…", "Reading the receipt…");
             StateHasChanged();
@@ -145,11 +155,10 @@
                 return;
             }
 
-            // Sin NIT ni pistas de moneda en el recibo, se asume la moneda base del usuario.
-            var parsed = ReceiptParser.Parse(
-                page, DateOnly.FromDateTime(DateTime.Today), await SettingsRepository.GetBaseCurrencyAsync());
-            ScanState.Pending = new PendingScan(image, page.Engine, parsed);
-            Navigation.NavigateTo("transactions/new?scan=1");
+            // Siempre se pasa por el recorte, con el marco ajustado al texto del recibo.
+            _cropMessage = null;
+            _read = new ReadPhoto(prepared, page,
+                ReceiptAutoCrop.Suggest(page.Elements, prepared.SourceWidth, prepared.SourceHeight));
         }
         catch (OperationCanceledException)
         {
@@ -168,6 +177,48 @@
     }
 
     private void Cancel() => _cts?.Cancel();
+
+    /// <summary>
+    /// Solo el texto dentro del marco propone total, fecha y comercio, y solo esa parte de la foto se guarda.
+    /// </summary>
+    private async Task FinishAsync(CropRect crop)
+    {
+        if (_read is not { } read)
+        {
+            return;
+        }
+
+        var page = read.Page.CropTo(crop, read.Photo.SourceWidth, read.Photo.SourceHeight);
+        if (page.Elements.Count == 0)
+        {
+            _cropMessage = Pick("No quedó texto del recibo dentro del marco. Agrándalo o toca Ajustar automático.",
+                "No receipt text is left inside the frame. Make it bigger or tap Auto adjust.");
+            return;
+        }
+
+        try
+        {
+            var image = await Task.Run(() => ReceiptPhoto.Crop(read.Photo.Image, crop));
+            // Sin NIT ni pistas de moneda en el recibo, se asume la moneda base del usuario.
+            var parsed = ReceiptParser.Parse(
+                page, DateOnly.FromDateTime(DateTime.Today), await SettingsRepository.GetBaseCurrencyAsync());
+            ScanState.Pending = new PendingScan(image, page.Engine, parsed);
+            _read = null;
+            Navigation.NavigateTo("transactions/new?scan=1");
+        }
+        catch (InvalidOperationException)
+        {
+            _read = null;
+            _error = Pick("No se pudo recortar la imagen. Prueba con otra foto.", "The image could not be cropped. Try another photo.");
+        }
+    }
+
+    /// <summary>Cerrar el recorte descarta la foto: se vuelve a elegir o tomar otra.</summary>
+    private void CancelCrop()
+    {
+        _read = null;
+        _preview = null;
+    }
 
     private static void DeleteIfInAppCache(string? path)
     {

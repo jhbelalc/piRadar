@@ -164,3 +164,147 @@ h1:focus {
     background: rgba(0, 0, 0, 0.55);
     font-size: 0.75rem;
 }
+
+/* Recortar la foto del recibo (CropEditor + js/crop-frame.js). Fondo negro como el visor, en ambos temas. */
+.crop-editor {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: #000;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.crop-editor-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 56px;
+    padding: 0 8px;
+    flex: none;
+}
+
+.crop-editor-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.crop-editor-icon {
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: transparent;
+}
+
+.crop-editor-area {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.crop-editor-stage {
+    position: relative;
+    display: inline-block;
+    touch-action: none;
+    line-height: 0;
+}
+
+.crop-editor-stage img {
+    display: block;
+    max-width: calc(100vw - 32px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    max-height: calc(100dvh - 280px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    pointer-events: none;
+}
+
+/* La sombra enorme oscurece lo que queda fuera del marco; el escenario la recorta (overflow). */
+.crop-editor-stage { overflow: hidden; }
+
+.crop-frame {
+    position: absolute;
+    box-sizing: border-box;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+    cursor: move;
+}
+
+.crop-handle {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    margin: -18px 0 0 -18px;
+}
+
+.crop-handle::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+}
+
+.crop-handle-n, .crop-handle-s { left: 50%; }
+.crop-handle-e, .crop-handle-w { top: 50%; }
+.crop-handle-n, .crop-handle-nw, .crop-handle-ne { top: 0; }
+.crop-handle-s, .crop-handle-sw, .crop-handle-se { top: 100%; }
+.crop-handle-w, .crop-handle-nw, .crop-handle-sw { left: 0; }
+.crop-handle-e, .crop-handle-ne, .crop-handle-se { left: 100%; }
+.crop-handle-n::after, .crop-handle-s::after, .crop-handle-e::after, .crop-handle-w::after { width: 10px; height: 10px; margin: -5px 0 0 -5px; }
+
+.crop-editor-actions {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 16px 16px;
+}
+
+.crop-editor-message {
+    font-size: 0.875rem;
+    color: #ffcc80;
+    text-align: center;
+}
+
+.crop-editor-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.crop-editor-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 0 8px;
+    border: none;
+    color: #fff;
+    background: transparent;
+    font-size: 0.95rem;
+}
+
+.crop-editor-confirm {
+    min-height: 48px;
+    border: none;
+    border-radius: 24px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--mud-palette-primary);
+}

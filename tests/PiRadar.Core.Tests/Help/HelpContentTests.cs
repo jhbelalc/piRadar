@@ -73,4 +73,16 @@ public class HelpContentTests
         Assert.Contains(steps, t => t.Es.Contains("Al abrirla") && t.Es.Contains("escribes algo o eliges una categoría"));
         Assert.Contains(steps, t => t.En.Contains("When you open it") && t.En.Contains("type something or choose a category"));
     }
+
+    [Fact]
+    public void Scan_and_edit_articles_explain_the_crop()
+    {
+        // Los nombres en negrita deben ser los botones de la pantalla de recorte.
+        var scan = HelpContent.FindArticle("escanear")!.Steps;
+        Assert.Contains(scan, t => t.Es.Contains("**Ajustar automático**") && t.Es.Contains("**Foto completa**") && t.Es.Contains("**Continuar**"));
+        Assert.Contains(scan, t => t.En.Contains("**Auto adjust**") && t.En.Contains("**Whole photo**") && t.En.Contains("**Continue**"));
+        var edit = HelpContent.FindArticle("editar-borrar")!.Steps;
+        Assert.Contains(edit, t => t.Es.Contains("**Recortar**"));
+        Assert.Contains(edit, t => t.En.Contains("**Crop**"));
+    }
 }
