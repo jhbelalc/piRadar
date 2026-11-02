@@ -165,7 +165,7 @@
 
 <ImageViewer Src="@(_viewerOpen ? _receiptImage : null)" Alt="@Pick("Foto del recibo", "Receipt photo")" OnClose="@(() => _viewerOpen = false)" />
 
-<CropEditor Src="@(_cropAuto is null ? null : _receiptImage)" Auto="@(_cropAuto ?? CropRect.Full)"
+<CropEditor Src="@(_cropAuto is null ? null : _receiptImage)" Auto="@(_cropAuto ?? CropRect.Full)" Busy="_cropBusy"
             ConfirmText="@Pick("Recortar", "Crop")" OnConfirm="ApplyCropAsync" OnCancel="@(() => _cropAuto = null)" />
 
 @code {
@@ -387,8 +387,9 @@
             var page = await Ocr.RecognizeAsync(image.Jpeg);
             _cropAuto = ReceiptAutoCrop.Suggest(page.Elements, image.Width, image.Height);
         }
-        catch (Exception ex) when (ex is InvalidOperationException or IOException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            // La lectura solo propone el marco: si falla (también por errores nativos del motor), se recorta a mano.
             _cropAuto = CropRect.Full;
         }
         finally
@@ -400,12 +401,14 @@
     /// <summary>Reemplaza la foto guardada por la recortada al confirmar; el movimiento no cambia.</summary>
     private async Task ApplyCropAsync(CropRect crop)
     {
-        _cropAuto = null;
         if (_savedImage is not { } image || crop.IsFull)
         {
+            _cropAuto = null;
             return;
         }
 
+        // La pantalla sigue abierta con "Recortando…" hasta que la foto nueva está guardada.
+        _cropBusy = true;
         try
         {
             var cropped = await Task.Run(() => ReceiptPhoto.Crop(image, crop));
@@ -418,6 +421,11 @@
         catch (Exception ex) when (ex is InvalidOperationException or KeyNotFoundException)
         {
             Snackbar.Add(Pick("No se pudo recortar la foto.", "The photo could not be cropped."), Severity.Error);
+        }
+        finally
+        {
+            _cropBusy = false;
+            _cropAuto = null;
         }
     }
 

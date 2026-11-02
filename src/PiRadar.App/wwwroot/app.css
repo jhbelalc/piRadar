@@ -208,6 +208,7 @@ h1:focus {
 .crop-editor-area {
     flex: 1;
     min-height: 0;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -224,6 +225,8 @@ h1:focus {
 .crop-editor-stage img {
     display: block;
     max-width: calc(100vw - 32px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    /* vh primero: sin soporte de dvh (WebView viejo, iOS < 15.4) se descarta la línea de dvh, no la altura. */
+    max-height: calc(100vh - 280px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     max-height: calc(100dvh - 280px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
     pointer-events: none;
 }
@@ -239,11 +242,12 @@ h1:focus {
     cursor: move;
 }
 
+/* Los puntos van por dentro del marco: el escenario recorta lo que sale de la foto y un marco pegado al borde
+   (foto completa) los dejaría a medias. */
 .crop-handle {
     position: absolute;
     width: 36px;
     height: 36px;
-    margin: -18px 0 0 -18px;
 }
 
 .crop-handle::after {
@@ -259,12 +263,12 @@ h1:focus {
     box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
 }
 
-.crop-handle-n, .crop-handle-s { left: 50%; }
-.crop-handle-e, .crop-handle-w { top: 50%; }
+.crop-handle-n, .crop-handle-s { left: calc(50% - 18px); }
+.crop-handle-e, .crop-handle-w { top: calc(50% - 18px); }
 .crop-handle-n, .crop-handle-nw, .crop-handle-ne { top: 0; }
-.crop-handle-s, .crop-handle-sw, .crop-handle-se { top: 100%; }
+.crop-handle-s, .crop-handle-sw, .crop-handle-se { bottom: 0; }
 .crop-handle-w, .crop-handle-nw, .crop-handle-sw { left: 0; }
-.crop-handle-e, .crop-handle-ne, .crop-handle-se { left: 100%; }
+.crop-handle-e, .crop-handle-ne, .crop-handle-se { right: 0; }
 .crop-handle-n::after, .crop-handle-s::after, .crop-handle-e::after, .crop-handle-w::after { width: 10px; height: 10px; margin: -5px 0 0 -5px; }
 
 .crop-editor-actions {
@@ -298,6 +302,8 @@ h1:focus {
     background: transparent;
     font-size: 0.95rem;
 }
+
+.crop-editor-confirm:disabled { opacity: 0.6; }
 
 .crop-editor-confirm {
     min-height: 48px;

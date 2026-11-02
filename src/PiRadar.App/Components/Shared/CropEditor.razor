@@ -39,7 +39,9 @@
                     <MudIcon Icon="@Icons.Material.Rounded.AutoFixHigh" />@Pick("Ajustar automático", "Auto adjust")
                 </button>
             </div>
-            <button type="button" class="crop-editor-confirm" id="crop-confirm" @onclick="ConfirmAsync">@ConfirmText</button>
+            <button type="button" class="crop-editor-confirm" id="crop-confirm" disabled="@Busy" @onclick="ConfirmAsync">
+                @(Busy ? Pick("Recortando…", "Cropping…") : ConfirmText)
+            </button>
         </div>
     </div>
 }
@@ -63,6 +65,12 @@
 
     /// <summary>Aviso sobre el marco elegido (p. ej. que no quedó texto dentro); <c>null</c> = sin aviso.</summary>
     [Parameter] public string? Message { get; set; }
+
+    /// <summary>Mientras se aplica el recorte: el botón de confirmar queda deshabilitado (evita un segundo toque).</summary>
+    [Parameter] public bool Busy { get; set; }
+
+    /// <summary>Al volver al marco automático o a la foto completa (p. ej. para quitar un aviso).</summary>
+    [Parameter] public EventCallback OnReset { get; set; }
 
     [Parameter] public EventCallback<CropRect> OnConfirm { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
@@ -97,11 +105,13 @@
         {
             await _crop.InvokeVoidAsync("set", rect.Left, rect.Top, rect.Right, rect.Bottom);
         }
+
+        await OnReset.InvokeAsync();
     }
 
     private async Task ConfirmAsync()
     {
-        if (_crop is null)
+        if (_crop is null || Busy)
         {
             return;
         }

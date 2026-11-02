@@ -61,7 +61,8 @@
 </MudContainer>
 
 <CropEditor Src="@(_read is null ? null : _preview)" Auto="@(_read?.Auto ?? CropRect.Full)" Message="@_cropMessage"
-            ConfirmText="@Pick("Continuar", "Continue")" OnConfirm="FinishAsync" OnCancel="CancelCrop" />
+            Busy="_finishing" ConfirmText="@Pick("Continuar", "Continue")" OnConfirm="FinishAsync" OnCancel="CancelCrop"
+            OnReset="@(() => _cropMessage = null)" />
 
 @code {
     private CancellationTokenSource? _cts;
@@ -75,6 +76,7 @@
 
     private ReadPhoto? _read;
     private string? _cropMessage;
+    private bool _finishing;
 
     /// <summary>Solo Debug: foto copiada con simctl/adb para probar sin cámara ni galería.</summary>
     private static string DebugPhotoPath => Path.Combine(FileSystem.AppDataDirectory, "scan-in.jpg");
@@ -157,8 +159,8 @@
 
             // Siempre se pasa por el recorte, con el marco ajustado al texto del recibo.
             _cropMessage = null;
-            _read = new ReadPhoto(prepared, page,
-                ReceiptAutoCrop.Suggest(page.Elements, prepared.SourceWidth, prepared.SourceHeight));
+            var auto = await Task.Run(() => ReceiptAutoCrop.Suggest(page.Elements, prepared.SourceWidth, prepared.SourceHeight));
+            _read = new ReadPhoto(prepared, page, auto);
         }
         catch (OperationCanceledException)
         {
@@ -183,7 +185,7 @@
     /// </summary>
     private async Task FinishAsync(CropRect crop)
     {
-        if (_read is not { } read)
+        if (_read is not { } read || _finishing)
         {
             return;
         }
@@ -196,6 +198,8 @@
             return;
         }
 
+        _cropMessage = null;
+        _finishing = true;
         try
         {
             var image = await Task.Run(() => ReceiptPhoto.Crop(read.Photo.Image, crop));
@@ -210,6 +214,10 @@
         {
             _read = null;
             _error = Pick("No se pudo recortar la imagen. Prueba con otra foto.", "The image could not be cropped. Try another photo.");
+        }
+        finally
+        {
+            _finishing = false;
         }
     }
 

@@ -43,10 +43,13 @@ public static class ReceiptAutoCrop
             (block.Max(b => b.Y + b.Height) + margin) / height).Normalize();
     }
 
-    /// <summary>Solo el texto cuyo centro queda dentro del marco (para proponer total, fecha y comercio).</summary>
+    /// <summary>
+    /// Solo el texto cuyo centro queda dentro del marco (para proponer total, fecha y comercio). Sin el tamaño de la foto
+    /// (0 × 0) no se sabe dónde cae el marco y se deja todo el texto.
+    /// </summary>
     public static OcrPage CropTo(this OcrPage page, CropRect crop, int width, int height)
     {
-        if (crop.IsFull)
+        if (crop.IsFull || width <= 0 || height <= 0)
         {
             return page;
         }

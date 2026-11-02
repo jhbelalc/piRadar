@@ -63,6 +63,15 @@ public class ReceiptAutoCropTests
         Assert.Equal("test", cropped.Engine);
     }
 
+    [Fact]
+    public void CropTo_WithUnknownPhotoSize_KeepsAllTheText()
+    {
+        // iOS sin el tamaño de la original (0 × 0): no se sabe dónde cae el marco, así que no se filtra nada.
+        var page = new OcrPage([new("TOTAL", 100, 100, 50, 20)], "test");
+
+        Assert.Same(page, page.CropTo(new CropRect(0.5, 0.5, 1, 1), 0, 0));
+    }
+
     [Theory]
     [MemberData(nameof(ReceiptParserFixtureTests.Receipts), MemberType = typeof(ReceiptParserFixtureTests))]
     public void RealReceipts_AutomaticFrame_KeepsWhatTheParserFinds(ReceiptParserFixtureTests.Expected expected)

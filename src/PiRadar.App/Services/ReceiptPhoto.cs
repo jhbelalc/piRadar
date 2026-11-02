@@ -3,7 +3,10 @@ using PiRadar.Core.Images;
 
 namespace PiRadar.App.Services;
 
-/// <summary>Foto lista para guardar y el tamaño de la original ya orientada (el espacio de las coordenadas del OCR).</summary>
+/// <summary>
+/// Foto lista para guardar y el tamaño de la original ya orientada (el espacio de las coordenadas del OCR); 0 × 0 si no
+/// se pudo leer (entonces no se propone marco ni se filtra el texto).
+/// </summary>
 public sealed record PreparedPhoto(ReceiptImage Image, int SourceWidth, int SourceHeight);
 
 /// <summary>
@@ -109,8 +112,9 @@ public static class ReceiptPhoto
         }) ?? throw new InvalidOperationException("No se pudo leer la imagen.");
 
         // Tamaño de la original orientada: EXIF 5–8 la gira 90°.
+        // Sin el tamaño de la original no se conoce el espacio del OCR: 0 × 0 hace que se proponga la foto completa.
         var properties = source.GetProperties(0);
-        var (width, height) = (properties.PixelWidth ?? (int)image.Width, properties.PixelHeight ?? (int)image.Height);
+        var (width, height) = (properties.PixelWidth ?? 0, properties.PixelHeight ?? 0);
         if ((int?)properties.Orientation is >= 5)
         {
             (width, height) = (height, width);
