@@ -149,6 +149,36 @@ public class TransactionRepositoryTests
     }
 
     [Fact]
+    public async Task ReplaceImage_SwapsOnlyThePhoto()
+    {
+        // Recortar la foto de un recibo guardado: el recibo y el movimiento no cambian.
+        await using var temp = await TempHost.OpenAsync();
+        var (repo, market, _) = await SetupAsync(temp);
+        var receipts = new ReceiptRepository(temp.Host);
+        var saved = await repo.AddWithReceiptAsync(TestData.Expense(market.Id), NewReceipt(), NewImage());
+        var receiptId = saved.ReceiptId!.Value;
+
+        await receipts.ReplaceImageAsync(receiptId, new ReceiptImage { Jpeg = [0xFF, 0xD8, 0x01], Width = 600, Height = 900 });
+
+        var image = await receipts.GetImageAsync(receiptId);
+        Assert.Equal([0xFF, 0xD8, 0x01], image!.Jpeg);
+        Assert.Equal((600, 900), (image.Width, image.Height));
+        Assert.Equal(receiptId, image.ReceiptId);
+        Assert.Equal("900123456-7", (await receipts.GetAsync(receiptId))!.ParsedTaxId);
+        Assert.Equal(saved.Amount, (await repo.GetAsync(saved.Id))!.Amount);
+    }
+
+    [Fact]
+    public async Task ReplaceImage_OfAnUnknownReceipt_Throws()
+    {
+        await using var temp = await TempHost.OpenAsync();
+        var receipts = new ReceiptRepository(temp.Host);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => receipts.ReplaceImageAsync(Guid.NewGuid(), NewImage()));
+    }
+
+    [Fact]
     public async Task AddWithReceipt_WhenTransactionIsInvalid_SavesNothing()
     {
         await using var temp = await TempHost.OpenAsync();

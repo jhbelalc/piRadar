@@ -11,4 +11,15 @@ internal sealed class ReceiptRepository(DatabaseHost host) : RepositoryBase(host
 
     public async Task<ReceiptImage?> GetImageAsync(Guid receiptId) =>
         (await Connection.FindAsync<ReceiptImageRecord>(receiptId))?.ToDomain();
+
+    public Task ReplaceImageAsync(Guid receiptId, ReceiptImage image) => InTransactionAsync(db =>
+    {
+        if (db.Find<ReceiptImageRecord>(receiptId) is null)
+        {
+            throw new KeyNotFoundException(AppLocale.Pick("El recibo no existe.", "The receipt does not exist."));
+        }
+
+        image.ReceiptId = receiptId;
+        return db.Update(image.ToRecord());
+    });
 }

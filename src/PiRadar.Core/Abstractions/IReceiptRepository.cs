@@ -9,4 +9,8 @@ public interface IReceiptRepository
 
     /// <summary>La imagen se lee aparte para no cargar BLOBs al listar.</summary>
     Task<ReceiptImage?> GetImageAsync(Guid receiptId);
+
+    /// <summary>Reemplaza la foto de un recibo guardado (p. ej. recortada); el recibo y su movimiento no cambian.</summary>
+    /// <exception cref="KeyNotFoundException">El recibo no tiene foto guardada.</exception>
+    Task ReplaceImageAsync(Guid receiptId, ReceiptImage image);
 }
