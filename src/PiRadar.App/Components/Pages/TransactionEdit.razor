@@ -136,7 +136,7 @@
                             </span>
                         </div>
                         <div class="d-flex flex-wrap gap-1 mt-1">
-                            @if (_savedImage is not null)
+                            @if (_savedImage is not null || _scan is not null)
                             {
                                 <MudButton id="receipt-crop" Variant="Variant.Text" Color="Color.Primary" Disabled="_cropBusy"
                                            StartIcon="@Icons.Material.Rounded.Crop" OnClick="StartCropAsync">
@@ -165,7 +165,7 @@
 
 <ImageViewer Src="@(_viewerOpen ? _receiptImage : null)" Alt="@Pick("Foto del recibo", "Receipt photo")" OnClose="@(() => _viewerOpen = false)" />
 
-<CropEditor Src="@(_cropAuto is null ? null : _receiptImage)" Auto="@(_cropAuto ?? CropRect.Full)" Busy="_cropBusy"
+<CropEditor Src="@(_cropAuto is null ? null : _cropSrc)" Auto="@(_cropAuto ?? CropRect.Full)" Initial="@_cropInitial" Busy="_cropBusy"
             ConfirmText="@Pick("Recortar", "Crop")" OnConfirm="ApplyCropAsync" OnCancel="@(() => _cropAuto = null)" />
 
 @code {
@@ -196,6 +196,15 @@
 
     /// <summary>Marco automático mientras la pantalla de recorte está abierta; <c>null</c> = cerrada.</summary>
     private CropRect? _cropAuto;
+
+    /// <summary>Foto sobre la que se recorta: la guardada, o la completa de un recibo recién leído.</summary>
+    private string? _cropSrc;
+
+    /// <summary>Marco con el que abre el recorte de un recibo recién leído: el recorte vigente.</summary>
+    private CropRect? _cropInitial;
+
+    /// <summary>Marco automático de un recibo recién leído (el escaneo ya trae el texto del OCR).</summary>
+    private CropRect? _scanAuto;
     private string? _receiptText;
     private IReadOnlyList<string> _merchants = [];
     private PendingScan? _scan;
@@ -251,10 +260,11 @@
 
     private async Task ConfirmLeaveAsync(LocationChangingContext context)
     {
-        // Con la foto ampliada, "atrás" (sistema o barra) solo cierra el visor.
-        if (_viewerOpen)
+        // Con la foto ampliada o el recorte abierto, "atrás" (sistema o barra) solo cierra esa pantalla.
+        if (_viewerOpen || (_cropAuto is not null && !_cropBusy))
         {
             _viewerOpen = false;
+            _cropAuto = null;
             context.PreventNavigation();
             return;
         }
@@ -292,6 +302,7 @@
     private async Task InitFromScanAsync(PendingScan scan)
     {
         _scan = scan;
+        _scanAuto = scan.Crop;
         var parsed = scan.Parsed;
         _type = TransactionType.Expense;
         _currency = parsed.Currency;
@@ -376,11 +387,22 @@
     /// </summary>
     private async Task StartCropAsync()
     {
+        // Recibo recién leído: se recorta sobre la foto completa, empezando por el recorte vigente (se puede agrandar).
+        if (_scan is { } scan)
+        {
+            _cropSrc = "data:image/jpeg;base64," + Convert.ToBase64String(scan.FullImage.Jpeg);
+            _cropInitial = scan.Crop;
+            _cropAuto = _scanAuto ?? CropRect.Full;
+            return;
+        }
+
         if (_savedImage is not { } image)
         {
             return;
         }
 
+        _cropSrc = _receiptImage;
+        _cropInitial = null;
         _cropBusy = true;
         try
         {
@@ -401,6 +423,12 @@
     /// <summary>Reemplaza la foto guardada por la recortada al confirmar; el movimiento no cambia.</summary>
     private async Task ApplyCropAsync(CropRect crop)
     {
+        if (_scan is { } scan)
+        {
+            await ApplyScanCropAsync(scan, crop);
+            return;
+        }
+
         if (_savedImage is not { } image || crop.IsFull)
         {
             _cropAuto = null;
@@ -419,6 +447,32 @@
                 $"Photo cropped: from {Kilobytes(image)} to {Kilobytes(cropped)}."), Severity.Success);
         }
         catch (Exception ex) when (ex is InvalidOperationException or KeyNotFoundException)
+        {
+            Snackbar.Add(Pick("No se pudo recortar la foto.", "The photo could not be cropped."), Severity.Error);
+        }
+        finally
+        {
+            _cropBusy = false;
+            _cropAuto = null;
+        }
+    }
+
+    /// <summary>
+    /// Recibo aún sin guardar: cambia la foto que se guardará. Los valores del formulario no cambian (el usuario ya
+    /// pudo editarlos).
+    /// </summary>
+    private async Task ApplyScanCropAsync(PendingScan scan, CropRect crop)
+    {
+        _cropBusy = true;
+        try
+        {
+            var cropped = await Task.Run(() => ReceiptPhoto.Crop(scan.FullImage, crop));
+            _scan = scan with { Image = cropped, Crop = crop };
+            _receiptImage = "data:image/jpeg;base64," + Convert.ToBase64String(cropped.Jpeg);
+            Snackbar.Add(Pick($"Foto recortada: de {Kilobytes(scan.FullImage)} a {Kilobytes(cropped)}.",
+                $"Photo cropped: from {Kilobytes(scan.FullImage)} to {Kilobytes(cropped)}."), Severity.Success);
+        }
+        catch (InvalidOperationException)
         {
             Snackbar.Add(Pick("No se pudo recortar la foto.", "The photo could not be cropped."), Severity.Error);
         }

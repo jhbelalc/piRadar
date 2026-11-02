@@ -79,8 +79,8 @@ public class HelpContentTests
     {
         // Los nombres en negrita deben ser los botones de la pantalla de recorte.
         var scan = HelpContent.FindArticle("escanear")!.Steps;
-        Assert.Contains(scan, t => t.Es.Contains("**Ajustar automático**") && t.Es.Contains("**Foto completa**") && t.Es.Contains("**Continuar**"));
-        Assert.Contains(scan, t => t.En.Contains("**Auto adjust**") && t.En.Contains("**Whole photo**") && t.En.Contains("**Continue**"));
+        Assert.Contains(scan, t => t.Es.Contains("**Ajustar automático**") && t.Es.Contains("**Foto completa**") && t.Es.Contains("**Recortar**"));
+        Assert.Contains(scan, t => t.En.Contains("**Auto adjust**") && t.En.Contains("**Whole photo**") && t.En.Contains("**Crop**"));
         var edit = HelpContent.FindArticle("editar-borrar")!.Steps;
         Assert.Contains(edit, t => t.Es.Contains("**Recortar**"));
         Assert.Contains(edit, t => t.En.Contains("**Crop**"));

@@ -61,6 +61,9 @@
     /// <summary>Marco automático: con el que abre la pantalla y al que vuelve "Ajustar automático".</summary>
     [Parameter] public CropRect Auto { get; set; } = CropRect.Full;
 
+    /// <summary>Marco con el que abre la pantalla (p. ej. el recorte vigente); <c>null</c> = el automático.</summary>
+    [Parameter] public CropRect? Initial { get; set; }
+
     [Parameter] public string ConfirmText { get; set; } = string.Empty;
 
     /// <summary>Aviso sobre el marco elegido (p. ej. que no quedó texto dentro); <c>null</c> = sin aviso.</summary>
@@ -91,8 +94,9 @@
         _attachedTo = Src;
         _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./js/crop-frame.js");
         await DetachAsync();
+        var initial = Initial ?? Auto;
         _crop = await _module.InvokeAsync<IJSObjectReference>("attach", _stage, _frame,
-            new { left = Auto.Left, top = Auto.Top, right = Auto.Right, bottom = Auto.Bottom });
+            new { left = initial.Left, top = initial.Top, right = initial.Right, bottom = initial.Bottom });
     }
 
     private Task UseAutoAsync() => SetAsync(Auto);
