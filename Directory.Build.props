@@ -8,6 +8,6 @@
     <!-- Versión de la app y de su extensión de iOS (Apple exige que coincidan). -->
     <ApplicationDisplayVersion>1.3.0</ApplicationDisplayVersion>
     <!-- Subir en cada APK, AAB o IPA que se entrega: Android no instala encima una versión con número menor. -->
-    <ApplicationVersion>26</ApplicationVersion>
+    <ApplicationVersion>27</ApplicationVersion>
   </PropertyGroup>
 </Project>
