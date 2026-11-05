@@ -13,7 +13,16 @@ props=(-f net10.0-ios26.0 -c Release)
 # a dependency cannot be found or it is out of date"). El AOT completo tarda lo mismo de todos modos.
 rm -rf src/PiRadar.App/obj/Release/net10.0-ios26.0 src/PiRadar.App/bin/Release/net10.0-ios26.0 \
     src/PiRadar.Core/obj/Release src/PiRadar.Core/bin/Release src/PiRadar.Data/obj/Release src/PiRadar.Data/bin/Release \
-    src/PiRadar.ShareExtension/obj/Release src/PiRadar.ShareExtension/bin/Release
+    src/PiRadar.ShareExtension/build
+
+# La extensión de compartir es Swift: se compila y firma aparte, y el csproj la mete en PlugIns y la vuelve a firmar con
+# estos mismos permisos. Apple exige que su versión coincida con la de la app.
+ext=src/PiRadar.ShareExtension
+xcodebuild -project $ext/PiRadarShare.xcodeproj -target PiRadarShare -configuration Release -sdk iphoneos -quiet \
+    MARKETING_VERSION=$(dotnet build src/PiRadar.App "${props[@]}" -getProperty:ApplicationDisplayVersion) \
+    CURRENT_PROJECT_VERSION=$(dotnet build src/PiRadar.App "${props[@]}" -getProperty:ApplicationVersion)
+codesign -d --entitlements - --xml $ext/build/Release-iphoneos/PiRadarShare.appex | plutil -convert xml1 -o $ext/build/PiRadarShare.entitlements -
+
 dotnet publish src/PiRadar.App "${props[@]}"
 
 version=$(dotnet build src/PiRadar.App "${props[@]}" -getProperty:ApplicationDisplayVersion)

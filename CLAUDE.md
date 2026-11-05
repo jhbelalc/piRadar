@@ -84,7 +84,7 @@ piRadar/
 │  │  └─ MauiProgram.cs         # DI, MudBlazor, Batteries_V2.Init(), inicialización BD
 │  ├─ PiRadar.Core/             # Domain/, Abstractions/, Receipts/, Images/, Analytics/, Backup/
 │  ├─ PiRadar.Data/             # Records/, Repositories/, Migrations/, Seed/, Backup/
-│  └─ PiRadar.ShareExtension/   # extensión de compartir de iOS (sin MAUI)
+│  └─ PiRadar.ShareExtension/   # extensión de compartir de iOS (Swift, proyecto de Xcode)
 ├─ tools/ocr-fixtures/         # cómo generar y anonimizar fixtures de OCR (README.md)
 └─ tests/
    ├─ PiRadar.Core.Tests/        # Receipts/Fixtures/{ios,android}: OCR real anonimizado de 20 recibos
@@ -146,9 +146,10 @@ Versión de esquema en `PRAGMA user_version`.
 
 **Compartir con piRadar**: una imagen compartida desde otra app entra por `IncomingPhoto` (estática, solo en memoria) → `AppShell` navega a `scan?shared=<marca>` → `ScanReceipt.ProcessAsync`, igual que una foto de la galería. Un formulario a medias pregunta antes de salir y, si el usuario se queda, la imagen se descarta.
 - **Android**: `ShareReceiverActivity` (transparente, `ACTION_SEND` con `image/*`, solo URIs `content://`, tope de 64 MB) lee la imagen y abre `MainActivity` (`SingleTop`). Sin bytes = no se pudo leer: la pantalla muestra su error.
-- **iOS**: Apple no ofrece forma soportada de abrir la app desde una extensión. `PiRadar.ShareExtension` (bundle `com.jhbelalc.piradar.share`, sin MAUI por el límite de memoria) copia la imagen a `inbox/` del App Group `group.com.jhbelalc.piradar`, sin decodificarla, y pide abrir piRadar; `ShareInbox` la recoge al activarse la app y vacía la carpeta. Es la única excepción a "nunca archivos sueltos": el archivo lleva `NSFileProtectionComplete`, va excluido de los respaldos y dura hasta que se abre la app.
+- **iOS**: Apple no ofrece forma soportada de abrir la app desde una extensión. `src/PiRadar.ShareExtension` (Swift, proyecto de Xcode `PiRadarShare`, bundle `com.jhbelalc.piradar.share`) copia la imagen a `inbox/` del App Group `group.com.jhbelalc.piradar`, sin decodificarla, y pide abrir piRadar; `ShareInbox` la recoge al activarse la app y vacía la carpeta. Es la única excepción a "nunca archivos sueltos": el archivo lleva `NSFileProtectionComplete`, va excluido de los respaldos y dura hasta que se abre la app.
 - **Probar en el simulador**: la firma ad hoc no da acceso al App Group, así que en Debug `ShareInbox` lee `AppDataDirectory/share-in/` (copiar ahí cualquier imagen y abrir la app). La extensión solo se valida en un iPhone real.
-- La versión (`ApplicationDisplayVersion`, `ApplicationVersion`) vive en `Directory.Build.props`: Apple exige que la app y la extensión coincidan.
+- La extensión era .NET (`IsAppExtension`) y en el iPhone se cerraba al abrirse, sin mostrar nada (builds 24 y 25; causa sin confirmar, no hubo registro de fallo). Por eso es Swift: `tools/build-ipa.sh` la compila con `xcodebuild`, y `AdditionalAppExtensions` del csproj (solo Release) la mete en `PlugIns` y la vuelve a firmar.
+- La versión (`ApplicationDisplayVersion`, `ApplicationVersion`) vive en `Directory.Build.props`; `tools/build-ipa.sh` se la pasa a la extensión: Apple exige que coincidan.
 
 **Inicio** (`Dashboard`): mes en curso con totales por moneda (`CurrencyTotals`), variación del gasto frente al mismo tramo del mes anterior (`ExpenseComparison`: del 1 al día de hoy), "En qué gastas" por categoría principal (`CategoryShare`, las subcategorías suman en su padre; top 4 + "Otras") y los últimos 5 movimientos.
 

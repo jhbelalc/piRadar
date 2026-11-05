@@ -79,11 +79,13 @@
         <!-- Simulador: con entitlements exige firma; en este Mac no hay certificado de desarrollo, va firma ad hoc. -->
         <CodesignKey Condition="'$(Configuration)' == 'Debug'">-</CodesignKey>
     </PropertyGroup>
-    <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
-        <ProjectReference Include="..\PiRadar.ShareExtension\PiRadar.ShareExtension.csproj">
-            <IsAppExtension>true</IsAppExtension>
-            <IsWatchApp>false</IsWatchApp>
-        </ProjectReference>
+    <!-- La extensión es Swift y la compila tools/build-ipa.sh. En el simulador no hace falta: ver "Compartir con piRadar" en CLAUDE.md. -->
+    <ItemGroup Condition="$(TargetFramework.Contains('-ios')) And '$(Configuration)' == 'Release'">
+        <AdditionalAppExtensions Include="$(MSBuildProjectDirectory)/../PiRadar.ShareExtension">
+            <Name>PiRadarShare</Name>
+            <BuildOutput>build/Release-iphoneos</BuildOutput>
+            <CodesignEntitlements>$(MSBuildProjectDirectory)/../PiRadar.ShareExtension/build/PiRadarShare.entitlements</CodesignEntitlements>
+        </AdditionalAppExtensions>
     </ItemGroup>
 
     <!-- Sin la clave propia no se genera un Release: firmado con otra clave no se podría instalar encima del actual. -->

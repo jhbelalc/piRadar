@@ -486,3 +486,6 @@ $RECYCLE.BIN/
 
 # Términos privados para anonimizar fixtures de OCR (ver tools/ocr-fixtures/README.md)
 tools/ocr-fixtures/private-terms.txt
+
+# Extensión de compartir (Xcode)
+src/PiRadar.ShareExtension/build/
