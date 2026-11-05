@@ -260,8 +260,9 @@
 
     private async Task ConfirmLeaveAsync(LocationChangingContext context)
     {
-        // Con la foto ampliada o el recorte abierto, "atrás" (sistema o barra) solo cierra esa pantalla.
-        if (_viewerOpen || (_cropAuto is not null && !_cropBusy))
+        // Con la foto ampliada o el recorte abierto, "atrás" (sistema o barra) solo cierra esa pantalla. Una imagen
+        // compartida desde otra app no es "atrás": sigue a la pregunta de abajo.
+        if (!IncomingPhoto.IsWaiting && (_viewerOpen || (_cropAuto is not null && !_cropBusy)))
         {
             _viewerOpen = false;
             _cropAuto = null;
@@ -279,6 +280,7 @@
             : Pick("Perderás los datos de este movimiento y el recibo leído.", "You will lose the data of this transaction and the receipt that was read.");
         if (!await Dialogs.ConfirmAsync(Pick("¿Salir sin guardar?", "Leave without saving?"), message, Pick("Salir", "Leave")))
         {
+            IncomingPhoto.Take();
             context.PreventNavigation();
         }
     }

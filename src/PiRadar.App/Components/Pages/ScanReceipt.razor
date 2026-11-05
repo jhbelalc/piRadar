@@ -67,6 +67,18 @@
     private string? _error;
     private string? _preview;
 
+    /// <summary>Marca de una imagen compartida desde otra app (ver <see cref="IncomingPhoto"/>).</summary>
+    [SupplyParameterFromQuery(Name = "shared")] public string? Shared { get; set; }
+
+    /// <summary>La imagen compartida entra igual que una elegida de la galería.</summary>
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Shared is not null && IncomingPhoto.Take() is { } photo && !_busy)
+        {
+            await ProcessAsync(photo);
+        }
+    }
+
     /// <summary>Solo Debug: foto copiada con simctl/adb para probar sin cámara ni galería.</summary>
     private static string DebugPhotoPath => Path.Combine(FileSystem.AppDataDirectory, "scan-in.jpg");
 

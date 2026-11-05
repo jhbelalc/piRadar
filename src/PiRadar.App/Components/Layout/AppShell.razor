@@ -2,6 +2,7 @@
 @inject HomeTitleState HomeTitleState
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
+@implements IDisposable
 
 @* Estructura de la app una vez abierta la BD: menú lateral en pantallas anchas, barra inferior en el teléfono. *@
 <MudLayout Class="@(_isPhone ? "has-bottom-nav" : null)">
@@ -29,12 +30,19 @@
 
     protected override async Task OnInitializedAsync()
     {
+        IncomingPhoto.Arrived += OnPhotoArrived;
         await ThemeState.LoadAsync();
         await HomeTitleState.LoadAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        // Arranque en frío: la imagen llegó antes de abrir la BD.
+        if (firstRender)
+        {
+            OpenIncomingPhoto();
+        }
+
 #if DEBUG
         if (firstRender)
         {
@@ -44,4 +52,17 @@
         await Task.CompletedTask;
 #endif
     }
+
+    private void OnPhotoArrived() => _ = InvokeAsync(OpenIncomingPhoto);
+
+    /// <summary>Cada imagen lleva su marca en la dirección: dos seguidas son dos navegaciones.</summary>
+    private void OpenIncomingPhoto()
+    {
+        if (IncomingPhoto.IsWaiting)
+        {
+            Navigation.NavigateTo($"scan?shared={DateTime.UtcNow.Ticks}");
+        }
+    }
+
+    public void Dispose() => IncomingPhoto.Arrived -= OnPhotoArrived;
 }
