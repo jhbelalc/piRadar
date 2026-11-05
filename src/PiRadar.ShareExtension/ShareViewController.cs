@@ -8,12 +8,18 @@ namespace PiRadar.ShareExtension;
 /// app. No decodifica la imagen (límite de memoria de las extensiones) ni la lee: eso lo hace la app.
 /// </summary>
 [Register("ShareViewController")]
-public sealed class ShareViewController : UIViewController
+public class ShareViewController : UIViewController
 {
     private const string AppGroup = "group.com.jhbelalc.piradar";
     private const string ImageType = "public.image";
 
     private bool _started;
+
+    /// <summary>iOS crea esta pantalla por su cuenta: sin este constructor .NET no puede enlazarla y la extensión se cierra.</summary>
+    protected ShareViewController(ObjCRuntime.NativeHandle handle)
+        : base(handle)
+    {
+    }
 
     public override void ViewDidAppear(bool animated)
     {
