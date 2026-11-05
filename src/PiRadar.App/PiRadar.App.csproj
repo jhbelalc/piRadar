@@ -26,11 +26,6 @@
         <!-- App Identifier -->
         <ApplicationId>com.jhbelalc.piradar</ApplicationId>
 
-        <!-- Versions -->
-        <ApplicationDisplayVersion>1.2.3</ApplicationDisplayVersion>
-        <!-- Subir en cada APK o AAB que se entrega: Android no instala encima una versión con número menor. -->
-        <ApplicationVersion>23</ApplicationVersion>
-
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
     </PropertyGroup>
@@ -77,6 +72,19 @@
         <CodesignKey>Apple Distribution</CodesignKey>
         <CodesignProvision>piRadar App Store</CodesignProvision>
     </PropertyGroup>
+
+    <!-- Extensión de compartir de iOS: va dentro de la app; las dos comparten el App Group (Entitlements.plist). -->
+    <PropertyGroup Condition="$(TargetFramework.Contains('-ios'))">
+        <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+        <!-- Simulador: con entitlements exige firma; en este Mac no hay certificado de desarrollo, va firma ad hoc. -->
+        <CodesignKey Condition="'$(Configuration)' == 'Debug'">-</CodesignKey>
+    </PropertyGroup>
+    <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
+        <ProjectReference Include="..\PiRadar.ShareExtension\PiRadar.ShareExtension.csproj">
+            <IsAppExtension>true</IsAppExtension>
+            <IsWatchApp>false</IsWatchApp>
+        </ProjectReference>
+    </ItemGroup>
 
     <!-- Sin la clave propia no se genera un Release: firmado con otra clave no se podría instalar encima del actual. -->
     <Target Name="PiRadarCheckSigningKey" BeforeTargets="BeforeBuild"

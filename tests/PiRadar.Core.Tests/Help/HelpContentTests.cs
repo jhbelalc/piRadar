@@ -85,4 +85,12 @@ public class HelpContentTests
         Assert.Contains(edit, t => t.Es.Contains("**Recortar**"));
         Assert.Contains(edit, t => t.En.Contains("**Crop**"));
     }
+
+    [Fact]
+    public void Share_article_explains_how_to_send_an_image()
+    {
+        var steps = HelpContent.FindArticle("compartir-imagen")!.Steps;
+        Assert.Contains(steps, t => t.Es.Contains("**Compartir**") && t.En.Contains("**Share**"));
+        Assert.Contains(steps, t => t.Es.Contains("no se abre solo") && t.En.Contains("does not open on its own"));
+    }
 }

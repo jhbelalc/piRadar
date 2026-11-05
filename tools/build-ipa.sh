@@ -12,7 +12,8 @@ props=(-f net10.0-ios26.0 -c Release)
 # anterior de PiRadar.Core, y en el iPhone (solo AOT) la app abortaba al abrir ("Failed to load AOT module ...
 # a dependency cannot be found or it is out of date"). El AOT completo tarda lo mismo de todos modos.
 rm -rf src/PiRadar.App/obj/Release/net10.0-ios26.0 src/PiRadar.App/bin/Release/net10.0-ios26.0 \
-    src/PiRadar.Core/obj/Release src/PiRadar.Core/bin/Release src/PiRadar.Data/obj/Release src/PiRadar.Data/bin/Release
+    src/PiRadar.Core/obj/Release src/PiRadar.Core/bin/Release src/PiRadar.Data/obj/Release src/PiRadar.Data/bin/Release \
+    src/PiRadar.ShareExtension/obj/Release src/PiRadar.ShareExtension/bin/Release
 dotnet publish src/PiRadar.App "${props[@]}"
 
 version=$(dotnet build src/PiRadar.App "${props[@]}" -getProperty:ApplicationDisplayVersion)

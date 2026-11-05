@@ -1,6 +1,6 @@
 # piRadar Privacy Policy
 
-Last updated: September 30, 2026
+Last updated: November 4, 2026
 
 piRadar is a personal finance app for tracking expenses and income. This policy explains what happens to your information when you use it.
 
@@ -20,6 +20,7 @@ The published version of piRadar does not have permission to access the internet
 ## Permissions
 - **Camera**: only to photograph receipts when you ask it to.
 - **Photos or files**: only to choose a receipt photo or a backup file that you select.
+- **Images you share with piRadar**: if you send an image from another app, it may stay in a protected folder on your device until you open piRadar. When you open it, the image is deleted from that folder, and it is kept only if you save the transaction, inside the encrypted database.
 
 ## Backups
 You can export a backup file encrypted with a password you choose. The file is handed to the app or destination you pick (for example, your email or cloud storage), and from then on it is under your control and subject to that service's policies. piRadar does not store your password: if you forget it, the backup cannot be recovered.

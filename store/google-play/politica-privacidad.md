@@ -1,6 +1,6 @@
 # Política de privacidad de piRadar
 
-Última actualización: 26 de septiembre de 2026
+Última actualización: 4 de noviembre de 2026
 
 piRadar es una app de finanzas personales para registrar gastos e ingresos. Esta política explica qué pasa con tu información cuando la usas.
 
@@ -20,6 +20,7 @@ La versión publicada de piRadar no tiene permiso de acceso a Internet. La lectu
 ## Permisos
 - **Cámara**: solo para fotografiar recibos cuando tú lo pides.
 - **Fotos o archivos**: solo para elegir la foto de un recibo o un archivo de respaldo que tú seleccionas.
+- **Imágenes que compartes con piRadar**: si envías una imagen desde otra app, puede quedar en una carpeta protegida de tu dispositivo hasta que abras piRadar. Al abrirla se borra de esa carpeta, y solo se conserva si guardas el movimiento, dentro de la base de datos cifrada.
 
 ## Respaldos
 Puedes exportar un archivo de respaldo cifrado con una contraseña que tú eliges. El archivo se entrega a la app o al destino que escojas (por ejemplo, tu correo o tu almacenamiento en la nube), y a partir de ahí queda bajo tu control y sujeto a las políticas de ese servicio. piRadar no guarda tu contraseña: si la olvidas, el respaldo no se puede recuperar.
