@@ -1,4 +1,5 @@
 using PiRadar.Core.Analytics;
+using PiRadar.Core.Domain;
 
 namespace PiRadar.Core.Tests.Analytics;
 
@@ -64,5 +65,60 @@ public class SearchDateRangeTests
 
         Assert.Equal(new DateTime(2025, 12, 20), r.Start);
         Assert.Equal(new DateTime(2026, 1, 11), r.EndExclusive);
+    }
+
+    [Fact]
+    public void FromPeriod_Day_IsThatDay()
+    {
+        var r = SearchDateRange.FromPeriod(Period.Containing(new DateTime(2026, 11, 12, 15, 30, 0), PeriodGranularity.Day));
+
+        Assert.Equal(new SearchDateRange(new(2026, 11, 12), new(2026, 11, 12)), r);
+    }
+
+    [Fact]
+    public void FromPeriod_Week_Spanish_MondayToSunday()
+    {
+        using var _ = AppLocale.Use(AppLanguage.Spanish);
+        var r = SearchDateRange.FromPeriod(Period.Containing(new DateTime(2026, 11, 12), PeriodGranularity.Week));
+
+        Assert.Equal(new SearchDateRange(new(2026, 11, 9), new(2026, 11, 15)), r);
+    }
+
+    [Fact]
+    public void FromPeriod_Week_English_SundayToSaturday()
+    {
+        using var _ = AppLocale.Use(AppLanguage.English);
+        var r = SearchDateRange.FromPeriod(Period.Containing(new DateTime(2026, 11, 12), PeriodGranularity.Week));
+
+        Assert.Equal(new SearchDateRange(new(2026, 11, 8), new(2026, 11, 14)), r);
+    }
+
+    [Fact]
+    public void FromPeriod_Week_AcrossYears()
+    {
+        using var _ = AppLocale.Use(AppLanguage.Spanish);
+        var r = SearchDateRange.FromPeriod(Period.Containing(new DateTime(2026, 12, 31), PeriodGranularity.Week));
+
+        Assert.Equal(new SearchDateRange(new(2026, 12, 28), new(2027, 1, 3)), r);
+    }
+
+    [Theory]
+    [InlineData(2026, 11, 30)]
+    [InlineData(2026, 12, 31)]
+    [InlineData(2026, 2, 28)]
+    [InlineData(2028, 2, 29)]
+    public void FromPeriod_Month_FirstToLastDay(int year, int month, int lastDay)
+    {
+        var r = SearchDateRange.FromPeriod(Period.Containing(new DateTime(year, month, 10), PeriodGranularity.Month));
+
+        Assert.Equal(new SearchDateRange(new(year, month, 1), new(year, month, lastDay)), r);
+    }
+
+    [Fact]
+    public void FromPeriod_Year_JanuaryFirstToDecember31()
+    {
+        var r = SearchDateRange.FromPeriod(Period.Containing(new DateTime(2026, 6, 15), PeriodGranularity.Year));
+
+        Assert.Equal(new SearchDateRange(new(2026, 1, 1), new(2026, 12, 31)), r);
     }
 }

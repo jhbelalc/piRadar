@@ -5,7 +5,8 @@
 @inject IPaymentMethodRepository PaymentMethodRepository
 @inject TransactionsViewState State
 
-<PageBar Title="@Pick("Movimientos", "Transactions")" HelpTopics="HelpTopics.Transactions">
+<PageBar Title="@Pick("Movimientos", "Transactions")" HelpTopics="HelpTopics.Transactions"
+         BackHref="@(State.FromAnalytics ? "analytics" : null)">
     <Actions>
         <MudIconButton Icon="@Icons.Material.Rounded.Search" Color="Color.Inherit" id="search-button"
                        aria-label="@Pick("Buscar", "Search")" OnClick="ToggleSearchAsync" />
@@ -22,8 +23,9 @@
                                   Label="@Pick("Buscar movimientos", "Search transactions")" id="search-text"
                                   Placeholder="@Pick("Comercio, descripción, notas, monto…", "Merchant, description, notes, amount…")"
                                   Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true"
-                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Rounded.Search" AutoFocus="true" />
+                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Rounded.Search" AutoFocus="!State.FromAnalytics" />
                     <CategoryFilterPicker Value="State.SearchCategoryId" ValueChanged="SetSearchCategoryAsync" Kind="State.Type" />
+                    <PaymentMethodFilterPicker Value="State.SearchPaymentMethodId" ValueChanged="SetSearchPaymentMethodAsync" />
                     <div class="d-flex gap-3">
                         <div id="search-from" style="flex: 1">
                             <MudDatePicker Date="State.SearchRange.Start" DateChanged="SetSearchFromAsync" Label="@Pick("Desde", "From")"
@@ -220,8 +222,8 @@
     }
 
     /// <summary>
-    /// Busca entre Desde y Hasta, o en todo el historial (ignora el periodo); las fechas van en la consulta y el texto y la
-    /// categoría se evalúan en memoria sin tildes ni mayúsculas.
+    /// Busca entre Desde y Hasta, o en todo el historial (ignora el periodo); las fechas van en la consulta y el texto, la
+    /// categoría y el medio de pago se evalúan en memoria (el texto sin tildes ni mayúsculas).
     /// </summary>
     private async Task SearchAsync()
     {
@@ -237,22 +239,13 @@
             ? TransactionSearch.CategoryAndChildren(id, _categories.Values)
             : null;
         _transactions = all.Where(t => TransactionSearch.Matches(t,
-            _categories.GetValueOrDefault(t.CategoryId)?.Name, PaymentMethodOf(t)?.Name, tokens, categoryIds)).ToList();
+            _categories.GetValueOrDefault(t.CategoryId)?.Name, PaymentMethodOf(t)?.Name, tokens, categoryIds, State.SearchPaymentMethodId)).ToList();
         _totals = CurrencyTotals.ByCurrency(_transactions);
     }
 
     private Task ToggleSearchAsync()
     {
-        State.SearchOpen = !State.SearchOpen;
-        // Al abrir y al cerrar: si la app quedó abierta de un mes a otro, se sugiere el mes nuevo.
-        State.SearchRange = SearchDateRange.MonthToDate(DateOnly.FromDateTime(DateTime.Today));
-        State.SearchWholeHistory = false;
-        if (!State.SearchOpen)
-        {
-            State.SearchText = string.Empty;
-            State.SearchCategoryId = null;
-        }
-
+        State.ResetSearch(open: !State.SearchOpen);
         return LoadAsync();
     }
 
@@ -309,6 +302,12 @@
     private Task SetSearchCategoryAsync(int? categoryId)
     {
         State.SearchCategoryId = categoryId;
+        return LoadAsync();
+    }
+
+    private Task SetSearchPaymentMethodAsync(int? paymentMethodId)
+    {
+        State.SearchPaymentMethodId = paymentMethodId;
         return LoadAsync();
     }
 

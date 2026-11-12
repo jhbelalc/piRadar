@@ -9,6 +9,10 @@ public sealed record SearchDateRange(DateOnly From, DateOnly To)
     /// <summary>Lo que se sugiere al abrir la búsqueda: del día 1 del mes hasta hoy.</summary>
     public static SearchDateRange MonthToDate(DateOnly today) => new(new DateOnly(today.Year, today.Month, 1), today);
 
+    /// <summary>El periodo completo, del primer al último día (Análisis → búsqueda): el mes va del 1 al último día aunque sea el mes en curso.</summary>
+    public static SearchDateRange FromPeriod(Period period) =>
+        new(DateOnly.FromDateTime(period.Start), DateOnly.FromDateTime(period.End).AddDays(-1));
+
     public SearchDateRange WithFrom(DateOnly from) => from > To ? new(from, from) : this with { From = from };
 
     public SearchDateRange WithTo(DateOnly to) => to < From ? new(to, to) : this with { To = to };

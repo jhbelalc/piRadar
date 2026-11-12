@@ -1,0 +1,47 @@
+@inject IPaymentMethodRepository PaymentMethods
+@using PiRadar.Core.Analytics
+
+@* Filtro de medio de pago para búsquedas: "Todos" (null), cada medio (también los archivados) y "Sin medio de pago". *@
+<MudSelect T="int?" Label="@Pick("Medio de pago", "Payment method")" Value="Value" ValueChanged="ValueChanged" Variant="Variant.Outlined"
+           Clearable="true" AnchorOrigin="Origin.BottomCenter" Margin="Margin.Dense" id="search-payment-method"
+           ToStringFunc="@Text">
+    <MudSelectItem T="int?" Value="@((int?)null)">@Pick("Todos", "All")</MudSelectItem>
+    @foreach (var method in _items)
+    {
+        <MudSelectItem T="int?" Value="method.Id">
+            <div class="d-flex align-center gap-3">
+                <IconAvatar Icon="@method.Icon" Size="Size.Small" />
+                <span>@PaymentMethodText.Display(method)</span>
+                @if (method.IsArchived)
+                {
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@Pick("Archivado", "Archived")</MudChip>
+                }
+            </div>
+        </MudSelectItem>
+    }
+    <MudSelectItem T="int?" Value="@((int?)TransactionSearch.NoPaymentMethod)">
+        <div class="d-flex align-center gap-3">
+            <IconAvatar Icon="more_horiz" Size="Size.Small" />
+            <span>@NoneText</span>
+        </div>
+    </MudSelectItem>
+</MudSelect>
+
+@code {
+    private IReadOnlyList<PaymentMethod> _items = [];
+
+    [Parameter] public int? Value { get; set; }
+    [Parameter] public EventCallback<int?> ValueChanged { get; set; }
+
+    private static string NoneText => Pick("Sin medio de pago", "No payment method");
+
+    protected override async Task OnInitializedAsync() =>
+        _items = await PaymentMethods.GetAllAsync(includeArchived: true);
+
+    private string Text(int? id) => id switch
+    {
+        null => string.Empty,
+        TransactionSearch.NoPaymentMethod => NoneText,
+        _ => _items.FirstOrDefault(p => p.Id == id) is { } m ? PaymentMethodText.Display(m) : string.Empty,
+    };
+}

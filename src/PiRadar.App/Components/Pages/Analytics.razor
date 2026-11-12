@@ -6,6 +6,8 @@
 @inject IExchangeRateRepository ExchangeRateRepository
 @inject ISettingsRepository SettingsRepository
 @inject AnalyticsViewState State
+@inject TransactionsViewState TransactionsState
+@inject NavigationManager Navigation
 
 <PageBar Title="@Pick("Análisis", "Analytics")" HelpTopics="HelpTopics.Analytics" />
 
@@ -105,14 +107,14 @@
                                       ChartLabels="@(_categoryRows.Select(r => r.Name).ToArray())" ChartOptions="_categoryOptions"
                                       Width="100%" Height="200px" />
                             <div class="mt-3">
-                                <ShareList Rows="_categoryRows" />
+                                <ShareList Rows="_categoryRows" OnRowClick="ShowCategory" />
                             </div>
                         </MudPaper>
                     </MudItem>
                     <MudItem xs="12" md="6">
                         <MudText Typo="Typo.subtitle2" Class="mud-text-secondary mb-1 ml-1">@Pick("Por medio de pago", "By payment method")</MudText>
                         <MudPaper Elevation="0" Outlined="true" Class="pa-3" id="analytics-payment-methods">
-                            <ShareList Rows="_paymentRows" />
+                            <ShareList Rows="_paymentRows" OnRowClick="ShowPaymentMethod" />
                         </MudPaper>
                     </MudItem>
                 </MudGrid>
@@ -148,6 +150,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // De vuelta de los movimientos de una categoría o medio de pago: Movimientos vuelve a su vista normal.
+        if (TransactionsState.FromAnalytics)
+        {
+            TransactionsState.ResetSearch(open: false);
+        }
+
         // Con archivados: los movimientos viejos pueden usarlos.
         _categories = (await CategoryRepository.GetAllAsync(includeArchived: true)).ToDictionary(c => c.Id);
         _paymentMethods = (await PaymentMethodRepository.GetAllAsync(includeArchived: true)).ToDictionary(p => p.Id);
@@ -235,9 +243,22 @@
 
         _paymentRows = SpendingAnalyzer.ByPaymentMethod(_transactions!, type, _currency)
             .Select(s => s.PaymentMethodId is { } id && _paymentMethods.GetValueOrDefault(id) is { } method
-                ? new ShareRow(method.Icon, PaymentColor, PaymentMethodText.Display(method), s.Total, s.Share)
-                : new ShareRow("more_horiz", ShareList.OtherColor, Pick("Sin medio de pago", "No payment method"), s.Total, s.Share))
+                ? new ShareRow(method.Icon, PaymentColor, PaymentMethodText.Display(method), s.Total, s.Share, method.Id)
+                : new ShareRow("more_horiz", ShareList.OtherColor, Pick("Sin medio de pago", "No payment method"), s.Total, s.Share,
+                    TransactionSearch.NoPaymentMethod))
             .ToList();
+    }
+
+    /// <summary>Movimientos de la categoría tocada (con sus subcategorías) en todo el periodo, con la búsqueda ya hecha.</summary>
+    private void ShowCategory(ShareRow row) => ShowInTransactions(row.Id, null);
+
+    /// <summary>Movimientos del medio de pago tocado (o sin medio de pago) en todo el periodo.</summary>
+    private void ShowPaymentMethod(ShareRow row) => ShowInTransactions(null, row.Id);
+
+    private void ShowInTransactions(int? categoryId, int? paymentMethodId)
+    {
+        TransactionsState.OpenFromAnalytics(State.Period, State.Type, categoryId, paymentMethodId);
+        Navigation.NavigateTo("transactions");
     }
 
     /// <summary>Los medios de pago no tienen color propio: todos con el primario del tema.</summary>

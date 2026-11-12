@@ -3,7 +3,9 @@
 <MudStack Spacing="3">
     @foreach (var row in Visible)
     {
-        <div class="d-flex align-center gap-3">
+        var clickable = OnRowClick.HasDelegate && row.Id is not null;
+        <div class="d-flex align-center gap-3 @(clickable ? "share-row-link" : "")" role="@(clickable ? "button" : null)"
+             tabindex="@(clickable ? "0" : null)" @onclick="@(() => ClickAsync(row))">
             <IconAvatar Icon="@row.Icon" Color="@row.Color" Size="Size.Small" />
             <div style="min-width: 0; flex: 1">
                 <div class="d-flex justify-space-between gap-2">
@@ -16,6 +18,10 @@
                     <div class="share-fill" style="@BarStyle(row)"></div>
                 </div>
             </div>
+            @if (clickable)
+            {
+                <MudIcon Icon="@Icons.Material.Rounded.ChevronRight" Size="Size.Small" Class="mud-text-secondary" />
+            }
         </div>
     }
 </MudStack>
@@ -27,6 +33,12 @@
     [Parameter, EditorRequired] public IReadOnlyList<ShareRow> Rows { get; set; } = [];
 
     [Parameter] public int MaxRows { get; set; } = int.MaxValue;
+
+    /// <summary>Con él, las filas con <see cref="ShareRow.Id"/> se pueden tocar y muestran una flecha.</summary>
+    [Parameter] public EventCallback<ShareRow> OnRowClick { get; set; }
+
+    private Task ClickAsync(ShareRow row) =>
+        OnRowClick.HasDelegate && row.Id is not null ? OnRowClick.InvokeAsync(row) : Task.CompletedTask;
 
     private IEnumerable<ShareRow> Visible
     {

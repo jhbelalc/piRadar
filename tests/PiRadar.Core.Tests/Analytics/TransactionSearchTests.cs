@@ -6,8 +6,9 @@ namespace PiRadar.Core.Tests.Analytics;
 public class TransactionSearchTests
 {
     private static Transaction Tx(string? merchant = null, string? description = null, string? notes = null,
-        long amount = 25958, Currency currency = Currency.COP, int categoryId = 1) => new()
+        long amount = 25958, Currency currency = Currency.COP, int categoryId = 1, int? paymentMethodId = null) => new()
     {
+        PaymentMethodId = paymentMethodId,
         Merchant = merchant,
         Description = description,
         Notes = notes,
@@ -77,5 +78,29 @@ public class TransactionSearchTests
         Assert.True(Match(Tx(categoryId: 2), "", ids: ids));
         Assert.True(Match(Tx(categoryId: 1), "", ids: ids));
         Assert.False(Match(Tx(categoryId: 3), "", ids: ids));
+    }
+
+    [Fact]
+    public void Payment_method_filter_matches_only_that_method()
+    {
+        Assert.True(TransactionSearch.Matches(Tx(paymentMethodId: 2), null, null, [], paymentMethodId: 2));
+        Assert.False(TransactionSearch.Matches(Tx(paymentMethodId: 3), null, null, [], paymentMethodId: 2));
+        Assert.False(TransactionSearch.Matches(Tx(), null, null, [], paymentMethodId: 2));
+    }
+
+    [Fact]
+    public void No_payment_method_filter_matches_only_those_without()
+    {
+        Assert.True(TransactionSearch.Matches(Tx(), null, null, [], paymentMethodId: TransactionSearch.NoPaymentMethod));
+        Assert.False(TransactionSearch.Matches(Tx(paymentMethodId: 2), null, null, [], paymentMethodId: TransactionSearch.NoPaymentMethod));
+    }
+
+    [Fact]
+    public void Payment_method_combines_with_category_and_text()
+    {
+        var ids = new HashSet<int> { 1 };
+        Assert.True(TransactionSearch.Matches(Tx(merchant: "Éxito", paymentMethodId: 2), null, null, ["exito"], ids, 2));
+        Assert.False(TransactionSearch.Matches(Tx(merchant: "Éxito", categoryId: 5, paymentMethodId: 2), null, null, ["exito"], ids, 2));
+        Assert.False(TransactionSearch.Matches(Tx(merchant: "Ara", paymentMethodId: 2), null, null, ["exito"], ids, 2));
     }
 }

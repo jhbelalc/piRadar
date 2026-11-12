@@ -4,7 +4,7 @@ using PiRadar.Core.Domain;
 namespace PiRadar.Core.Analytics;
 
 /// <summary>
-/// Búsqueda de movimientos por palabra clave y categoría. Se hace en memoria porque el <c>LIKE</c> de SQLite solo
+/// Búsqueda de movimientos por palabra clave, categoría y medio de pago. Se hace en memoria porque el <c>LIKE</c> de SQLite solo
 /// ignora mayúsculas ASCII ("Éxito" ≠ "éxito"); aquí no importan mayúsculas ni tildes.
 /// </summary>
 public static class TransactionSearch
@@ -15,6 +15,9 @@ public static class TransactionSearch
     /// <summary>Palabras de la búsqueda: separadas por espacios; todas deben aparecer.</summary>
     public static string[] Tokens(string? query) =>
         (query ?? string.Empty).Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+
+    /// <summary>Valor del filtro de medio de pago para "Sin medio de pago" (los ids de la BD empiezan en 1).</summary>
+    public const int NoPaymentMethod = 0;
 
     /// <summary>Ids de la categoría y de sus subcategorías (elegir un padre incluye a sus hijas).</summary>
     public static HashSet<int> CategoryAndChildren(int categoryId, IEnumerable<Category> categories)
@@ -34,12 +37,18 @@ public static class TransactionSearch
     /// <summary>
     /// ¿Cumple el movimiento la búsqueda? Cada palabra debe aparecer en el comercio, la descripción, las notas, la
     /// categoría o el medio de pago; una palabra numérica también coincide con el monto exacto ("25958", "25.958", "12,50").
-    /// Sin palabras y sin categoría, todo coincide.
+    /// <paramref name="paymentMethodId"/>: <c>null</c> = cualquiera; <see cref="NoPaymentMethod"/> = solo los que no tienen.
+    /// Sin palabras, sin categoría y sin medio de pago, todo coincide.
     /// </summary>
     public static bool Matches(Transaction t, string? categoryName, string? paymentMethodName,
-        IReadOnlyCollection<string> tokens, ISet<int>? categoryIds = null)
+        IReadOnlyCollection<string> tokens, ISet<int>? categoryIds = null, int? paymentMethodId = null)
     {
         if (categoryIds is not null && !categoryIds.Contains(t.CategoryId))
+        {
+            return false;
+        }
+
+        if (paymentMethodId is { } method && (t.PaymentMethodId ?? NoPaymentMethod) != method)
         {
             return false;
         }
