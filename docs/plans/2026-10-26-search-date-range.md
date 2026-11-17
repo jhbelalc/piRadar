@@ -1,14 +1,12 @@
 # Rango de fechas en la búsqueda de movimientos — plan de implementación
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
-
 **Goal:** Al buscar en Movimientos (texto o categoría), filtrar además por Desde/Hasta (solo día, por defecto del 1 del mes a hoy), con un interruptor "Todo el historial" que deshabilita las fechas.
 
 **Architecture:** Un tipo pequeño e inmutable de Core (`SearchDateRange`) tiene la lógica del rango (sugerencia, fechas al revés, límites para `TransactionFilter`) y se prueba en Core.Tests. `TransactionsViewState` guarda el rango y el interruptor; `Transactions.razor` muestra dos `MudDatePicker` y un `MudSwitch` y pasa el rango a la consulta de la BD. La ayuda se actualiza en `HelpContent`.
 
 **Tech Stack:** .NET 10, MAUI Blazor Hybrid, MudBlazor 9, xunit.v3.
 
-**Spec:** `docs/superpowers/specs/2026-10-26-search-date-range-design.md`
+**Spec:** `docs/specs/2026-10-26-search-date-range-design.md`
 
 ## Global Constraints
 
