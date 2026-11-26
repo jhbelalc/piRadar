@@ -63,6 +63,25 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#F6F7F8;font-fam
 #end .sub{font-size:36px;opacity:.85;margin:40px 110px 0;line-height:1.35}
 #end .store{margin:90px auto 0;display:inline-block;border:3px solid rgba(255,255,255,.8);border-radius:60px;padding:24px 52px;font-size:38px;font-weight:700}
 #end .dev{position:absolute;left:0;right:0;bottom:90px;font-size:30px;opacity:.75}
+
+/* landscape 1920x1080 */
+body.h,body.h html{width:1920px;height:1080px}
+body.h{background:linear-gradient(180deg,#F6F7F8 0%,#E7EEED 100%)}
+body.h #stage{position:absolute;left:1000px;top:-322px;transform:scale(.75);transform-origin:0 0;overflow:hidden}
+body.h #bg{display:none}
+body.h #cap{left:130px;right:auto;width:820px;top:0;bottom:0;height:1080px;display:flex;align-items:center;text-align:left;font-size:92px}
+body.h #brand{display:flex}
+#brand{display:none;position:absolute;left:130px;bottom:80px;align-items:center;gap:18px;font-size:34px;font-weight:800;color:#12302c}
+#brand span{font-weight:600;color:#5d6866;font-size:28px}
+body.h #end{position:absolute;left:0;top:0;width:1920px;height:1080px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+body.h #end > div:first-child{margin-top:0 !important}
+body.h #end #logo{width:220px;height:220px;border-radius:50px}
+body.h #end .name{font-size:104px}
+body.h #end .ver{font-size:36px}
+body.h #end .tag{font-size:50px;margin:40px 200px 0}
+body.h #end .sub{font-size:32px;margin:22px 200px 0}
+body.h #end .store{margin:50px auto 0;font-size:34px;padding:20px 46px}
+body.h #end .dev{bottom:50px;font-size:26px}
 </style></head>
 <body>
 <div id="stage">
@@ -170,7 +189,10 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:#F6F7F8;font-fam
   <div id="cap" class="cap abs"></div>
 </div>
 
+<div id="brand"><svg width="64" height="64" viewBox="0 0 456 456" style="border-radius:14px"><rect width="456" height="456" fill="#00695C"/><circle cx="228" cy="228" r="140" fill="none" stroke="#fff" stroke-width="16"/><circle cx="228" cy="228" r="80" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="12"/><line x1="228" y1="228" x2="349" y2="158" stroke="#fff" stroke-width="14" stroke-linecap="round"/><circle cx="288" cy="142" r="22" fill="#FFCA28"/></svg>piRadar <span id="brandv"></span></div>
 <script>
+const H = new URLSearchParams(location.search).get('fmt') === 'h';
+if (H) { document.body.classList.add('h'); document.body.appendChild(document.getElementById('cap')); document.body.appendChild(document.getElementById('end')); }
 const EN = new URLSearchParams(location.search).get('lang') === 'en';
 const P = (es, en) => EN ? en : es;
 const $ = id => document.getElementById(id);
@@ -255,6 +277,7 @@ $('logo').innerHTML = `<defs><linearGradient id="bgg" x1="0" y1="0" x2="0" y2="1
 <rect width="456" height="456" fill="url(#bgg)"/><g id="sweepg"><path d="M228 228 L228 88 A140 140 0 0 1 349.24 158 Z" fill="url(#sw)"/><line x1="228" y1="228" x2="349.24" y2="158" stroke="#fff" stroke-width="10" stroke-linecap="round"/></g>
 <circle cx="228" cy="228" r="140" fill="none" stroke="#fff" stroke-width="12"/><circle cx="228" cy="228" r="93" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="9"/><circle cx="228" cy="228" r="46" fill="none" stroke="#fff" stroke-opacity="0.4" stroke-width="7"/>
 <circle id="blip" cx="288" cy="142" r="17" fill="#FFCA28"/><circle cx="228" cy="228" r="12" fill="#fff"/>`;
+$('brandv').textContent = P('versión 1.5','version 1.5');
 $('ever').textContent = P('Nueva versión 1.5', 'New in version 1.5');
 $('etag').textContent = P('Importa tu hoja de cálculo y mira tu balance al instante', 'Import your spreadsheet and see your balance instantly');
 $('esub').textContent = P('Hoja de cálculo o CSV · Sin duplicados · Todo en tu teléfono, sin nube', 'Spreadsheet or CSV · No duplicates · Everything stays on your phone, no cloud');
@@ -277,7 +300,7 @@ window.seek = function (t) {
   const cap = $('cap');
   if (ci >= 0) {
     const [a, b, txt] = caps[ci];
-    if (cap.dataset.i != ci) { cap.innerHTML = txt; cap.dataset.i = ci; }
+    if (cap.dataset.i != ci) { cap.innerHTML = '<div>' + txt + '</div>'; cap.dataset.i = ci; }
     const o = Math.min(seg(t, a, a + .35), 1 - seg(t, b - .25, b, x=>x));
     show(cap, o, `translateY(${(1 - seg(t, a, a + .45)) * 40}px)`);
   } else show(cap, 0);
@@ -369,6 +392,7 @@ window.seek = function (t) {
   show($('txcard'), seg(t, d0 + 1.4, d0 + 1.8), `translateY(${(1 - seg(t, d0+1.4, d0+1.8))*60}px)`);
   for (let i = 0; i < 4; i++) show($('tx'+i), seg(t, d0 + 1.7 + i*.2, d0 + 2 + i*.2), `translateX(${(1 - seg(t, d0+1.7+i*.2, d0+2+i*.2))*60}px)`);
 
+  show($('brand'), seg(t,.3,.8)*(1-seg(t,22.3,22.6)));
   // end card
   const e = seg(t, 22.4, 23.0, easeIO);
   show($('end'), e, `translateY(${(1 - e) * 100}px)`);

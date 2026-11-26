@@ -5,14 +5,14 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 (async () => {
-  const [lang = 'es', out = 'out.mp4', flag, list] = process.argv.slice(2);
+  const args = process.argv.slice(2); const H = args.includes('--h'); const [lang = 'es', out = 'out.mp4', flag, list] = args.filter(a => a !== '--h');
   const browser = await puppeteer.launch({
     executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     headless: true, args: ['--force-color-profile=srgb', '--hide-scrollbars'],
   });
   const page = await browser.newPage();
-  await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 1 });
-  await page.goto('file://' + path.join(__dirname, 'promo-1.5.html') + '?lang=' + lang);
+  await page.setViewport({ width: H ? 1920 : 1080, height: H ? 1080 : 1920, deviceScaleFactor: 1 });
+  await page.goto('file://' + path.join(__dirname, 'promo-1.5.html') + '?lang=' + lang + (H ? '&fmt=h' : ''));
   await page.evaluate(() => document.fonts.ready);
 
   if (flag === '--stills') {
