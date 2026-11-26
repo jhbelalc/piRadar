@@ -64,6 +64,7 @@ public static class CsvReader
         var field = new StringBuilder();
         var inQuotes = false;
         var wasQuoted = false;
+        var maxCols = 0;
         var pending = false; // hay algo en la fila actual (campo, comillas o separador)
 
         void EndField()
@@ -87,6 +88,8 @@ public static class CsvReader
             {
                 if (rows.Count >= limits.MaxRows) throw ImportIO.TooManyRows(limits);
                 rows.Add(row);
+                maxCols = Math.Max(maxCols, row.Count);
+                if ((long)rows.Count * maxCols > limits.MaxCells) throw ImportIO.TooManyCells(limits);
             }
             row = [];
             pending = false;

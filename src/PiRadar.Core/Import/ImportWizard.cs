@@ -41,7 +41,7 @@ public static class ImportWizard
         bool expense = false, income = false;
         foreach (var r in rows)
         {
-            if (!string.IsNullOrWhiteSpace(r.Category)) continue;
+            if (ImportText.Key(r.Category).Length > 0) continue;
             if (r.Type == TransactionType.Expense) expense = true;
             else income = true;
         }
@@ -60,10 +60,10 @@ public static class ImportWizard
         int? fallbackIncomeCategoryId)
     {
         var usedCategories = includedRows
-            .Where(r => !string.IsNullOrWhiteSpace(r.Category))
+            .Where(r => ImportText.Key(r.Category).Length > 0)
             .Select(r => (ImportText.Key(r.Category), r.Type)).ToHashSet();
         var usedMethods = includedRows
-            .Where(r => !string.IsNullOrWhiteSpace(r.PaymentMethod))
+            .Where(r => ImportText.Key(r.PaymentMethod).Length > 0)
             .Select(r => ImportText.Key(r.PaymentMethod)).ToHashSet();
         var (needExpense, needIncome) = FallbacksNeeded(includedRows);
 

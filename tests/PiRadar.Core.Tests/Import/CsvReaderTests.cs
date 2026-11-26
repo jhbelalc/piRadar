@@ -117,4 +117,29 @@ public class CsvReaderTests
         Assert.Equal("2026-08-01", CellValue.FromDate(new DateTime(2026, 8, 1)).ToDisplayString());
         Assert.Equal("", CellValue.Empty.ToDisplayString());
     }
+
+
+    [Fact]
+    public void TooManyCells_ThrowsEarlyWithMessage()
+    {
+        var limits = ImportLimitSet.Default with { MaxCells = 20 };
+        var csv = string.Join("\n", Enumerable.Range(0, 10).Select(_ => "a,b,c,d"));
+        var ex = Assert.Throws<ImportFormatException>(() => CsvReader.Read(new MemoryStream(Encoding.UTF8.GetBytes(csv)), limits));
+        Assert.Contains("celdas", ex.Message);
+        Assert.Equal(20, CsvReader.Read(new MemoryStream(Encoding.UTF8.GetBytes(string.Join("\n", Enumerable.Repeat("a,b,c,d", 5)))), limits).Rows.Sum(r => r.Count));
+
+        using var _ = AppLocale.Use(AppLanguage.English);
+        Assert.Contains("too many cells",
+            Assert.Throws<ImportFormatException>(() => CsvReader.Read(new MemoryStream(Encoding.UTF8.GetBytes(csv)), limits)).Message);
+    }
+
+    [Fact]
+    public void RealWorldShape_50000Rows_12Columns_IsAccepted()
+    {
+        var line = string.Join(",", Enumerable.Range(0, 12).Select(i => "x" + i));
+        var csv = string.Join("\n", Enumerable.Repeat(line, 50_000));
+        var sheet = CsvReader.Read(new MemoryStream(Encoding.UTF8.GetBytes(csv)));
+        Assert.Equal(50_000, sheet.Rows.Count);
+        Assert.Equal(12, sheet.ColumnCount);
+    }
 }

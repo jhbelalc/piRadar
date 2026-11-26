@@ -256,15 +256,15 @@ public class TransactionImporterTests
         var second = await importer.ImportAsync(Plan([Row(2), Row(3), Row(4)], fallbackExpense: other, fileName: "dos.csv"));
 
         Assert.Equal(second.BatchId, (await importer.GetLastImportAsync())!.Id);
-        Assert.Equal(3, await importer.UndoLastImportAsync());
+        Assert.Equal(3, await importer.UndoLastImportAsync(second.BatchId));
         var info = await importer.GetLastImportAsync();
         Assert.Equal(first.BatchId, info!.Id);
         Assert.Equal(2, info.RemainingCount);
         Assert.Equal(3, await CountAsync(t, "Transactions"));
 
-        Assert.Equal(2, await importer.UndoLastImportAsync());
+        Assert.Equal(2, await importer.UndoLastImportAsync(first.BatchId));
         Assert.Null(await importer.GetLastImportAsync());
-        Assert.Equal(0, await importer.UndoLastImportAsync());
+        await Assert.ThrowsAsync<DomainValidationException>(() => importer.UndoLastImportAsync(first.BatchId));
         Assert.NotNull(await repo.GetAsync(manual.Id));
         Assert.Equal(1, await CountAsync(t, "Transactions"));
         Assert.Equal(0, await CountAsync(t, "ImportBatch"));
@@ -277,7 +277,7 @@ public class TransactionImporterTests
         var other = await OtherExpensesAsync(t);
         var repo = new TransactionRepository(t.Host, t.Clock);
         var importer = Importer(t);
-        await importer.ImportAsync(Plan([Row(2, 1000), Row(3, 2000), Row(4, 3000)], fallbackExpense: other));
+        var imported = await importer.ImportAsync(Plan([Row(2, 1000), Row(3, 2000), Row(4, 3000)], fallbackExpense: other));
         var txs = await repo.QueryAsync(new TransactionFilter());
 
         var edited = txs[0];
@@ -294,7 +294,7 @@ public class TransactionImporterTests
         Assert.Equal(3, info!.RowCount);
         Assert.Equal(2, info.RemainingCount);
 
-        Assert.Equal(2, await importer.UndoLastImportAsync());
+        Assert.Equal(2, await importer.UndoLastImportAsync(imported.BatchId));
         Assert.Equal(0, await CountAsync(t, "Transactions"));
     }
 
@@ -319,5 +319,44 @@ public class TransactionImporterTests
         Assert.Equal(20_000, await CountAsync(t, "Transactions"));
         Console.WriteLine($"20 000 filas importadas en {watch.ElapsedMilliseconds} ms");
         Assert.True(watch.Elapsed < TimeSpan.FromSeconds(15), $"Tardó {watch.Elapsed}");
+    }
+
+    [Fact]
+    public async Task Undo_refuses_when_the_latest_batch_is_not_the_confirmed_one()
+    {
+        await using var t = await TempHost.OpenAsync();
+        var other = await OtherExpensesAsync(t);
+        var importer = Importer(t);
+        var first = await importer.ImportAsync(Plan([Row(2), Row(3)], fallbackExpense: other, fileName: "uno.csv"));
+        t.Clock.Advance(TimeSpan.FromMinutes(5));
+        await importer.ImportAsync(Plan([Row(2)], fallbackExpense: other, fileName: "dos.csv"));
+        var before = await SnapshotAsync(t);
+
+        var ex = await Assert.ThrowsAsync<DomainValidationException>(() => importer.UndoLastImportAsync(first.BatchId));
+        Assert.Contains("cambió", ex.Message);
+        await Assert.ThrowsAsync<DomainValidationException>(() => importer.UndoLastImportAsync(Guid.NewGuid()));
+        Assert.Equal(before, await SnapshotAsync(t));
+    }
+
+    [Fact]
+    public async Task Rows_without_a_real_category_name_import_with_the_fallback()
+    {
+        await using var t = await TempHost.OpenAsync();
+        var other = await OtherExpensesAsync(t);
+        var sheet = ImportRowParser.Parse(
+            new SheetData("S", [[CellValue.FromDate(Day), CellValue.FromNumber(-5000), CellValue.FromText("-"), CellValue.FromText("\U0001F355")]], 4),
+            new ImportOptions(new ImportMapping(null, [ImportField.Date, ImportField.Amount, ImportField.Category, ImportField.PaymentMethod]),
+                DateOrder.DayFirst, Currency.COP, true));
+        Assert.Empty(sheet.Errors);
+        var (needExpense, _) = ImportWizard.FallbacksNeeded(sheet.Rows);
+        Assert.True(needExpense);
+
+        var plan = ImportWizard.BuildPlan("a.csv", sheet.Rows, [], [], other, null);
+        var result = await Importer(t).ImportAsync(plan);
+
+        Assert.Equal(1, result.Imported);
+        var tx = Assert.Single(await new TransactionRepository(t.Host, t.Clock).QueryAsync(new TransactionFilter()));
+        Assert.Equal(other, tx.CategoryId);
+        Assert.Null(tx.PaymentMethodId);
     }
 }

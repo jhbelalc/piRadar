@@ -17,6 +17,9 @@ public sealed class SheetData
     public IReadOnlyList<IReadOnlyList<CellValue>> Rows { get; }
     public int ColumnCount { get; }
 
+    /// <summary>El libro usa la base de fechas de 1904 (Excel para Mac antiguo).</summary>
+    public bool Date1904 { get; init; }
+
     /// <summary>Letra de columna estilo Excel: 0 ⇒ A, 25 ⇒ Z, 26 ⇒ AA.</summary>
     public static string ColumnLetter(int index)
     {

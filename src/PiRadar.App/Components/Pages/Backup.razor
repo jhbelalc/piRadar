@@ -150,11 +150,16 @@
         _busy = true;
         try
         {
-            var deleted = await Importer.UndoLastImportAsync();
+            var deleted = await Importer.UndoLastImportAsync(batch.Id);
             _lastImport = await Importer.GetLastImportAsync();
             Snackbar.Add(deleted == 1
                 ? Pick("Se borró 1 movimiento.", "1 transaction deleted.")
                 : Pick($"Se borraron {deleted} movimientos.", $"{deleted} transactions deleted."), Severity.Success);
+        }
+        catch (DomainValidationException ex)
+        {
+            _lastImport = await Importer.GetLastImportAsync();
+            Snackbar.Add(ex.Message, Severity.Warning);
         }
         catch (Exception ex)
         {

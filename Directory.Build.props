@@ -6,8 +6,8 @@
     <WarningsAsErrors>$(WarningsAsErrors);nullable</WarningsAsErrors>
 
     <!-- Versión de la app y de su extensión de iOS (Apple exige que coincidan). -->
-    <ApplicationDisplayVersion>1.4.0</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>1.5.0</ApplicationDisplayVersion>
     <!-- Subir en cada APK, AAB o IPA que se entrega: Android no instala encima una versión con número menor. -->
-    <ApplicationVersion>28</ApplicationVersion>
+    <ApplicationVersion>29</ApplicationVersion>
   </PropertyGroup>
 </Project>

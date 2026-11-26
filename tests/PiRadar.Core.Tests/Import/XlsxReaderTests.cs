@@ -297,4 +297,55 @@ public class XlsxReaderTests
         public override void SetLength(long value) => throw new NotSupportedException();
         public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
     }
+
+
+    [Fact]
+    public void TooManyCells_ThrowsWhileReading()
+    {
+        var limits = ImportLimitSet.Default with { MaxCells = 20 };
+        var rows = string.Concat(Enumerable.Range(1, 10).Select(i =>
+            $"""<row r="{i}"><c r="A{i}"><v>1</v></c><c r="D{i}"><v>1</v></c></row>"""));
+        var ex = Assert.Throws<ImportFormatException>(() =>
+            XlsxReader.Read(new MemoryStream(XlsxBuilder.Build(XlsxBuilder.Sheet(rows))), null, limits));
+        Assert.Contains("celdas", ex.Message);
+        using var _ = AppLocale.Use(AppLanguage.English);
+        Assert.Contains("too many cells", Assert.Throws<ImportFormatException>(() =>
+            XlsxReader.Read(new MemoryStream(XlsxBuilder.Build(XlsxBuilder.Sheet(rows))), null, limits)).Message);
+    }
+
+    [Fact]
+    public void RealWorldShape_50000Rows_12Columns_IsAccepted()
+    {
+        var sb = new System.Text.StringBuilder();
+        for (var i = 1; i <= 50_000; i++)
+        {
+            sb.Append($"<row r=\"{i}\">");
+            for (var c = 0; c < 12; c++) sb.Append($"<c r=\"{SheetData.ColumnLetter(c)}{i}\"><v>1</v></c>");
+            sb.Append("</row>");
+        }
+        var sheet = Read(XlsxBuilder.Build(XlsxBuilder.Sheet(sb.ToString())));
+        Assert.Equal(50_000, sheet.Rows.Count);
+        Assert.Equal(12, sheet.ColumnCount);
+    }
+
+    [Fact]
+    public void TooManySharedStrings_AndChars_Throw()
+    {
+        var sst = XlsxBuilder.SharedStrings("<si><t>a</t></si>", "<si><t>b</t></si>", "<si><t>c</t></si>");
+        var file = XlsxBuilder.Build(XlsxBuilder.Sheet("""<row r="1"><c r="A1" t="s"><v>0</v></c></row>"""), sst);
+        Assert.Throws<ImportFormatException>(() =>
+            XlsxReader.Read(new MemoryStream(file), null, ImportLimitSet.Default with { MaxSharedStrings = 2 }));
+        Assert.Throws<ImportFormatException>(() =>
+            XlsxReader.Read(new MemoryStream(file), null, ImportLimitSet.Default with { MaxSharedStringChars = 2 }));
+        Assert.Single(XlsxReader.Read(new MemoryStream(file), null, ImportLimitSet.Default with { MaxSharedStrings = 3, MaxSharedStringChars = 3 }).Rows);
+    }
+
+    [Fact]
+    public void OutOfRangeSerial_WithDate1904_DoesNotInvalidateTheWorkbook()
+    {
+        Assert.Null(XlsxReader.FromSerial(2958465m, true));
+        var sheet = ReadSingle("""<row r="1"><c r="A1" s="1"><v>2958465</v></c><c r="B1"><v>5</v></c></row>""", null, FullStyles, date1904: true);
+        Assert.Equal(5m, sheet.Rows[0][1].Number);
+        Assert.True(sheet.Date1904);
+    }
 }

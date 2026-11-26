@@ -143,13 +143,19 @@ public static class XlsxReader
     private static List<string> ReadSharedStrings(ZipArchive archive, ImportLimitSet limits)
     {
         var list = new List<string>();
+        long chars = 0;
         using var r = OpenPart(archive, "xl/sharedStrings.xml", limits, required: false);
         if (r is null) return list;
         r.MoveToContent();
         while (!r.EOF)
         {
             if (r.NodeType == XmlNodeType.Element && r.LocalName == "si")
-                list.Add(TextOf((XElement)XNode.ReadFrom(r)));
+            {
+                var text = TextOf((XElement)XNode.ReadFrom(r));
+                chars += text.Length;
+                if (list.Count >= limits.MaxSharedStrings || chars > limits.MaxSharedStringChars) throw ImportIO.TooManyStrings();
+                list.Add(text);
+            }
             else
                 r.Read();
         }
@@ -231,6 +237,7 @@ public static class XlsxReader
         using var r = OpenPart(archive, path, limits, required: true)!;
         var rowNum = 0;
         var colNum = -1;
+        var maxCols = 0;
         while (r.Read())
         {
             if (r.NodeType != XmlNodeType.Element) continue;
@@ -263,13 +270,17 @@ public static class XlsxReader
                 if (col >= limits.MaxColumns) throw ImportIO.TooManyColumns(limits);
                 if (rowNum < 1 || rowNum > limits.MaxRows) throw ImportIO.TooManyRows(limits);
 
+                maxCols = Math.Max(maxCols, col + 1);
+                if ((long)rowNum * maxCols > limits.MaxCells) throw ImportIO.TooManyCells(limits);
+
                 while (rows.Count < rowNum) rows.Add(null);
                 var row = rows[rowNum - 1] ??= [];
                 while (row.Count <= col) row.Add(CellValue.Empty);
                 row[col] = value;
             }
         }
-        return SheetData.Normalize(name, rows);
+        var data = SheetData.Normalize(name, rows);
+        return new SheetData(data.Name, data.Rows, data.ColumnCount) { Date1904 = date1904 };
     }
 
     private static int? ParseColumn(string? reference)
@@ -318,14 +329,18 @@ public static class XlsxReader
     /// <summary>Serial de Excel a fecha. Base 1900 con el error del 29-feb-1900: el serial 60 (día inexistente) se lleva al 28-feb.</summary>
     internal static DateTime? FromSerial(decimal serial, bool date1904)
     {
-        var days = (int)Math.Floor(serial);
-        var seconds = (double)Math.Round((serial - days) * 86400m);
-        DateTime date;
-        if (date1904) date = new DateTime(1904, 1, 1).AddDays(days);
-        else if (days >= 61) date = new DateTime(1899, 12, 30).AddDays(days);
-        else if (days == 60) date = new DateTime(1900, 2, 28);
-        else date = new DateTime(1899, 12, 31).AddDays(days);
-        try { return date.AddSeconds(seconds); }
+        try
+        {
+            var days = (int)Math.Floor(serial);
+            var seconds = (double)Math.Round((serial - days) * 86400m);
+            DateTime date;
+            if (date1904) date = new DateTime(1904, 1, 1).AddDays(days);
+            else if (days >= 61) date = new DateTime(1899, 12, 30).AddDays(days);
+            else if (days == 60) date = new DateTime(1900, 2, 28);
+            else date = new DateTime(1899, 12, 31).AddDays(days);
+            return date.AddSeconds(seconds);
+        }
         catch (ArgumentOutOfRangeException) { return null; }
+        catch (OverflowException) { return null; }
     }
 }

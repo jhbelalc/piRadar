@@ -12,6 +12,10 @@ public interface ITransactionImporter
     /// <summary>El lote más reciente que aún existe, o null.</summary>
     Task<ImportBatchInfo?> GetLastImportAsync();
 
-    /// <summary>Borra los movimientos del último lote y el lote (las categorías y medios creados se quedan); devuelve cuántos borró.</summary>
-    Task<int> UndoLastImportAsync();
+    /// <summary>
+    /// Borra los movimientos del lote <paramref name="batchId"/> y el lote (las categorías y medios creados se quedan); devuelve cuántos borró.
+    /// Solo si ese lote sigue siendo el último.
+    /// </summary>
+    /// <exception cref="Domain.DomainValidationException">El último lote ya no es <paramref name="batchId"/>; no se borra nada.</exception>
+    Task<int> UndoLastImportAsync(Guid batchId);
 }

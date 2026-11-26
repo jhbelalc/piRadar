@@ -39,7 +39,7 @@ public class BackupImportBatchTests
         Assert.Equal(source.Clock.UtcNow, info.ImportedAt);
         var tx = Assert.Single(await new TransactionRepository(target.Host, target.Clock).QueryAsync(new TransactionFilter()));
         Assert.Equal(TransactionSource.Import, tx.Source);
-        Assert.Equal(1, await importer.UndoLastImportAsync());
+        Assert.Equal(1, await importer.UndoLastImportAsync(result.BatchId));
     }
 
     [Fact]

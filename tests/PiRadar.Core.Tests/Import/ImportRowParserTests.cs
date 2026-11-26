@@ -240,6 +240,75 @@ public class ImportRowParserTests
         var p = Run([["Fecha", "Valor"], [new DateTime(2026, 8, 3), -5]], Map(0, F.Date, F.Amount));
         Assert.Equal(2, p.Rows[0].RowNumber);
     }
+
+    [Theory]
+    [InlineData("-")]
+    [InlineData("?")]
+    [InlineData("\u2014")]
+    [InlineData("\u2026")]
+    [InlineData("\U0001F355")]
+    public void Symbol_only_names_count_as_no_category_subcategory_or_method(string symbol)
+    {
+        var m = Map(null, F.Date, F.Amount, F.Category, F.Subcategory, F.PaymentMethod);
+        var p = Run([[new DateTime(2026, 8, 3), -1000m, symbol, symbol, symbol]], m);
+
+        var row = Assert.Single(p.Rows);
+        Assert.Null(row.Category);
+        Assert.Null(row.Subcategory);
+        Assert.Null(row.PaymentMethod);
+        Assert.Empty(p.Categories);
+        Assert.Empty(p.Subcategories);
+        Assert.Empty(p.PaymentMethods);
+        Assert.True(ImportWizard.FallbacksNeeded(p.Rows).Expense);
+    }
+
+    [Fact]
+    public void Wizard_treats_a_symbol_only_category_as_missing_even_if_it_reaches_it()
+    {
+        var row = new ImportRow(2, TransactionType.Expense, new Money(1000, Currency.COP), new DateTime(2026, 8, 3),
+            "-", null, "?", null, null, null, false, false);
+        Assert.True(ImportWizard.FallbacksNeeded([row]).Expense);
+        var plan = ImportWizard.BuildPlan("a.csv", [row], [new CategoryChoice("-", TransactionType.Expense, null)],
+            [new PaymentMethodChoice("?", null)], 7, 8);
+        Assert.Empty(plan.Categories);
+        Assert.Empty(plan.PaymentMethods);
+        Assert.Equal(7, plan.FallbackExpenseCategoryId);
+    }
+
+    [Fact]
+    public void Numeric_serial_in_date_column_uses_the_sheet_date_base()
+    {
+        var s = Sheet([[44000m, 1000m]]);
+        var s1904 = new SheetData(s.Name, s.Rows, s.ColumnCount) { Date1904 = true };
+        Assert.Equal(new DateTime(2020, 6, 18), ImportRowParser.Parse(s, Opts(DA)).Rows[0].OccurredAt.Date);
+        Assert.Equal(new DateTime(2020, 6, 18).AddDays(1462), ImportRowParser.Parse(s1904, Opts(DA)).Rows[0].OccurredAt.Date);
+    }
+
+    [Fact]
+    public void Text_date_with_midnight_time_has_no_time_like_xlsx_dates()
+    {
+        Assert.True(ImportRowParser.TryParseDateText("2026-01-05 00:00:00", DateOrder.DayFirst, out var d, out var hasTime));
+        Assert.False(hasTime);
+        Assert.Equal(new DateTime(2026, 1, 5), d);
+        var p = Run([["2026-01-05 00:00:00", 1000m]], DA);
+        Assert.Equal(12, p.Rows[0].OccurredAt.Hour);
+        Assert.True(ImportRowParser.TryParseDateText("2026-01-05 00:30", DateOrder.DayFirst, out _, out var t2));
+        Assert.True(t2);
+    }
+
+    [Fact]
+    public void Binary_noise_is_not_flagged_as_rounded_but_real_rounding_is()
+    {
+        var d = new DateTime(2026, 8, 3);
+        var usd = Run([[d, 12.3499999996m]], DA, c: Currency.USD);
+        Assert.Equal(1235, usd.Rows[0].Amount.AmountMinor);
+        Assert.False(usd.Rows[0].Rounded);
+        Assert.Empty(usd.RoundedRows);
+
+        var cop = Run([[d, 1234567.35m]], DA);
+        Assert.True(cop.Rows[0].Rounded);
+        Assert.Equal([1], cop.RoundedRows);
+    }
 }
 
 public class ImportDashAndHeaderTests

@@ -52,7 +52,7 @@
       <article class="card">
         <a class="lang" href="help.html" hreflang="en">English</a>
         <h1>Ayuda de piRadar</h1>
-        <div class="meta">Actualizado: 12 de noviembre de 2026</div>
+        <div class="meta">Actualizado: 26 de noviembre de 2026</div>
         <p>Gu&#237;a r&#225;pida para usar piRadar: registrar movimientos, escanear recibos, entender tus an&#225;lisis y cuidar tus datos. Toca una pregunta del &#237;ndice para ir directo a ella.</p>
         <nav class="toc" aria-label="Contenido">
           <ul>
@@ -98,6 +98,14 @@
                 <li><a href="#crear-respaldo">&#191;C&#243;mo hago un respaldo?</a></li>
                 <li><a href="#restaurar-respaldo">&#191;C&#243;mo restauro un respaldo o paso mis datos a otro tel&#233;fono?</a></li>
                 <li><a href="#recordatorio-respaldo">&#191;Por qu&#233; me aparece un recordatorio de respaldo?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#importar-exportar">Importar y exportar</a>
+              <ul>
+                <li><a href="#importar-movimientos">&#191;C&#243;mo importo movimientos desde una hoja de c&#225;lculo?</a></li>
+                <li><a href="#importar-avisos">&#191;Qu&#233; significan los avisos de la vista previa de importar?</a></li>
+                <li><a href="#deshacer-importacion">&#191;C&#243;mo deshago la &#250;ltima importaci&#243;n?</a></li>
+                <li><a href="#exportar-csv">&#191;C&#243;mo exporto mis movimientos a un archivo CSV?</a></li>
               </ul>
             </li>
             <li class="sec"><a href="#ajustes">Ajustes</a>
@@ -276,6 +284,39 @@
           <li>Inicio te avisa cuando nunca hiciste un respaldo o pasaron m&#225;s de 30 d&#237;as desde el &#250;ltimo.</li>
           <li>Toca <strong>Hacer respaldo</strong> para crearlo en el momento.</li>
         </ol>
+
+        <h2 id="importar-exportar">Importar y exportar</h2>
+        <h3 id="importar-movimientos">&#191;C&#243;mo importo movimientos desde una hoja de c&#225;lculo?</h3>
+        <ol>
+          <li>Ve a <strong>M&#225;s &gt; Importar movimientos</strong> (tambi&#233;n est&#225; en <strong>M&#225;s &gt; Respaldo</strong>).</li>
+          <li>Paso 1: toca <strong>Elegir archivo</strong> y elige un archivo .xlsx o .csv. Se lee en tu tel&#233;fono y no se guarda. Si tu archivo es un .xls antiguo, gu&#225;rdalo primero como .xlsx.</li>
+          <li>Paso 2: revisa qu&#233; es cada columna. Se necesita la <strong>Fecha</strong> y el monto: una columna de <strong>Monto</strong> con signo (negativo = gasto), o columnas de <strong>Ingreso</strong> y <strong>Gasto</strong>, o <strong>Monto</strong> y <strong>Tipo</strong>. El orden de las columnas no importa y las que no sirvan se ignoran (<strong>Ignorar</strong>).</li>
+          <li>Si las fechas est&#225;n escritas como texto, elige su orden en <strong>Orden de las fechas escritas</strong>: d&#237;a/mes/a&#241;o (31/12/2026) o mes/d&#237;a/a&#241;o (12/31/2026).</li>
+          <li>Paso 3: en <strong>Categor&#237;as y medios de pago</strong>, elige con cu&#225;l de las tuyas se une cada nombre del archivo, o deja <strong>Crear nueva</strong> para que piRadar la cree.</li>
+          <li>Paso 4: en la <strong>Vista previa</strong> revisa los totales y los avisos, y toca el bot&#243;n de abajo (<strong>Importar</strong> y el n&#250;mero de movimientos) para terminar.</li>
+        </ol>
+        <p class="tip">Las filas con problemas no se importan y la vista previa dice por qu&#233;. Los montos con decimales en pesos (COP) se redondean al peso.</p>
+        <h3 id="importar-avisos">&#191;Qu&#233; significan los avisos de la vista previa de importar?</h3>
+        <ol>
+          <li><strong>Posibles duplicados</strong>: la fila se parece a un movimiento que ya tienes (misma fecha, monto y descripci&#243;n). Por defecto no se importa; activa <strong>Incluir posibles duplicados</strong> si de verdad quieres repetirla.</li>
+          <li><strong>Saldo anterior</strong>: piRadar ya calcula por s&#237; solo el saldo inicial de cada periodo. Si el archivo trae una fila que es un saldo anterior y ya tienes movimientos antes, se contar&#237;a dos veces: no la importes.</li>
+          <li>Las filas vac&#237;as, las de totales y las de monto cero se omiten solas.</li>
+        </ol>
+        <h3 id="deshacer-importacion">&#191;C&#243;mo deshago la &#250;ltima importaci&#243;n?</h3>
+        <ol>
+          <li>Ve a <strong>M&#225;s &gt; Respaldo</strong>, secci&#243;n <strong>Importar y exportar</strong>, y toca <strong>Deshacer &#250;ltima importaci&#243;n</strong>.</li>
+          <li>Confirma con <strong>Deshacer</strong>: se borran los movimientos de esa importaci&#243;n, incluso los que editaste despu&#233;s, y sus recibos.</li>
+          <li>Las categor&#237;as y medios de pago que se crearon al importar se quedan.</li>
+        </ol>
+        <p class="tip">Solo se puede deshacer la &#250;ltima importaci&#243;n. Si dudas, haz antes un respaldo.</p>
+        <h3 id="exportar-csv">&#191;C&#243;mo exporto mis movimientos a un archivo CSV?</h3>
+        <ol>
+          <li>Para exportar lo que ves, abre <strong>Movimientos</strong> y toca el &#237;cono <strong>Exportar CSV</strong> de la barra de arriba: se exportan exactamente los movimientos de la lista (el periodo y el tipo elegidos, o los resultados de la b&#250;squeda).</li>
+          <li>Para exportar todo, ve a <strong>M&#225;s &gt; Respaldo</strong> y toca <strong>Exportar todo a CSV</strong>.</li>
+          <li>Elige d&#243;nde guardarlo o a qui&#233;n enviarlo con el men&#250; de compartir y &#225;brelo en una hoja de c&#225;lculo.</li>
+          <li>En espa&#241;ol el separador es <code>;</code> y los decimales llevan coma; en ingl&#233;s el separador es <code>,</code> y los decimales llevan punto.</li>
+        </ol>
+        <p class="tip">El CSV no va cifrado: cualquiera que lo reciba puede leerlo. Para guardar todo de forma segura usa <strong>Crear respaldo</strong>.</p>
 
         <h2 id="ajustes">Ajustes</h2>
         <h3 id="idioma-tema">&#191;C&#243;mo cambio el idioma, el tema o la moneda base?</h3>

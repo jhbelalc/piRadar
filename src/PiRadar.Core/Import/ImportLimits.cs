@@ -6,13 +6,19 @@ namespace PiRadar.Core.Import;
 public static class ImportLimits
 {
     public const long MaxFileBytes = 20L * 1024 * 1024;
-    public const long MaxPartUncompressedBytes = 200L * 1024 * 1024;
+    public const long MaxPartUncompressedBytes = 100L * 1024 * 1024;
     public const int MaxDataRows = 50_000;
     public const int MaxColumns = 100;
+    /// <summary>Filas × columnas de la hoja normalizada (cada celda ocupa unos 64 bytes).</summary>
+    public const int MaxCells = 2_000_000;
+    public const int MaxSharedStrings = 1_000_000;
+    public const long MaxSharedStringChars = 50_000_000;
 }
 
 /// <summary>Límites inyectables para las pruebas.</summary>
-internal sealed record ImportLimitSet(long MaxFileBytes, long MaxPartUncompressedBytes, int MaxDataRows, int MaxColumns)
+internal sealed record ImportLimitSet(long MaxFileBytes, long MaxPartUncompressedBytes, int MaxDataRows, int MaxColumns,
+    int MaxCells = ImportLimits.MaxCells, int MaxSharedStrings = ImportLimits.MaxSharedStrings,
+    long MaxSharedStringChars = ImportLimits.MaxSharedStringChars)
 {
     public static ImportLimitSet Default { get; } = new(
         ImportLimits.MaxFileBytes, ImportLimits.MaxPartUncompressedBytes, ImportLimits.MaxDataRows, ImportLimits.MaxColumns);
@@ -31,6 +37,14 @@ internal static class ImportIO
 
     public static ImportFormatException TooManyColumns(ImportLimitSet l) => new(AppLocale.Pick(
         $"El archivo tiene demasiadas columnas (máximo {l.MaxColumns}).", $"This file has too many columns (maximum {l.MaxColumns})."));
+
+    public static ImportFormatException TooManyCells(ImportLimitSet l) => new(AppLocale.Pick(
+        $"El archivo tiene demasiadas celdas para importarlo (máximo {l.MaxCells:N0}). Quita columnas que no necesites o divídelo.",
+        $"This file has too many cells to import (maximum {l.MaxCells:N0}). Remove columns you don't need or split it."));
+
+    public static ImportFormatException TooManyStrings() => new(AppLocale.Pick(
+        "El archivo tiene demasiados textos para importarlo. Divídelo en archivos más pequeños.",
+        "This file has too much text to import. Split it into smaller files."));
 
     /// <summary>Copia el stream a memoria; falla si pasa de <paramref name="max"/> bytes.</summary>
     public static MemoryStream ReadLimited(Stream source, long max)

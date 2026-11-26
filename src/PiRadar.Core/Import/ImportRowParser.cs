@@ -78,6 +78,9 @@ public static partial class ImportRowParser
 
     // ---- Parse ----
 
+    /// <summary>Diferencia máxima (en unidades de la moneda) que se considera ruido binario y no redondeo real.</summary>
+    private const decimal RoundingTolerance = 0.000001m;
+
     public static ImportPreview Parse(SheetData sheet, ImportOptions options)
     {
         var map = options.Mapping;
@@ -112,7 +115,7 @@ public static partial class ImportRowParser
             if (IsEmptyRow(row, map)) { skippedEmpty++; continue; }
 
             // Fecha.
-            var dateOk = TryReadDate(row[colDate], options.DateOrder, out var date, out var dateHasTime);
+            var dateOk = TryReadDate(row[colDate], options.DateOrder, sheet.Date1904, out var date, out var dateHasTime);
             if (!dateOk)
             {
                 if (LooksLikeTotalRow(row)) skippedTotals++;
@@ -198,15 +201,17 @@ public static partial class ImportRowParser
             if (amount > MaxAmount) { Fail("el monto es demasiado grande.", "the amount is too large."); continue; }
             var scaled = decimal.Round(amount, currency.Scale(), MidpointRounding.AwayFromZero);
             if (scaled == 0) { skippedZero++; continue; }
-            var wasRounded = scaled != amount;
+            var wasRounded = Math.Abs(scaled - amount) > RoundingTolerance;
             Money money;
             try { money = Money.FromDecimal(scaled, currency); }
             catch (OverflowException) { Fail("el monto es demasiado grande.", "the amount is too large."); continue; }
 
             string? Text(ImportField f) => map.ColumnOf(f) is { } c ? ImportText.Clean(DropFormulaGuard(row[c].ToDisplayString())) : null;
-            var category = Text(ImportField.Category);
-            var sub = Text(ImportField.Subcategory);
-            var payment = Text(ImportField.PaymentMethod);
+            // Un nombre sin letras ni dígitos ("-", "?", un emoji) equivale a no tener valor.
+            string? NameText(ImportField f) => Text(f) is { } t && ImportText.Key(t).Length > 0 ? t : null;
+            var category = NameText(ImportField.Category);
+            var sub = NameText(ImportField.Subcategory);
+            var payment = NameText(ImportField.PaymentMethod);
             var description = Text(ImportField.Description);
             var merchant = Text(ImportField.Merchant);
             var notes = Text(ImportField.Notes);
@@ -320,7 +325,7 @@ public static partial class ImportRowParser
 
     private static bool YearOk(DateTime d) => d.Year >= 1900 && d <= DateTime.Today.AddYears(1);
 
-    private static bool TryReadDate(CellValue cell, DateOrder order, out DateTime date, out bool hasTime)
+    private static bool TryReadDate(CellValue cell, DateOrder order, bool date1904, out DateTime date, out bool hasTime)
     {
         date = default;
         hasTime = false;
@@ -331,7 +336,7 @@ public static partial class ImportRowParser
                 hasTime = date.TimeOfDay != TimeSpan.Zero;
                 return YearOk(date);
             case CellKind.Number when cell.Number is >= 20000m and <= 80000m:
-                if (XlsxReader.FromSerial(cell.Number.Value, false) is not { } d) return false;
+                if (XlsxReader.FromSerial(cell.Number.Value, date1904) is not { } d) return false;
                 date = d;
                 hasTime = d.TimeOfDay != TimeSpan.Zero;
                 return YearOk(date);
@@ -398,7 +403,7 @@ public static partial class ImportRowParser
         if (tm.Success)
         {
             if (!TryBuildTime(tm, out time)) return false;
-            hasTime = true;
+            hasTime = time != TimeSpan.Zero;
             s = s[..tm.Index].Trim();
         }
 

@@ -12,7 +12,7 @@
 @inject ISnackbar Snackbar
 @inject ILogger<Import> Logger
 
-<PageBar Title="@Pick("Importar movimientos", "Import transactions")" BackHref="backup" />
+<PageBar Title="@Pick("Importar movimientos", "Import transactions")" BackHref="backup" HelpTopics="HelpTopics.Import" />
 
 <MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
     <MudStack Spacing="3">
@@ -645,6 +645,13 @@
             ResetFile();
             _error = ex.Message;
         }
+        catch (Exception ex)
+        {
+            // Solo el tipo: el mensaje puede traer la ruta o el nombre del archivo.
+            Logger.LogError("No se pudo leer el archivo ({Type})", ex.GetType().Name);
+            ResetFile();
+            _error = Pick("No se pudo leer el archivo. Revisa que sea un .xlsx o un .csv válido.", "The file could not be read. Check that it is a valid .xlsx or .csv.");
+        }
         finally
         {
             _busy = false;
@@ -742,6 +749,11 @@
         catch (ImportFormatException ex)
         {
             _error = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("No se pudo leer la hoja ({Type})", ex.GetType().Name);
+            _error = Pick("No se pudo leer la hoja. Revisa que el archivo sea un .xlsx válido.", "The sheet could not be read. Check that the file is a valid .xlsx.");
         }
         finally
         {

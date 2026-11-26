@@ -73,12 +73,12 @@ piRadar/
 │  ├─ PiRadar.App/
 │  │  ├─ Components/Layout/     # MainLayout (tema + gate), AppShell (barra inferior < 600 px / menú lateral), NavItems
 │  │  ├─ Components/Pages/      # Dashboard, Transactions, TransactionEdit, ScanReceipt, Categories,
-│  │  │                         # PaymentMethods, Analytics, ExchangeRates, Backup, Settings
+│  │  │                         # PaymentMethods, Analytics, ExchangeRates, Backup, Import, Settings
 │  │  ├─ Components/Shared/     # PageBar, MoneyInput, CategoryPicker, PaymentMethodPicker, PeriodSelector, CurrencyToggle,
 │  │  │                         # IconAvatar, IconPicker, ColorSwatches, TransactionListItem, SignedAmount, ShareList, BarChart
 │  │  ├─ Services/              # DatabaseKeyProvider, PluginOcrService, ImageOrientation, AppTheme, ThemeState, IconCatalog,
 │  │  │                         # SpanishMudLocalizer, OcrLab/UiScript/FileLoggerProvider (Debug), ReceiptPhoto, ScanState,
-│  │  │                         # TransactionsViewState, AnalyticsViewState, ChartFormat
+│  │  │                         # TransactionsViewState, AnalyticsViewState, ChartFormat, CsvExportService
 │  │  ├─ Platforms/Android/     # allowBackup=false
 │  │  ├─ Platforms/iOS/         # exclusión de backup de la BD
 │  │  └─ MauiProgram.cs         # DI, MudBlazor, Batteries_V2.Init(), inicialización BD
@@ -134,10 +134,11 @@ piRadar/
 |---|---|---|
 | `Category` | `Id` int PK, `Name`, `Kind` (Expense/Income), `Icon`, `Color`, `ParentId?`, `SortOrder`, `IsArchived`, `IsSystem` | Semilla por defecto. Se archiva si tiene movimientos. |
 | `PaymentMethod` | `Id` int PK, `Name`, `Kind` (Cash, DebitCard, CreditCard, BankAccount, DigitalWallet, Other), `Icon`, `LastFourDigits?`, `SortOrder`, `IsArchived`, `IsSystem` | Semilla: Efectivo, Tarjeta débito, Tarjeta crédito, Cuenta bancaria, Nequi/Daviplata. |
-| `Transactions` | `Id` Guid PK, `Type` (Expense/Income), `AmountMinor` long, `Currency` (COP/USD), `OccurredAt` (local), `CategoryId`, `PaymentMethodId?`, `Merchant?`, `Description?`, `Notes?`, `ReceiptId?`, `Source` (Manual/Ocr), `CreatedAt` (UTC), `UpdatedAt` (UTC) | Índices: `OccurredAt`, (`CategoryId`,`OccurredAt`), `PaymentMethodId`, `Currency`. Monto positivo; el signo lo da `Type`. |
+| `Transactions` | `Id` Guid PK, `Type` (Expense/Income), `AmountMinor` long, `Currency` (COP/USD), `OccurredAt` (local), `CategoryId`, `PaymentMethodId?`, `Merchant?`, `Description?`, `Notes?`, `ReceiptId?`, `Source` (Manual/Ocr/Import), `ImportBatchId?`, `CreatedAt` (UTC), `UpdatedAt` (UTC) | Índices: `OccurredAt`, (`CategoryId`,`OccurredAt`), `PaymentMethodId`, `Currency`. Monto positivo; el signo lo da `Type`. |
 | `Receipt` | `Id` Guid PK, `CapturedAt` (UTC), `OcrText`, `ParsedTotalMinor?`, `ParsedCurrency?`, `ParsedDate?`, `ParsedMerchant?`, `ParsedTaxId?`, `OcrEngine` | Resultado del OCR para auditoría/re-parseo. |
 | `ReceiptImage` | `ReceiptId` PK, `Jpeg` BLOB, `Width`, `Height` | Separada para no cargar BLOBs al listar. ~1600 px, JPEG ~80 %. |
 | `ExchangeRate` | `Id` int PK, `FromCurrency`, `ToCurrency`, `RateMicros` long (tasa × 10⁶), `EffectiveDate` | Se usa la última tasa con `EffectiveDate ≤ OccurredAt`; sin tasa → excluido del consolidado con aviso. |
+| `ImportBatch` | `Id` Guid PK, `ImportedAt` (UTC), conteos del lote | Una fila por importación (Migration002, esquema 2). `Transactions.ImportBatchId` apunta a ella. |
 | `AppSetting` | `Key` PK, `Value` | Moneda base, tema, fecha del último respaldo. |
 
 Versión de esquema en `PRAGMA user_version`.
@@ -174,6 +175,15 @@ Versión de esquema en `PRAGMA user_version`.
 
 ## Ramas de entrega
 - `main` tiene el código de lo publicado o en revisión; `release/1.1-under-review` y la etiqueta `release/1.1-build8` congelan el commit de las versiones enviadas a revisión (iOS 1.1 build 7, Android código 8): si Apple o Google piden un arreglo, salir de ahí, no de `main`.
+
+## Importar y exportar CSV (1.5)
+Diseño en `docs/specs/2026-11-25-import-export-design.md`; pantalla `Import.razor` (asistente de 4 pasos: archivo, columnas, categorías y medios de pago, vista previa) con entrada en Más y en Respaldo.
+- **Lectores propios** en `PiRadar.Core/Import`, sin paquetes: `.xlsx` con `ZipArchive` + `XmlReader` (DTD prohibido), fechas según el estilo de la celda, valores en caché de las fórmulas, números como `decimal` (nunca `double`); CSV en UTF-8 o Windows-1252. Límites (`ImportLimits`): 20 MB, 100 MB por parte descomprimida, 50 000 filas, 100 columnas, 2 000 000 de celdas (filas × columnas, se revisa mientras se lee: con 50 000 × 100 la app pasaba de 1 GB y iOS la cierra sin excepción) y 1 000 000 de textos compartidos. Un `.xls` antiguo no se lee: guardarlo como `.xlsx`.
+- **Mapeo**: lo propone `ImportColumnGuesser` (sinónimos es/en + contenido) y se recuerda en `AppSetting` `ImportMapping` por huella de los encabezados.
+- **Duplicados**: por conteo contra los movimientos ya guardados, nunca entre filas del mismo archivo; excluidos por defecto.
+- **Datos**: `TransactionSource.Import = 3`; Migration002 crea `ImportBatch` y `Transactions.ImportBatchId`. Editar un movimiento conserva el lote. "Deshacer última importación" borra los movimientos del lote (y sus recibos), también los editados después; las categorías y medios creados se quedan. Importar es atómico (`TransactionImporter`).
+- **Exportar** (`TransactionCsvExporter`, `CsvExportService`): UTF-8 con BOM, CRLF, RFC 4180; español `;` y coma decimal, inglés `,` y punto; categoría y subcategoría en columnas separadas; los textos que empiezan con `=`, `+`, `-`, `@` llevan un `'` delante (anti inyección de fórmulas) y la importación lo quita. Desde Movimientos (ícono `#export-csv`) exporta lo que muestra la lista; desde Respaldo, todo. El CSV no va cifrado.
+- **Probar sin selector de archivos** (solo Debug): copiar el archivo como `import-in.xlsx` o `import-in.csv` en `AppDataDirectory` y usar `#debug-import`. El archivo real de validación del usuario no se copia nunca al repo.
 
 ## Respaldo exportable/importable
 - Archivo `.piradar` (`BackupCrypto`, Core): `PIRADAR` (7 B) + versión de formato (1 B) + versión de esquema (int32) + iteraciones (int32) + salt (16 B) + nonce (12 B) + cuerpo cifrado con **AES-256-GCM** + tag (16 B); la cabecera va como datos asociados (si se altera, el tag no cuadra). Cuerpo = JSON de todas las tablas (`{app, schemaVersion, createdAt, tables: {Tabla: {columns, rows}}}`, BLOB en base64) comprimido con GZip. Clave: **PBKDF2-SHA256** con 600 000 iteraciones sobre la contraseña en UTF-8 normalizada a NFC (el mismo texto con tildes llega distinto según el teclado).

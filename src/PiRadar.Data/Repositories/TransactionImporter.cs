@@ -39,13 +39,15 @@ internal sealed class TransactionImporter(DatabaseHost host, IClock clock) : Rep
             batch.Id, DateTime.SpecifyKind(batch.ImportedAt, DateTimeKind.Utc), batch.FileName, batch.RowCount, remaining);
     }
 
-    public Task<int> UndoLastImportAsync() => InTransactionAsync(db =>
+    public Task<int> UndoLastImportAsync(Guid batchId) => InTransactionAsync(db =>
     {
         var batch = db.Query<ImportBatchRecord>(
             """SELECT * FROM "ImportBatch" ORDER BY "ImportedAt" DESC, rowid DESC LIMIT 1""").FirstOrDefault();
-        if (batch is null)
+        if (batch is null || batch.Id != batchId)
         {
-            return 0;
+            throw new DomainValidationException(AppLocale.Pick(
+                "La última importación cambió. Vuelve a abrir Respaldo.",
+                "The last import changed. Open Backup again."));
         }
 
         // Igual que TransactionRepository.DeleteAsync: el recibo de un movimiento borrado se borra también

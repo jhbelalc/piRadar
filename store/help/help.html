@@ -52,7 +52,7 @@
       <article class="card">
         <a class="lang" href="ayuda.html" hreflang="es">Español</a>
         <h1>piRadar Help</h1>
-        <div class="meta">Updated: November 12, 2026</div>
+        <div class="meta">Updated: November 26, 2026</div>
         <p>A quick guide to using piRadar: adding transactions, scanning receipts, understanding your analytics and taking care of your data. Tap a question in the contents to jump straight to it.</p>
         <nav class="toc" aria-label="Contents">
           <ul>
@@ -98,6 +98,14 @@
                 <li><a href="#crear-respaldo">How do I make a backup?</a></li>
                 <li><a href="#restaurar-respaldo">How do I restore a backup or move my data to another phone?</a></li>
                 <li><a href="#recordatorio-respaldo">Why do I see a backup reminder?</a></li>
+              </ul>
+            </li>
+            <li class="sec"><a href="#importar-exportar">Import and export</a>
+              <ul>
+                <li><a href="#importar-movimientos">How do I import transactions from a spreadsheet?</a></li>
+                <li><a href="#importar-avisos">What do the import preview warnings mean?</a></li>
+                <li><a href="#deshacer-importacion">How do I undo the last import?</a></li>
+                <li><a href="#exportar-csv">How do I export my transactions to a CSV file?</a></li>
               </ul>
             </li>
             <li class="sec"><a href="#ajustes">Settings</a>
@@ -276,6 +284,39 @@
           <li>Home reminds you when you have never made a backup or more than 30 days have passed since the last one.</li>
           <li>Tap <strong>Back up now</strong> to create it right away.</li>
         </ol>
+
+        <h2 id="importar-exportar">Import and export</h2>
+        <h3 id="importar-movimientos">How do I import transactions from a spreadsheet?</h3>
+        <ol>
+          <li>Go to <strong>More &gt; Import transactions</strong> (it is also in <strong>More &gt; Backup</strong>).</li>
+          <li>Step 1: tap <strong>Choose file</strong> and pick an .xlsx or .csv file. It is read on your phone and is not kept. If your file is an old .xls, save it as .xlsx first.</li>
+          <li>Step 2: check what each column is. You need the <strong>Date</strong> and the amount: one <strong>Amount</strong> column with a sign (negative = expense), or <strong>Income</strong> and <strong>Expense</strong> columns, or <strong>Amount</strong> and <strong>Type</strong>. Column order does not matter and the ones you do not need are ignored (<strong>Ignore</strong>).</li>
+          <li>If the dates are written as text, choose their order in <strong>Order of dates written as text</strong>: day/month/year (31/12/2026) or month/day/year (12/31/2026).</li>
+          <li>Step 3: in <strong>Categories and payment methods</strong>, choose which of yours each name in the file joins, or leave <strong>Create new</strong> so piRadar creates it.</li>
+          <li>Step 4: in the <strong>Preview</strong> check the totals and the warnings, and tap the button at the bottom (<strong>Import</strong> and the number of transactions) to finish.</li>
+        </ol>
+        <p class="tip">Rows with problems are not imported and the preview tells you why. Amounts with decimals in pesos (COP) are rounded to the whole peso.</p>
+        <h3 id="importar-avisos">What do the import preview warnings mean?</h3>
+        <ol>
+          <li><strong>Possible duplicates</strong>: the row looks like a transaction you already have (same date, amount and description). By default it is not imported; turn on <strong>Include possible duplicates</strong> if you really want it repeated.</li>
+          <li><strong>Opening balance</strong>: piRadar already calculates the opening balance of each period by itself. If the file has a row that is a previous balance and you already have earlier transactions, it would be counted twice: do not import it.</li>
+          <li>Empty rows, total rows and zero-amount rows are skipped automatically.</li>
+        </ol>
+        <h3 id="deshacer-importacion">How do I undo the last import?</h3>
+        <ol>
+          <li>Go to <strong>More &gt; Backup</strong>, section <strong>Import and export</strong>, and tap <strong>Undo last import</strong>.</li>
+          <li>Confirm with <strong>Undo</strong>: the transactions of that import are deleted, even the ones you edited afterwards, along with their receipts.</li>
+          <li>The categories and payment methods created during the import stay.</li>
+        </ol>
+        <p class="tip">Only the last import can be undone. If in doubt, make a backup first.</p>
+        <h3 id="exportar-csv">How do I export my transactions to a CSV file?</h3>
+        <ol>
+          <li>To export what you see, open <strong>Transactions</strong> and tap the <strong>Export CSV</strong> icon in the top bar: exactly the transactions in the list are exported (the chosen period and type, or the search results).</li>
+          <li>To export everything, go to <strong>More &gt; Backup</strong> and tap <strong>Export all to CSV</strong>.</li>
+          <li>Choose where to save it or who to send it to with the share menu, and open it in a spreadsheet.</li>
+          <li>In Spanish the separator is <code>;</code> and decimals use a comma; in English the separator is <code>,</code> and decimals use a point.</li>
+        </ol>
+        <p class="tip">The CSV is not encrypted: anyone who gets it can read it. To keep everything safe use <strong>Create backup</strong>.</p>
 
         <h2 id="ajustes">Settings</h2>
         <h3 id="idioma-tema">How do I change the language, theme or base currency?</h3>
