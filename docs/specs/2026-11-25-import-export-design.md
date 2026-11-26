@@ -77,8 +77,10 @@ esperados se guardan fuera del repo). Su estructura, que los fixtures sintético
 
 ### Duplicados
 - Clave: día de `OccurredAt`, tipo, monto, moneda y descripción/comercio normalizados.
-- Coincide con un movimiento guardado o repetido dentro del archivo ⇒ marcado "posible duplicado", **excluido por
-  defecto**; el usuario puede incluirlos todos.
+- Coincide con un movimiento ya guardado ⇒ marcado "posible duplicado", **excluido por defecto**; el usuario puede
+  incluirlos todos. Se compara por conteo: con 2 filas iguales en el archivo y 1 guardada solo se marca la primera.
+  Filas repetidas dentro del archivo sin equivalente guardado **no** se marcan (dos compras iguales el mismo día son
+  legítimas).
 
 ### Guardado (Data)
 - `Migration002_ImportBatch`: `ALTER TABLE Transactions ADD COLUMN ImportBatchId varchar(36)` + índice. Tabla
