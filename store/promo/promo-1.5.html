@@ -1,0 +1,385 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#F6F7F8;font-family:-apple-system,"SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;color:#1d2327}
+.abs{position:absolute}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+#bg{inset:0;background:linear-gradient(180deg,#F6F7F8 0%,#E7EEED 100%)}
+/* captions */
+.cap{left:60px;right:60px;top:170px;text-align:center;font-weight:800;font-size:76px;line-height:1.1;letter-spacing:-1.5px;color:#12302c}
+.cap em{font-style:normal;color:#00695C}
+.cap .hl{background:linear-gradient(180deg,transparent 58%,#FFCA28 58%);padding:0 6px}
+/* spreadsheet */
+#sheet{left:90px;top:470px;width:900px;height:560px;background:#fff;border-radius:22px;box-shadow:0 24px 60px rgba(0,40,35,.18);overflow:hidden}
+#sheet .bar{height:64px;background:#3a7d44;color:#fff;font-size:28px;font-weight:700;display:flex;align-items:center;padding:0 26px;gap:14px}
+#sheet .bar .dots{display:flex;gap:9px}
+#sheet .bar .dots i{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.55);display:block}
+#sheet table{border-collapse:collapse;width:100%;font-size:25px;font-variant-numeric:tabular-nums}
+#sheet td,#sheet th{border:1px solid #dfe3e2;height:52px;padding:0 12px;white-space:nowrap;overflow:hidden}
+#sheet th{background:#eef1f0;font-weight:700;color:#4a5552;text-align:left}
+#sheet th.n{width:46px;text-align:center;color:#8a9592;font-weight:500}
+#sheet td.n{background:#eef1f0;text-align:center;color:#8a9592;width:46px}
+#sheet td.v{text-align:right}
+#sheet td.cur{outline:4px solid #3a7d44;outline-offset:-3px}
+.caret{display:inline-block;width:3px;height:28px;background:#1d2327;vertical-align:middle;margin-left:2px}
+/* papers */
+.paper{width:150px;height:200px;background:#fffdf7;border-radius:6px;box-shadow:0 8px 18px rgba(0,0,0,.16);padding:18px 16px}
+.paper i{display:block;height:9px;background:#d9d4c7;border-radius:5px;margin-bottom:12px}
+.paper i.s{width:60%}.paper i.t{width:40%;margin-left:auto;background:#b9b19f}
+/* phone */
+#phone{left:220px;top:540px;width:640px;height:1300px;background:#0f1314;border-radius:86px;padding:22px;box-shadow:0 40px 90px rgba(0,40,35,.35)}
+#screen{position:relative;width:100%;height:100%;background:#F6F7F8;border-radius:66px;overflow:hidden}
+#notch{left:50%;top:18px;width:170px;height:46px;margin-left:-85px;background:#0f1314;border-radius:30px;z-index:9}
+.appbar{left:0;right:0;top:0;height:170px;background:#00695C;color:#fff;font-size:38px;font-weight:700;padding:96px 36px 0}
+.card{background:#fff;border-radius:26px;box-shadow:0 4px 14px rgba(0,0,0,.07);padding:26px 28px}
+.steps{left:36px;right:36px;top:200px;display:flex;gap:12px}
+.steps div{flex:1;height:10px;border-radius:5px;background:#d6dedd}
+.steps div b{display:block;height:100%;border-radius:5px;background:#00695C}
+.stitle{left:36px;right:36px;top:236px;font-size:28px;color:#5d6866;font-weight:600}
+.panel{left:30px;right:30px;top:290px}
+.row{display:flex;align-items:center;justify-content:space-between;font-size:29px;padding:18px 0;border-bottom:1px solid #edf0ef}
+.row:last-child{border-bottom:0}
+.ok{width:44px;height:44px;border-radius:50%;background:#2E7D32;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800}
+.arrow{color:#9aa5a3;margin:0 10px}
+.chip{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:40px;background:#E0F2F1;color:#00574d;font-size:28px;font-weight:600;margin:0 12px 16px 0}
+.chip.new{background:#FFF3D6;color:#8a5a00}
+.btn{left:36px;right:36px;height:104px;border-radius:52px;background:#00695C;color:#fff;font-size:36px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tap{width:120px;height:120px;border-radius:50%;background:rgba(255,202,40,.55);border:6px solid rgba(255,202,40,.9)}
+.prog{left:36px;right:36px;height:18px;border-radius:9px;background:#d6dedd;overflow:hidden}
+.prog b{display:block;height:100%;background:#F9A825}
+.big{font-size:64px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+.lbl{font-size:26px;color:#5d6866;font-weight:600}
+.money{font-variant-numeric:tabular-nums;font-weight:700}
+.inc{color:#2E7D32}.exp{color:#C62828}
+.tx{display:flex;align-items:center;gap:20px;padding:16px 0;border-bottom:1px solid #edf0ef;font-size:27px}
+.tx .ic{width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;flex:none}
+.tx .t{flex:1}.tx .t small{display:block;color:#7c8785;font-size:22px;margin-top:3px}
+/* end card */
+#end{inset:0;background:linear-gradient(180deg,#00796B 0%,#004D40 100%);color:#fff;text-align:center}
+#end .name{font-size:130px;font-weight:800;letter-spacing:-3px}
+#end .ver{display:inline-block;margin-top:10px;background:#FFCA28;color:#2b2100;font-weight:800;font-size:44px;padding:10px 34px;border-radius:40px}
+#end .tag{font-size:54px;font-weight:700;line-height:1.2;margin:70px 90px 0;letter-spacing:-.5px}
+#end .sub{font-size:36px;opacity:.85;margin:40px 110px 0;line-height:1.35}
+#end .store{margin:90px auto 0;display:inline-block;border:3px solid rgba(255,255,255,.8);border-radius:60px;padding:24px 52px;font-size:38px;font-weight:700}
+#end .dev{position:absolute;left:0;right:0;bottom:90px;font-size:30px;opacity:.75}
+</style></head>
+<body>
+<div id="stage">
+  <div id="bg" class="abs"></div>
+
+  <!-- SCENE 1: person, papers, spreadsheet -->
+  <div id="s1" class="abs" style="inset:0">
+    <svg id="person" class="abs" style="left:190px;top:1080px" width="700" height="760" viewBox="0 0 700 760">
+      <!-- chair back -->
+      <rect x="210" y="210" width="280" height="330" rx="40" fill="#cfd8d6"/>
+      <!-- body -->
+      <path d="M200 520 Q200 330 350 320 Q500 330 500 520 Z" fill="#3949AB"/>
+      <rect x="320" y="270" width="60" height="70" rx="20" fill="#e0a37c"/>
+      <!-- head -->
+      <g id="head">
+        <circle cx="350" cy="210" r="100" fill="#f0b48c"/>
+        <path d="M250 200 Q250 95 350 95 Q455 95 452 205 Q430 150 380 140 Q320 170 255 170 Z" fill="#3b2a20"/>
+        <g id="eyes"><circle cx="312" cy="222" r="10" fill="#2a1d15"/><circle cx="388" cy="222" r="10" fill="#2a1d15"/></g>
+        <path id="brow" d="M292 192 L330 200 M408 192 L370 200" stroke="#3b2a20" stroke-width="8" stroke-linecap="round"/>
+        <path id="mouth" d="M325 268 Q350 255 375 268" stroke="#8a4b3a" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <path id="sweat" d="M455 150 Q470 180 458 192 Q440 196 442 178 Q445 165 455 150 Z" fill="#7cc6f2"/>
+      </g>
+      <!-- desk -->
+      <rect x="0" y="500" width="700" height="40" rx="10" fill="#8d6e55"/>
+      <rect x="40" y="540" width="40" height="220" fill="#7a5d47"/><rect x="620" y="540" width="40" height="220" fill="#7a5d47"/>
+      <!-- laptop (back side) -->
+      <path d="M230 500 L250 360 L450 360 L470 500 Z" fill="#9aa5a3"/>
+      <circle cx="350" cy="430" r="16" fill="#c9d1cf"/>
+      <!-- arms -->
+      <g id="armL"><path d="M215 420 Q190 470 250 500" stroke="#3949AB" stroke-width="44" fill="none" stroke-linecap="round"/><circle cx="258" cy="496" r="24" fill="#f0b48c"/></g>
+      <g id="armR"><path d="M485 420 Q510 470 450 500" stroke="#3949AB" stroke-width="44" fill="none" stroke-linecap="round"/><circle cx="442" cy="496" r="24" fill="#f0b48c"/></g>
+      <!-- coffee -->
+      <rect x="560" y="440" width="56" height="60" rx="10" fill="#fff"/><path d="M616 455 q24 4 0 30" stroke="#fff" stroke-width="10" fill="none"/>
+    </svg>
+    <svg id="bulb" class="abs" style="left:640px;top:1060px" width="120" height="150" viewBox="0 0 120 150">
+      <circle cx="60" cy="58" r="44" fill="#FFCA28"/><rect x="40" y="96" width="40" height="30" rx="6" fill="#9aa5a3"/>
+      <path d="M60 2 v-0 M8 20 l12 10 M112 20 l-12 10" stroke="#F9A825" stroke-width="7" stroke-linecap="round"/>
+    </svg>
+    <div id="papers"></div>
+    <div id="sheet" class="abs">
+      <div class="bar"><span class="dots"><i></i><i></i><i></i></span><span id="fname">mis-gastos.xlsx</span></div>
+      <table id="grid"></table>
+    </div>
+  </div>
+
+  <!-- flying file -->
+  <div id="file" class="abs" style="width:200px;height:240px">
+    <svg width="200" height="240" viewBox="0 0 200 240"><path d="M20 10 H140 L190 60 V230 H20 Z" fill="#fff" stroke="#3a7d44" stroke-width="8" stroke-linejoin="round"/><path d="M140 10 V60 H190" fill="#e6efe7" stroke="#3a7d44" stroke-width="8" stroke-linejoin="round"/>
+    <g fill="#3a7d44"><rect x="45" y="95" width="120" height="16" rx="4"/><rect x="45" y="128" width="120" height="16" rx="4" opacity=".6"/><rect x="45" y="161" width="120" height="16" rx="4" opacity=".6"/><rect x="45" y="194" width="80" height="16" rx="4" opacity=".6"/></g></svg>
+  </div>
+
+  <!-- SCENE 3/4: phone -->
+  <div id="phone" class="abs"><div id="screen">
+    <div id="notch" class="abs"></div>
+    <!-- import UI -->
+    <div id="imp" class="abs" style="inset:0">
+      <div class="appbar abs" id="impbar">Importar</div>
+      <div class="steps abs"><div><b id="st1"></b></div><div><b id="st2"></b></div><div><b id="st3"></b></div><div><b id="st4"></b></div></div>
+      <div class="stitle abs" id="stitle"></div>
+      <div id="p1" class="panel abs card">
+        <div style="display:flex;gap:24px;align-items:center">
+          <svg width="80" height="96" viewBox="0 0 200 240"><path d="M20 10 H140 L190 60 V230 H20 Z" fill="#fff" stroke="#3a7d44" stroke-width="12"/><g fill="#3a7d44"><rect x="45" y="95" width="120" height="18" rx="4"/><rect x="45" y="135" width="120" height="18" rx="4" opacity=".6"/><rect x="45" y="175" width="120" height="18" rx="4" opacity=".6"/></g></svg>
+          <div><div style="font-size:32px;font-weight:700" id="p1name">mis-gastos.xlsx</div><div class="lbl" id="p1rows" style="margin-top:6px"></div></div>
+        </div>
+      </div>
+      <div id="p2" class="panel abs card"></div>
+      <div id="p3" class="panel abs card"></div>
+      <div id="p4" class="panel abs card"></div>
+      <div id="impbtn" class="btn abs" style="top:960px"></div>
+      <div id="tap" class="tap abs"></div>
+      <div id="prog" class="prog abs" style="top:1110px"><b id="progb"></b></div>
+      <div id="done" class="abs" style="left:0;right:0;top:820px;text-align:center"></div>
+    </div>
+    <!-- dashboard -->
+    <div id="dash" class="abs" style="inset:0">
+      <div class="appbar abs" id="dashbar"></div>
+      <div class="abs card" style="left:30px;right:30px;top:200px" id="balcard">
+        <div class="lbl" id="ballbl"></div>
+        <div class="big" id="bal" style="margin-top:6px"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:22px;font-size:27px">
+          <div><div class="lbl" id="inclbl"></div><div class="money inc" id="inc"></div></div>
+          <div style="text-align:right"><div class="lbl" id="explbl"></div><div class="money exp" id="exp"></div></div>
+        </div>
+      </div>
+      <div class="abs card" style="left:30px;right:30px;top:520px;height:360px" id="donutcard">
+        <div class="lbl" id="donutlbl"></div>
+        <svg id="donut" class="abs" style="left:24px;top:76px" width="260" height="260" viewBox="0 0 260 260"></svg>
+        <div id="legend" class="abs" style="left:300px;top:90px;right:14px"></div>
+      </div>
+      <div class="abs card" style="left:30px;right:30px;top:906px;padding-top:12px;padding-bottom:4px" id="txcard"></div>
+    </div>
+  </div></div>
+
+  <!-- END card -->
+  <div id="end" class="abs">
+    <div style="margin-top:380px"><svg id="logo" width="300" height="300" viewBox="0 0 456 456" style="border-radius:68px;box-shadow:0 30px 70px rgba(0,0,0,.35)"></svg></div>
+    <div class="name">piRadar</div>
+    <div class="ver" id="ever"></div>
+    <div class="tag" id="etag"></div>
+    <div class="sub" id="esub"></div>
+    <div class="store" id="estore"></div>
+    <div class="dev">Belvicto · belvicto.com</div>
+  </div>
+
+  <div id="cap" class="cap abs"></div>
+</div>
+
+<script>
+const EN = new URLSearchParams(location.search).get('lang') === 'en';
+const P = (es, en) => EN ? en : es;
+const $ = id => document.getElementById(id);
+const clamp = (x, a=0, b=1) => Math.min(b, Math.max(a, x));
+const easeOut = x => 1 - Math.pow(1 - x, 3);
+const easeIO = x => x < .5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
+const back = x => { const c=1.70158, c3=c+1; return 1 + c3*Math.pow(x-1,3) + c*Math.pow(x-1,2); };
+const seg = (t, a, b, e=easeOut) => e(clamp((t - a) / (b - a)));
+const lerp = (a, b, p) => a + (b - a) * p;
+const usd = n => '$' + (n/1000).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt = n => EN ? usd(n) : '$ ' + Math.round(n).toLocaleString('es-CO').replace(/,/g, '.');
+const fmtShort = n => EN ? usd(n) : '$ ' + Math.round(n).toLocaleString('es-CO').replace(/,/g, '.');
+const show = (el, o, tr='') => { el.style.opacity = o; el.style.transform = tr; el.style.visibility = o <= 0.001 ? 'hidden' : 'visible'; };
+
+// ---- static content ----
+const rows = EN ? [
+  ['11/01','Supermarket','Groceries','182.40'],['11/02','Bus pass','Transport','50.00'],
+  ['11/03','Pharmacy','Health','64.90'],['11/05','Salary','Income','6,200.00'],
+  ['11/06','Lunch','Restaurants','38.50'],['11/08','Electric bill','Home','214.70'],
+  ['11/09','Gas station','Transport','120.00'],['11/10','Bakery','Groceries','17.80'],
+] : [
+  ['01/11','Supermercado','Mercado','182.400'],['02/11','Recarga bus','Transporte','50.000'],
+  ['03/11','Droguería','Salud','64.900'],['05/11','Salario','Ingreso','6.200.000'],
+  ['06/11','Almuerzo','Restaurantes','38.500'],['08/11','Recibo de luz','Hogar','214.700'],
+  ['09/11','Gasolina','Transporte','120.000'],['10/11','Panadería','Mercado','17.800'],
+];
+const heads = P(['Fecha','Descripción','Categoría','Valor'], ['Date','Description','Category','Amount']);
+$('grid').innerHTML = `<tr><th class="n"></th><th>A · ${heads[0]}</th><th>B · ${heads[1]}</th><th>C · ${heads[2]}</th><th>D · ${heads[3]}</th></tr>` +
+  rows.map((r,i)=>`<tr><td class="n">${i+2}</td>${r.map((c,j)=>`<td id="c${i}_${j}" class="${j==3?'v':''}"></td>`).join('')}</tr>`).join('');
+
+// papers
+const papers = [];
+for (let i = 0; i < 16; i++) {
+  const d = document.createElement('div'); d.className = 'paper abs';
+  d.innerHTML = '<i></i><i class="s"></i><i></i><i class="s"></i><i></i><i class="t"></i>';
+  $('papers').appendChild(d);
+  const rnd = k => { const x = Math.sin(i*97.13 + k*13.7) * 43758.5453; return x - Math.floor(x); };
+  papers.push({ el:d, sx: rnd(1) < .5 ? -260 : 1180, sy: 200 + rnd(2)*1300,
+    ex: i < 9 ? 60 + rnd(3)*860 : (rnd(3) < .5 ? 20 + rnd(9)*220 : 760 + rnd(9)*200), ey: i < 9 ? 1500 + rnd(4)*120 : 1100 + rnd(5)*650,
+    r0: rnd(6)*720-360, r1: rnd(7)*50-25, t0: 0.2 + i*0.32, sc: .8 + rnd(8)*.4 });
+}
+
+// import panels
+$('p2').innerHTML = [[heads[0],P('Fecha','Date')],[heads[1],P('Descripción','Description')],[heads[2],P('Categoría','Category')],[heads[3],P('Monto','Amount')]]
+  .map((m,i)=>`<div class="row" id="m${i}"><span>${m[0]}<span class="arrow">→</span><b>${m[1]}</b></span><span class="ok">✓</span></div>`).join('');
+const cats = EN ? ['Groceries','Transport','Restaurants','Home','Health'] : ['Mercado','Transporte','Restaurantes','Hogar','Salud'];
+$('p3').innerHTML = `<div class="lbl" style="margin-bottom:22px">${P('Categorías encontradas','Categories found')}</div>` +
+  cats.map((c,i)=>`<span class="chip" id="k${i}">✓ ${c}</span>`).join('') +
+  `<span class="chip new" id="k5">+ ${P('Mascotas (nueva)','Pets (new)')}</span>`;
+$('p4').innerHTML = `<div class="row"><span>${P('Movimientos','Transactions')}</span><b id="pv1">248</b></div>
+  <div class="row"><span>${P('Duplicados excluidos','Duplicates excluded')}</span><b style="color:#8a5a00">3</b></div>
+  <div class="row"><span>${P('Desde','From')}</span><b>${P('01/01/2026','01/01/2026')}</b></div>
+  <div class="row"><span>${P('Hasta','To')}</span><b>${P('25/11/2026','11/25/2026')}</b></div>`;
+$('impbtn').textContent = P('Importar 248 movimientos', 'Import 248 transactions');
+$('done').innerHTML = `<div style="width:150px;height:150px;border-radius:50%;background:#2E7D32;color:#fff;font-size:90px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto" id="donecheck">✓</div>
+  <div style="font-size:40px;font-weight:800;margin-top:30px">${P('¡Listo!','Done!')}</div>
+  <div class="lbl" style="font-size:30px;margin-top:10px">${P('248 movimientos importados','248 transactions imported')}</div>`;
+$('fname').textContent = $('p1name').textContent = P('mis-gastos.xlsx','my-expenses.xlsx');
+$('impbar').textContent = P('Importar','Import');
+$('p1rows').textContent = P('Hoja 1 · 251 filas', 'Sheet 1 · 251 rows');
+
+// dashboard
+$('dashbar').textContent = P('Inicio', 'Home');
+$('ballbl').textContent = P('Balance de noviembre', 'November balance');
+$('inclbl').textContent = P('Ingresos', 'Income'); $('explbl').textContent = P('Gastos', 'Expenses');
+$('donutlbl').textContent = P('En qué gastas', 'Where your money goes');
+const slices = [[P('Mercado','Groceries'),.32,'#00695C'],[P('Hogar','Home'),.24,'#F9A825'],[P('Transporte','Transport'),.18,'#3949AB'],[P('Restaurantes','Restaurants'),.14,'#C62828'],[P('Otras','Other'),.12,'#9aa5a3']];
+const C = 2*Math.PI*95;
+$('donut').innerHTML = `<circle cx="130" cy="130" r="95" fill="none" stroke="#edf0ef" stroke-width="42"/>` +
+  slices.map((s,i)=>`<circle id="sl${i}" cx="130" cy="130" r="95" fill="none" stroke="${s[2]}" stroke-width="42" transform="rotate(-90 130 130)"/>`).join('');
+$('legend').innerHTML = slices.map((s,i)=>`<div id="lg${i}" style="display:flex;align-items:center;gap:14px;font-size:24px;margin-bottom:12px;white-space:nowrap"><i style="width:22px;height:22px;border-radius:6px;background:${s[2]};display:block;flex:none"></i><span style="flex:1">${s[0]}</span><b>${Math.round(s[1]*100)} %</b></div>`).join('');
+const txs = [['🛒','#00695C',P('Supermercado','Supermarket'),P('Mercado · Hoy','Groceries · Today'),-182400],
+  ['💼','#2E7D32',P('Salario','Salary'),P('Ingreso · 25 nov','Income · Nov 25'),6200000],
+  ['🚌','#3949AB',P('Recarga bus','Bus card top-up'),P('Transporte · 24 nov','Transport · Nov 24'),-50000],
+  ['💡','#F9A825',P('Recibo de luz','Electricity bill'),P('Hogar · 23 nov','Home · Nov 23'),-214700]];
+$('txcard').innerHTML = `<div class="lbl" style="padding:12px 0 4px">${P('Últimos movimientos','Recent transactions')}</div>` +
+  txs.map((x,i)=>`<div class="tx" id="tx${i}"><div class="ic" style="background:${x[1]}">${x[0]}</div><div class="t">${x[2]}<small>${x[3]}</small></div><div class="money ${x[4]>0?'inc':'exp'}">${x[4]>0?'+':'−'}${fmtShort(Math.abs(x[4]))}</div></div>`).join('');
+
+// end card
+$('logo').innerHTML = `<defs><linearGradient id="bgg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00897B"/><stop offset="1" stop-color="#00594C"/></linearGradient>
+<linearGradient id="sw" x1="228" y1="228" x2="300" y2="110" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#FFCA28" stop-opacity="0.05"/><stop offset="1" stop-color="#FFCA28" stop-opacity="0.55"/></linearGradient></defs>
+<rect width="456" height="456" fill="url(#bgg)"/><g id="sweepg"><path d="M228 228 L228 88 A140 140 0 0 1 349.24 158 Z" fill="url(#sw)"/><line x1="228" y1="228" x2="349.24" y2="158" stroke="#fff" stroke-width="10" stroke-linecap="round"/></g>
+<circle cx="228" cy="228" r="140" fill="none" stroke="#fff" stroke-width="12"/><circle cx="228" cy="228" r="93" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="9"/><circle cx="228" cy="228" r="46" fill="none" stroke="#fff" stroke-opacity="0.4" stroke-width="7"/>
+<circle id="blip" cx="288" cy="142" r="17" fill="#FFCA28"/><circle cx="228" cy="228" r="12" fill="#fff"/>`;
+$('ever').textContent = P('Nueva versión 1.5', 'New in version 1.5');
+$('etag').textContent = P('Importa tu hoja de cálculo y mira tu balance al instante', 'Import your spreadsheet and see your balance instantly');
+$('esub').textContent = P('Hoja de cálculo o CSV · Sin duplicados · Todo en tu teléfono, sin nube', 'Spreadsheet or CSV · No duplicates · Everything stays on your phone, no cloud');
+$('estore').textContent = P('Descárgala en tu tienda de apps', 'Get it on your app store');
+
+const caps = [
+  [0.0, 3.2, P('¿Recibos <em>por todas partes</em>…', 'Receipts <em>everywhere</em>…')],
+  [3.2, 7.4, P('…y horas digitando en una <span class="hl">hoja de cálculo</span>?', '…and hours typing into a <span class="hl">spreadsheet</span>?')],
+  [7.4, 10.4, P('Súbela a <em>piRadar</em>', 'Bring it to <em>piRadar</em>')],
+  [10.4, 12.4, P('Detecta tus <em>columnas</em> solo', 'It finds your <em>columns</em>')],
+  [12.4, 14.0, P('Reconoce tus <em>categorías</em>', 'It matches your <em>categories</em>')],
+  [14.0, 16.8, P('Sin <em>duplicados</em>', 'No <em>duplicates</em>')],
+  [16.8, 22.4, P('Tu <span class="hl">balance</span>, al instante', 'Your <span class="hl">balance</span>, instantly')],
+];
+
+window.DURATION = 26;
+window.seek = function (t) {
+  // caption
+  let ci = caps.findIndex(c => t >= c[0] && t < c[1]);
+  const cap = $('cap');
+  if (ci >= 0) {
+    const [a, b, txt] = caps[ci];
+    if (cap.dataset.i != ci) { cap.innerHTML = txt; cap.dataset.i = ci; }
+    const o = Math.min(seg(t, a, a + .35), 1 - seg(t, b - .25, b, x=>x));
+    show(cap, o, `translateY(${(1 - seg(t, a, a + .45)) * 40}px)`);
+  } else show(cap, 0);
+
+  // ---- scene 1 ----
+  const s1out = seg(t, 7.6, 8.6, easeIO);
+  show($('s1'), 1 - s1out, `translateY(${s1out * 200}px)`);
+  papers.forEach(p => {
+    const k = seg(t, p.t0, p.t0 + .9);
+    const fly = seg(t, 7.0, 8.0, easeIO); // papers swept away
+    const x = lerp(p.sx, p.ex, k) + fly * (p.ex < 540 ? -900 : 900);
+    const y = lerp(p.sy, p.ey, k) - Math.sin(k*Math.PI) * 120 - fly * 200;
+    show(p.el, t < p.t0 ? 0 : 1, `translate(${x}px,${y}px) rotate(${lerp(p.r0, p.r1, k) + fly*180}deg) scale(${p.sc})`);
+  });
+  // typing
+  const typeStart = 2.4, cps = 44; let chars = Math.max(0, (t - typeStart) * cps);
+  let cur = null;
+  rows.forEach((r, i) => r.forEach((c, j) => {
+    const el = $(`c${i}_${j}`); const n = Math.min(c.length, Math.floor(chars));
+    chars -= c.length + 2;
+    const txt = n > 0 ? c.slice(0, n) : '';
+    const typing = n > 0 && n < c.length + 2 && (chars < 0) && !cur;
+    if (typing) cur = el;
+    el.innerHTML = txt + (typing && Math.floor(t * 4) % 2 === 0 ? '<span class="caret"></span>' : '');
+    el.classList.toggle('cur', typing);
+  }));
+  const sheetIn = seg(t, 1.6, 2.3, back);
+  const shrink = seg(t, 7.4, 8.2, easeIO);
+  show($('sheet'), sheetIn * (1 - shrink), `scale(${(0.6 + .4 * sheetIn) * (1 - .75 * shrink)}) translateY(${shrink*-200}px)`);
+  // person
+  const typingNow = t > 2.4 && t < 7.2;
+  $('armL').style.transform = typingNow ? `translateY(${Math.sin(t*28)*7}px)` : '';
+  $('armR').style.transform = typingNow ? `translateY(${Math.sin(t*28+2)*7}px)` : '';
+  const idea = seg(t, 7.0, 7.4, back);
+  $('sweat').style.opacity = t > 3.5 && t < 7 ? 1 : 0;
+  $('sweat').style.transform = `translateY(${((t*40)%40)}px)`;
+  $('head').style.transform = t < 7 ? `rotate(${Math.sin(t*2.2)*3}deg)` : '';
+  $('head').style.transformOrigin = '350px 300px';
+  $('mouth').setAttribute('d', t > 7 ? 'M318 258 Q350 292 382 258' : 'M325 268 Q350 255 375 268');
+  $('brow').setAttribute('d', t > 7 ? 'M292 186 L330 182 M408 186 L370 182' : 'M292 192 L330 200 M408 192 L370 200');
+  show($('bulb'), idea, `scale(${idea})`);
+  $('bulb').style.transformOrigin = '60px 120px';
+
+  // ---- file flight ----
+  const fp = seg(t, 8.0, 9.6, easeIO);
+  const fx = lerp(440, 440, fp), fy = lerp(640, 830, fp) - Math.sin(fp*Math.PI)*260;
+  show($('file'), t < 8.0 ? 0 : (t > 9.6 ? 0 : 1), `translate(${fx}px,${fy}px) rotate(${Math.sin(fp*Math.PI)*-12}deg) scale(${1 - .45*fp})`);
+
+  // ---- phone ----
+  const ph = seg(t, 8.3, 9.2, back), phOut = seg(t, 22.2, 22.9, easeIO);
+  show($('phone'), clamp(ph*2) * (1 - phOut), `translateY(${(1 - ph) * 900 + phOut * 300}px)`);
+
+  // import steps
+  const step = t < 10.4 ? 1 : t < 12.4 ? 2 : t < 14.0 ? 3 : 4;
+  ['st1','st2','st3','st4'].forEach((s, i) => $(s).style.width = (i + 1 < step ? 100 : i + 1 === step ? 100 * seg(t, [9.4,10.4,12.4,14.0][i], [9.4,10.4,12.4,14.0][i] + .5) : 0) + '%');
+  $('stitle').textContent = [P('1 · Archivo','1 · File'),P('2 · Columnas','2 · Columns'),P('3 · Categorías y medios de pago','3 · Categories and payment methods'),P('4 · Vista previa','4 · Preview')][step-1];
+  const panelAnim = (id, a, b) => { const i = seg(t, a, a + .4), o = seg(t, b - .2, b); show($(id), i * (1 - o), `translateX(${(1-i)*120 - o*120}px)`); };
+  panelAnim('p1', 9.4, 10.4); panelAnim('p2', 10.4, 12.4); panelAnim('p3', 12.4, 14.0); panelAnim('p4', 14.0, 16.0);
+  for (let i = 0; i < 4; i++) { const k = seg(t, 10.7 + i*.3, 11.0 + i*.3, back); show($('m'+i), clamp(k), `scale(${.9 + .1*k})`); }
+  for (let i = 0; i < 6; i++) { const k = seg(t, 12.7 + i*.18, 13.0 + i*.18, back); show($('k'+i), clamp(k), `scale(${k})`); }
+  const btnIn = seg(t, 14.4, 14.8), btnOut = seg(t, 15.5, 15.7);
+  show($('impbtn'), btnIn * (1 - btnOut), `scale(${1 - .05*seg(t, 15.1, 15.25) + .05*seg(t, 15.25, 15.4)})`);
+  const tp = seg(t, 14.7, 15.1);
+  show($('tap'), t > 14.7 && t < 15.6 ? (1 - seg(t, 15.2, 15.6)) : 0, `translate(${lerp(560, 300, tp)}px,${lerp(1200, 952, tp)}px) scale(${t > 15.15 ? 1 + seg(t,15.15,15.6)*.8 : 1})`);
+  const pr = seg(t, 15.5, 16.4, easeIO);
+  show($('prog'), t > 15.5 && t < 16.6 ? 1 : 0); $('progb').style.width = pr * 100 + '%';
+  const dn = seg(t, 16.4, 16.8, back), dnOut = seg(t, 17.2, 17.5);
+  show($('done'), clamp(dn) * (1 - dnOut), `scale(${.6 + .4*dn})`);
+  show($('imp'), 1 - seg(t, 17.3, 17.6));
+
+  // dashboard
+  const d0 = 17.4;
+  show($('dash'), seg(t, d0, d0 + .3));
+  const cnt = seg(t, d0 + .3, d0 + 2.0, easeOut);
+  $('bal').textContent = fmt(3482150 * cnt);
+  $('inc').textContent = fmtShort(6200000 * cnt); $('exp').textContent = fmtShort(2717850 * cnt);
+  const bc = seg(t, d0 + .1, d0 + .5, back); show($('balcard'), clamp(bc), `scale(${.9 + .1*bc})`);
+  show($('donutcard'), seg(t, d0 + .5, d0 + .9), `translateY(${(1 - seg(t, d0+.5, d0+.9))*60}px)`);
+  let acc = 0;
+  slices.forEach((s, i) => {
+    const g = seg(t, d0 + .8, d0 + 2.4, easeIO);
+    const len = Math.max(0, Math.min(s[1], g - acc));
+    const el = $('sl'+i);
+    el.setAttribute('stroke-dasharray', `${Math.max(0, len*C - (len>0?3:0))} ${C}`);
+    el.setAttribute('stroke-dashoffset', `${-acc*C}`);
+    acc += s[1];
+    show($('lg'+i), seg(t, d0 + 1 + i*.15, d0 + 1.3 + i*.15), `translateX(${(1 - seg(t, d0+1+i*.15, d0+1.3+i*.15))*40}px)`);
+  });
+  show($('txcard'), seg(t, d0 + 1.4, d0 + 1.8), `translateY(${(1 - seg(t, d0+1.4, d0+1.8))*60}px)`);
+  for (let i = 0; i < 4; i++) show($('tx'+i), seg(t, d0 + 1.7 + i*.2, d0 + 2 + i*.2), `translateX(${(1 - seg(t, d0+1.7+i*.2, d0+2+i*.2))*60}px)`);
+
+  // end card
+  const e = seg(t, 22.4, 23.0, easeIO);
+  show($('end'), e, `translateY(${(1 - e) * 100}px)`);
+  const lg = seg(t, 22.8, 23.4, back);
+  $('logo').style.transform = `scale(${lg})`;
+  $('sweepg').setAttribute('transform', `rotate(${(t - 22.4) * 90} 228 228)`);
+  $('blip').setAttribute('r', 17 + Math.sin(t*6)*4);
+  [['ever',23.2],['etag',23.5],['esub',23.9],['estore',24.3]].forEach(([id, a]) => { const k = seg(t, a, a + .45); show($(id), k, `translateY(${(1-k)*40}px)`); });
+  // fade to/from black at very end for loop smoothness
+  document.getElementById('stage').style.opacity = 1;
+};
+seek(0);
+</script>
+</body></html>
