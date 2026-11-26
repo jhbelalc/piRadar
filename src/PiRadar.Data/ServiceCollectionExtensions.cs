@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICategoryRepository, CategoryRepository>();
         services.AddSingleton<IPaymentMethodRepository, PaymentMethodRepository>();
         services.AddSingleton<ITransactionRepository, TransactionRepository>();
+        services.AddSingleton<ITransactionImporter, TransactionImporter>();
         services.AddSingleton<IReceiptRepository, ReceiptRepository>();
         services.AddSingleton<IExchangeRateRepository, ExchangeRateRepository>();
         services.AddSingleton<ISettingsRepository, SettingsRepository>();

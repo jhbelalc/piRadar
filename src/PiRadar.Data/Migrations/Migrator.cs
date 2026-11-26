@@ -5,7 +5,7 @@ namespace PiRadar.Data.Migrations;
 internal static class Migrator
 {
     /// <summary>Todas las migraciones en orden. Agregar las nuevas al final.</summary>
-    public static readonly IReadOnlyList<IMigration> All = [new Migration001_Initial()];
+    public static readonly IReadOnlyList<IMigration> All = [new Migration001_Initial(), new Migration002_ImportBatch()];
 
     public static int LatestVersion => All[^1].Version;
 

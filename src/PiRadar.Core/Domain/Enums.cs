@@ -12,6 +12,7 @@ public enum TransactionSource
 {
     Manual = 1,
     Ocr = 2,
+    Import = 3,
 }
 
 public enum PaymentMethodKind

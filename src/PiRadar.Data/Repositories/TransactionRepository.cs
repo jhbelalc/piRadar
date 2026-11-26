@@ -160,6 +160,8 @@ internal sealed class TransactionRepository(DatabaseHost host, IClock clock)
         var record = transaction.ToRecord();
         record.Source = stored.Source;
         record.ReceiptId = stored.ReceiptId;
+        // El lote de importación no viene del dominio: editar un movimiento importado no lo saca de su lote.
+        record.ImportBatchId = stored.ImportBatchId;
         record.CreatedAt = stored.CreatedAt;
         record.UpdatedAt = clock.UtcNow;
         Validate(db, record, stored);

@@ -50,6 +50,7 @@ internal sealed class TransactionRecord
     public string? Notes { get; set; }
     public Guid? ReceiptId { get; set; }
     public TransactionSource Source { get; set; }
+    public Guid? ImportBatchId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
@@ -92,4 +93,13 @@ internal sealed class AppSettingRecord
 {
     [PrimaryKey] public string Key { get; set; } = string.Empty;
     public string Value { get; set; } = string.Empty;
+}
+
+[Table("ImportBatch")]
+internal sealed class ImportBatchRecord
+{
+    [PrimaryKey] public Guid Id { get; set; }
+    public DateTime ImportedAt { get; set; }
+    public string? FileName { get; set; }
+    public int RowCount { get; set; }
 }

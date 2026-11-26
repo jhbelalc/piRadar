@@ -39,4 +39,19 @@ public static class ImportCategoryMatcher
         return existing.FirstOrDefault(c => !c.IsArchived && c.ParentId == parentId && c.Kind == type
             && ImportText.Key(c.Name) == key)?.Id;
     }
+
+    /// <summary>
+    /// Categoría para filas sin categoría: la principal "Otros gastos"/"Otros ingresos" (o "Other expenses"/"Other income");
+    /// si no existe, la última principal del tipo por orden; null si no hay ninguna.
+    /// </summary>
+    public static int? SuggestFallback(IEnumerable<Category> categories, TransactionType type)
+    {
+        var candidates = categories.Where(c => !c.IsArchived && c.ParentId is null && c.Kind == type).ToList();
+        var keys = type == TransactionType.Expense
+            ? new[] { "OTROS GASTOS", "OTHER EXPENSES" }
+            : new[] { "OTROS INGRESOS", "OTHER INCOME" };
+        var named = candidates.FirstOrDefault(c => keys.Contains(ImportText.Key(c.Name)));
+        if (named is not null) return named.Id;
+        return candidates.OrderBy(c => c.SortOrder).ThenBy(c => c.Id).LastOrDefault()?.Id;
+    }
 }

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="PiRadar.Core.Tests" />
+    <InternalsVisibleTo Include="PiRadar.Data" />
   </ItemGroup>
 
 </Project>
