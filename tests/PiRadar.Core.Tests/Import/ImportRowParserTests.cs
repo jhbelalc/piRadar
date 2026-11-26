@@ -282,4 +282,17 @@ public class ImportDashAndHeaderTests
         var b = ImportColumnGuesser.Guess(Sheet(["Fecha", "Tipo", "Tipo de gasto", "Valor"], [D, "Gasto", "x", 5]), 0);
         Assert.Equal([F.Date, F.Type, F.Category, F.Amount], b.Columns);
     }
+
+    [Fact]
+    public void Text_fields_drop_the_formula_guard_apostrophe()
+    {
+        var m = Map(0, F.Date, F.Amount, F.Description, F.Notes, F.Merchant);
+        var sheet = Sheet(
+            ["Fecha", "Monto", "Descripción", "Notas", "Comercio"],
+            [new DateTime(2026, 8, 3), 100m, "'=SUMA(A1)", "'\tx", "'ok"]);
+        var row = Assert.Single(ImportRowParser.Parse(sheet, new ImportOptions(m, DateOrder.DayFirst, Currency.COP)).Rows);
+        Assert.Equal("=SUMA(A1)", row.Description);
+        Assert.Equal("x", row.Notes);
+        Assert.Equal("'ok", row.Merchant);
+    }
 }

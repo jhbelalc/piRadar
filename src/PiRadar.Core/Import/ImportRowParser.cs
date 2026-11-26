@@ -203,7 +203,7 @@ public static partial class ImportRowParser
             try { money = Money.FromDecimal(scaled, currency); }
             catch (OverflowException) { Fail("el monto es demasiado grande.", "the amount is too large."); continue; }
 
-            string? Text(ImportField f) => map.ColumnOf(f) is { } c ? ImportText.CleanCell(row[c]) : null;
+            string? Text(ImportField f) => map.ColumnOf(f) is { } c ? ImportText.Clean(DropFormulaGuard(row[c].ToDisplayString())) : null;
             var category = Text(ImportField.Category);
             var sub = Text(ImportField.Subcategory);
             var payment = Text(ImportField.PaymentMethod);
@@ -235,6 +235,10 @@ public static partial class ImportRowParser
             PaymentMethods = DistinctPaymentMethods(rows),
         };
     }
+
+    /// <summary>Quita el <c>'</c> que el exportador antepone a textos que empiezan con <c>= + - @</c>, tabulador o CR.</summary>
+    private static string? DropFormulaGuard(string? text) =>
+        text is { Length: >= 2 } && text[0] == '\'' && text[1] is '=' or '+' or '-' or '@' or '\t' or '\r' ? text[1..] : text;
 
     // ---- Resúmenes ----
 
