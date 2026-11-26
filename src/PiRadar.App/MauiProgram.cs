@@ -36,6 +36,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<AnalyticsViewState>();
 		builder.Services.AddSingleton<ScanState>();
 		builder.Services.AddScoped<LinkOpener>();
+		builder.Services.AddScoped<CsvExportService>();
 
 		builder.Services.AddSingleton<IClock, SystemClock>();
 		builder.Services.AddSingleton(SecureStorage.Default);

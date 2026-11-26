@@ -1,0 +1,72 @@
+/* Textos largos (un Excel puede traer nombres enormes): una línea con puntos suspensivos, sin romper el diseño. */
+.import-ellipsis {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.import-wrap {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.import-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.import-row-text {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.import-select {
+    flex: 0 0 auto;
+    width: 100%;
+}
+
+.import-column {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.import-nav {
+    display: flex;
+    gap: 12px;
+}
+
+.import-nav > * {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.import-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.import-list li {
+    overflow-wrap: anywhere;
+}
+
+/* Tablet: el selector se pone al lado del nombre. */
+@media (min-width: 600px) {
+    .import-column {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .import-column .import-row-text {
+        flex: 1 1 0;
+    }
+
+    .import-select {
+        width: 280px;
+    }
+}

@@ -155,6 +155,10 @@
                 {
                     <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Registrado desde un recibo.", "Added from a receipt.")</MudText>
                 }
+                else if (_source == TransactionSource.Import)
+                {
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Importado.", "Imported.")</MudText>
+                }
 
                 <MudButton id="save-transaction" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
                            FullWidth="true" OnClick="SaveAsync" Disabled="_busy">@Pick("Guardar", "Save")</MudButton>

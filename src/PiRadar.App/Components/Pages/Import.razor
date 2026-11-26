@@ -1,0 +1,1095 @@
+@page "/import"
+@using Microsoft.Extensions.Logging
+@using PiRadar.Core.Analytics
+@using PiRadar.Core.Import
+@inject ISettingsRepository Settings
+@inject ICategoryRepository CategoryRepository
+@inject IPaymentMethodRepository PaymentMethodRepository
+@inject ITransactionRepository TransactionRepository
+@inject ITransactionImporter Importer
+@inject TransactionsViewState TransactionsState
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@inject ILogger<Import> Logger
+
+<PageBar Title="@Pick("Importar movimientos", "Import transactions")" BackHref="backup" />
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="page-content">
+    <MudStack Spacing="3">
+        @if (_step <= 4)
+        {
+            <div>
+                <MudText Typo="Typo.overline" Class="mud-text-secondary" id="import-step-label">
+                    @Pick($"Paso {_step} de 4", $"Step {_step} of 4") · @StepTitle()
+                </MudText>
+                <MudProgressLinear Color="Color.Primary" Value="@(_step * 25)" Max="100" Rounded="true" />
+            </div>
+        }
+
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" id="import-error"><span class="import-wrap">@_error</span></MudAlert>
+        }
+
+        @if (_busy)
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" id="import-busy" />
+        }
+
+        @switch (_step)
+        {
+            case 1:
+                @Step1()
+                break;
+            case 2:
+                @Step2()
+                break;
+            case 3:
+                @Step3()
+                break;
+            case 4:
+                @Step4()
+                break;
+            default:
+                @Step5()
+                break;
+        }
+
+        @if (_step <= 4)
+        {
+            <div class="import-nav">
+                @if (_step > 1)
+                {
+                    <MudButton id="import-back" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" Disabled="_busy"
+                               StartIcon="@Icons.Material.Rounded.ArrowBack" OnClick="BackAsync">@Pick("Atrás", "Back")</MudButton>
+                }
+                @if (_step < 4)
+                {
+                    <MudButton id="import-next" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Disabled="@(_busy || !CanGoNext())"
+                               EndIcon="@Icons.Material.Rounded.ArrowForward" OnClick="NextAsync">@Pick("Siguiente", "Next")</MudButton>
+                }
+                else
+                {
+                    <MudButton id="import-run" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Disabled="@(_busy || _included.Count == 0)"
+                               OnClick="RunImportAsync">
+                        @(_included.Count == 1
+                            ? Pick("Importar 1 movimiento", "Import 1 transaction")
+                            : Pick($"Importar {_included.Count} movimientos", $"Import {_included.Count} transactions"))
+                    </MudButton>
+                }
+            </div>
+        }
+    </MudStack>
+</MudContainer>
+
+@code {
+    // ---- Paso 1: archivo ----
+
+    private RenderFragment Step1() => __builder =>
+    {
+        <div id="import-step-1">
+            <MudStack Spacing="3">
+                <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+                    <MudStack Spacing="2">
+                        <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                            @Pick("Elige un archivo de Excel (.xlsx) o CSV con tus movimientos. Si tu archivo es un .xls antiguo, guárdalo primero como .xlsx. El archivo se lee en tu teléfono y no se guarda.",
+                                  "Choose an Excel (.xlsx) or CSV file with your transactions. If your file is an old .xls, save it as .xlsx first. The file is read on your phone and is not kept.")
+                        </MudText>
+                        <MudButton id="import-choose" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                                   StartIcon="@Icons.Material.Rounded.UploadFile" OnClick="PickFileAsync" Disabled="_busy">
+                            @Pick("Elegir archivo", "Choose file")
+                        </MudButton>
+                        @if (BuildInfo.IsDebug && DebugFilePath() is not null)
+                        {
+                            <MudButton id="debug-import" Variant="Variant.Text" FullWidth="true" OnClick="LoadDebugFileAsync" Disabled="_busy">
+                                @Pick("Archivo de prueba (Debug)", "Test file (Debug)")
+                            </MudButton>
+                        }
+                    </MudStack>
+                </MudPaper>
+
+                @if (_sheet is not null)
+                {
+                    <MudPaper Class="pa-4" Elevation="0" Outlined="true" id="import-file-info">
+                        <MudStack Spacing="2">
+                            <div class="d-flex align-center gap-3" style="min-width: 0">
+                                <MudIcon Icon="@Icons.Material.Rounded.Description" Color="Color.Primary" />
+                                <div class="import-row-text">
+                                    <span class="import-ellipsis mud-typography mud-typography-subtitle2">@_fileName</span>
+                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                        @(_sheet.Rows.Count == 1
+                                            ? Pick("1 fila", "1 row")
+                                            : Pick($"{_sheet.Rows.Count:N0} filas", $"{_sheet.Rows.Count:N0} rows"))
+                                        · @(_sheet.ColumnCount == 1
+                                            ? Pick("1 columna", "1 column")
+                                            : Pick($"{_sheet.ColumnCount} columnas", $"{_sheet.ColumnCount} columns"))
+                                    </MudText>
+                                </div>
+                            </div>
+                            @if (_sheetNames.Count > 1)
+                            {
+                                <MudSelect T="string" Value="_sheetName" ValueChanged="SelectSheetAsync" Label="@Pick("Hoja", "Sheet")" id="import-sheet"
+                                           Variant="Variant.Outlined" Margin="Margin.Dense" Disabled="_busy">
+                                    @foreach (var name in _sheetNames)
+                                    {
+                                        <MudSelectItem T="string" Value="name">@name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            }
+                        </MudStack>
+                    </MudPaper>
+                }
+            </MudStack>
+        </div>
+    };
+
+    // ---- Paso 2: columnas ----
+
+    private RenderFragment Step2() => __builder =>
+    {
+        <div id="import-step-2">
+            <MudStack Spacing="3">
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                    @Pick("Dile a piRadar qué es cada columna. Se necesita al menos la fecha y el monto (o ingreso y gasto en columnas separadas).",
+                          "Tell piRadar what each column is. At minimum it needs the date and the amount (or income and expense in separate columns).")
+                </MudText>
+
+                @for (var i = 0; i < _sheet!.ColumnCount; i++)
+                {
+                    var column = i;
+                    var samples = ImportWizard.Samples(_sheet, column, _mapping!.HeaderRow);
+                    <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                        <div class="import-column">
+                            <div class="import-row-text">
+                                <span class="import-ellipsis mud-typography mud-typography-subtitle2">
+                                    @(ImportWizard.Header(_sheet, column, _mapping.HeaderRow) ?? Pick($"Columna {SheetData.ColumnLetter(column)}", $"Column {SheetData.ColumnLetter(column)}"))
+                                </span>
+                                @if (samples.Count == 0)
+                                {
+                                    <span class="import-ellipsis mud-typography mud-typography-caption mud-text-secondary">@Pick("(vacía)", "(empty)")</span>
+                                }
+                                @foreach (var sample in samples)
+                                {
+                                    <span class="import-ellipsis mud-typography mud-typography-caption mud-text-secondary">@sample</span>
+                                }
+                            </div>
+                            <div class="import-select">
+                                <MudSelect T="ImportField" Value="_mapping.Columns[column]" ValueChanged="f => SetField(column, f)"
+                                           Label="@Pick("Es", "Is")" Variant="Variant.Outlined" Margin="Margin.Dense" Class="import-field-select"
+                                           aria-label="@Pick("Campo de la columna", "Column field")">
+                                    @foreach (var field in AllFields)
+                                    {
+                                        <MudSelectItem T="ImportField" Value="field">@FieldLabel(field)</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </div>
+                        </div>
+                    </MudPaper>
+                }
+
+                <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                    <MudStack Spacing="2">
+                        <MudSelect T="DateOrder" Value="_dateOrder" ValueChanged="@(v => _dateOrder = v)" Label="@Pick("Orden de las fechas escritas", "Order of dates written as text")"
+                                   id="import-date-order" Variant="Variant.Outlined" Margin="Margin.Dense">
+                            <MudSelectItem T="DateOrder" Value="DateOrder.DayFirst">@Pick("Día/mes/año (31/12/2026)", "Day/month/year (31/12/2026)")</MudSelectItem>
+                            <MudSelectItem T="DateOrder" Value="DateOrder.MonthFirst">@Pick("Mes/día/año (12/31/2026)", "Month/day/year (12/31/2026)")</MudSelectItem>
+                        </MudSelect>
+                        <MudSelect T="Currency" Value="_currency" ValueChanged="@(v => _currency = v)" Label="@Pick("Moneda de los montos", "Currency of the amounts")"
+                                   id="import-currency" Variant="Variant.Outlined" Margin="Margin.Dense">
+                            @foreach (var currency in Enum.GetValues<Currency>())
+                            {
+                                <MudSelectItem T="Currency" Value="currency">@currency</MudSelectItem>
+                            }
+                        </MudSelect>
+                        @if (_mapping!.AmountMode == AmountMode.Signed)
+                        {
+                            <MudSwitch T="bool" Value="_negativeIsExpense" ValueChanged="@(v => _negativeIsExpense = v)" Color="Color.Primary"
+                                       Label="@Pick("Los montos negativos son gastos", "Negative amounts are expenses")" id="import-negative" />
+                        }
+                    </MudStack>
+                </MudPaper>
+
+                @if (MappingHint() is { } hint)
+                {
+                    <MudAlert Severity="Severity.Info" Dense="true" id="import-mapping-hint"><span class="import-wrap">@hint</span></MudAlert>
+                }
+            </MudStack>
+        </div>
+    };
+
+    // ---- Paso 3: categorías y medios de pago ----
+
+    private RenderFragment Step3() => __builder =>
+    {
+        <div id="import-step-3">
+            <MudStack Spacing="3">
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                    @Pick("Elige con qué categoría y medio de pago de piRadar se une cada nombre del archivo, o crea uno nuevo.",
+                          "Choose which piRadar category and payment method each name in the file maps to, or create a new one.")
+                </MudText>
+
+                @if (_categoryRows.Count > 0)
+                {
+                    <MudText Typo="Typo.subtitle1" Class="ml-1">@Pick("Categorías", "Categories")</MudText>
+                    @foreach (var row in _categoryRows)
+                    {
+                        var current = row;
+                        <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                            <div class="import-column">
+                                <div class="import-row-text">
+                                    <span class="import-ellipsis mud-typography mud-typography-subtitle2">@current.Name.Name</span>
+                                    <div class="d-flex align-center gap-2">
+                                        <MudChip T="string" Size="Size.Small" Variant="Variant.Text"
+                                                 Color="@(current.Name.Type == TransactionType.Income ? Color.Success : Color.Error)">
+                                            @(current.Name.Type == TransactionType.Income ? Pick("Ingreso", "Income") : Pick("Gasto", "Expense"))
+                                        </MudChip>
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary">@CountLabel(current.Name.Count)</MudText>
+                                    </div>
+                                    @if (current.Subs.Count > 0)
+                                    {
+                                        <span class="import-ellipsis mud-typography mud-typography-caption mud-text-secondary">
+                                            @Pick("Subcategorías: ", "Subcategories: ")@string.Join(", ", current.Subs.Take(5).Select(s => $"{s.Name} ({s.Count})"))@(current.Subs.Count > 5 ? "…" : "")
+                                        </span>
+                                    }
+                                </div>
+                                <div class="import-select">
+                                    <MudSelect T="int" Value="current.Selected" ValueChanged="v => current.Selected = v" Variant="Variant.Outlined" Margin="Margin.Dense"
+                                               Label="@Pick("Se guarda en", "Saved in")" Class="import-category-select">
+                                        <MudSelectItem T="int" Value="0">@Pick("Crear nueva", "Create new")</MudSelectItem>
+                                        @foreach (var option in CategoryOptions(current.Name.Type))
+                                        {
+                                            <MudSelectItem T="int" Value="option.Id">@option.Label</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </div>
+                        </MudPaper>
+                    }
+                }
+
+                @if (_needFallbackExpense || _needFallbackIncome)
+                {
+                    <MudText Typo="Typo.subtitle1" Class="ml-1">@Pick("Filas sin categoría", "Rows without a category")</MudText>
+                    <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                        <MudStack Spacing="2">
+                            <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                                @Pick("Algunas filas no traen categoría. Se guardarán en estas:", "Some rows have no category. They will be saved in:")
+                            </MudText>
+                            @if (_needFallbackExpense)
+                            {
+                                <MudSelect T="int" Value="_fallbackExpense" ValueChanged="@(v => _fallbackExpense = v)" Variant="Variant.Outlined" Margin="Margin.Dense"
+                                           Label="@Pick("Gastos sin categoría", "Expenses without a category")" id="import-fallback-expense">
+                                    @foreach (var option in FallbackOptions(TransactionType.Expense))
+                                    {
+                                        <MudSelectItem T="int" Value="option.Id">@option.Label</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            }
+                            @if (_needFallbackIncome)
+                            {
+                                <MudSelect T="int" Value="_fallbackIncome" ValueChanged="@(v => _fallbackIncome = v)" Variant="Variant.Outlined" Margin="Margin.Dense"
+                                           Label="@Pick("Ingresos sin categoría", "Income without a category")" id="import-fallback-income">
+                                    @foreach (var option in FallbackOptions(TransactionType.Income))
+                                    {
+                                        <MudSelectItem T="int" Value="option.Id">@option.Label</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            }
+                        </MudStack>
+                    </MudPaper>
+                }
+
+                @if (_paymentRows.Count > 0)
+                {
+                    <MudText Typo="Typo.subtitle1" Class="ml-1">@Pick("Medios de pago", "Payment methods")</MudText>
+                    @foreach (var row in _paymentRows)
+                    {
+                        var current = row;
+                        <MudPaper Class="pa-3" Elevation="0" Outlined="true">
+                            <div class="import-column">
+                                <div class="import-row-text">
+                                    <span class="import-ellipsis mud-typography mud-typography-subtitle2">@current.Name.Name</span>
+                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">@CountLabel(current.Name.Count)</MudText>
+                                </div>
+                                <div class="import-select">
+                                    <MudSelect T="int" Value="current.Selected" ValueChanged="v => current.Selected = v" Variant="Variant.Outlined" Margin="Margin.Dense"
+                                               Label="@Pick("Se guarda en", "Saved in")" Class="import-payment-select">
+                                        <MudSelectItem T="int" Value="0">@Pick("Crear nuevo", "Create new")</MudSelectItem>
+                                        @foreach (var method in _paymentMethods)
+                                        {
+                                            <MudSelectItem T="int" Value="method.Id">@method.Name</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </div>
+                        </MudPaper>
+                    }
+                }
+
+                @if (FallbackMissing())
+                {
+                    <MudAlert Severity="Severity.Warning" Dense="true" id="import-fallback-hint">
+                        <span class="import-wrap">@Pick("Crea primero una categoría en Categorías para las filas sin categoría.", "First create a category in Categories for the rows without one.")</span>
+                    </MudAlert>
+                }
+            </MudStack>
+        </div>
+    };
+
+    // ---- Paso 4: vista previa ----
+
+    private RenderFragment Step4() => __builder =>
+    {
+        var preview = _preview!;
+        <div id="import-step-4">
+            <MudStack Spacing="3">
+                @foreach (var total in _summary)
+                {
+                    <MudPaper Class="pa-3" Elevation="0" Outlined="true" id="@($"import-total-{total.Currency}")">
+                        <MudStack Spacing="1">
+                            <div class="d-flex justify-space-between align-baseline gap-3">
+                                <MudText Typo="Typo.subtitle2">@total.Currency</MudText>
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">@CountLabel(total.Count)</MudText>
+                            </div>
+                            <div class="d-flex justify-space-between gap-3">
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Ingresos", "Income")</MudText>
+                                <MudText Typo="Typo.body2" Class="money-income">@total.Income</MudText>
+                            </div>
+                            <div class="d-flex justify-space-between gap-3">
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Gastos", "Expenses")</MudText>
+                                <MudText Typo="Typo.body2" Class="money-expense">@total.Expense</MudText>
+                            </div>
+                            <div class="d-flex justify-space-between gap-3">
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">@Pick("Balance", "Balance")</MudText>
+                                <MudText Typo="Typo.body2" Style="font-weight: 600">@(total.Income - total.Expense)</MudText>
+                            </div>
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                @Pick($"Del {DateLabels.Short(total.From)} al {DateLabels.Short(total.To)}", $"From {DateLabels.Short(total.From)} to {DateLabels.Short(total.To)}")
+                            </MudText>
+                        </MudStack>
+                    </MudPaper>
+                }
+
+                <MudText Typo="Typo.body2" id="import-count">
+                    @(_included.Count == 1
+                        ? Pick("Se importará 1 movimiento.", "1 transaction will be imported.")
+                        : Pick($"Se importarán {_included.Count} movimientos.", $"{_included.Count} transactions will be imported."))
+                </MudText>
+
+                @if (preview.SkippedEmpty + preview.SkippedTotals + preview.SkippedZero > 0)
+                {
+                    <MudText Typo="Typo.caption" Class="mud-text-secondary import-wrap" id="import-skipped">
+                        @Pick("Se omitieron: ", "Skipped: ")@SkippedText(preview)
+                    </MudText>
+                }
+
+                @if (_duplicates.Count > 0)
+                {
+                    <MudPaper Class="pa-3" Elevation="0" Outlined="true" id="import-duplicates">
+                        <MudStack Spacing="1">
+                            <MudText Typo="Typo.body2" Class="import-wrap">
+                                @(_duplicates.Count == 1
+                                    ? Pick("1 fila parece repetida: ya tienes un movimiento igual (misma fecha, monto y descripción).",
+                                           "1 row looks like a duplicate: you already have an identical transaction (same date, amount and description).")
+                                    : Pick($"{_duplicates.Count} filas parecen repetidas: ya tienes movimientos iguales (misma fecha, monto y descripción).",
+                                           $"{_duplicates.Count} rows look like duplicates: you already have identical transactions (same date, amount and description)."))
+                            </MudText>
+                            <MudSwitch T="bool" Value="_includeDuplicates" ValueChanged="SetIncludeDuplicates" Color="Color.Primary"
+                                       Label="@Pick("Incluir posibles duplicados", "Include possible duplicates")" id="import-include-duplicates" />
+                        </MudStack>
+                    </MudPaper>
+                }
+
+                @if (preview.RoundedRows.Count > 0)
+                {
+                    <MudAlert Severity="Severity.Warning" Dense="true" id="import-rounded">
+                        <span class="import-wrap">
+                            @(preview.RoundedRows.Count == 1
+                                ? Pick("1 monto tenía decimales que la moneda no usa y se redondeó.", "1 amount had decimals the currency does not use and was rounded.")
+                                : Pick($"{preview.RoundedRows.Count} montos tenían decimales que la moneda no usa y se redondearon.",
+                                       $"{preview.RoundedRows.Count} amounts had decimals the currency does not use and were rounded."))
+                        </span>
+                    </MudAlert>
+                }
+
+                @if (preview.OpeningBalanceRows.Count > 0)
+                {
+                    <MudAlert Severity="Severity.Warning" Dense="true" id="import-opening">
+                        <span class="import-wrap">
+                            @Pick("piRadar ya calcula por sí solo el saldo inicial de cada periodo. Si ya tienes movimientos anteriores, un ingreso que sea un saldo anterior se contaría dos veces. Filas que lo parecen: ",
+                                  "piRadar already works out the opening balance of each period on its own. If you already have earlier transactions, an income that is a previous balance would be counted twice. Rows that look like one: ")@RowNumbers(preview.OpeningBalanceRows)
+                        </span>
+                    </MudAlert>
+                }
+
+                @if (preview.Errors.Count > 0)
+                {
+                    <MudPaper Class="pa-3" Elevation="0" Outlined="true" id="import-errors">
+                        <MudStack Spacing="1">
+                            <MudText Typo="Typo.subtitle2" Color="Color.Error">
+                                @(preview.Errors.Count == 1
+                                    ? Pick("1 fila con problemas (no se importará)", "1 row with problems (it will not be imported)")
+                                    : Pick($"{preview.Errors.Count} filas con problemas (no se importarán)", $"{preview.Errors.Count} rows with problems (they will not be imported)"))
+                            </MudText>
+                            <ul class="import-list">
+                                @foreach (var issue in preview.Errors.Take(MaxErrorsShown))
+                                {
+                                    <li><MudText Typo="Typo.caption">@issue.Message</MudText></li>
+                                }
+                            </ul>
+                            @if (preview.Errors.Count > MaxErrorsShown)
+                            {
+                                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                    @Pick($"y {preview.Errors.Count - MaxErrorsShown} más", $"and {preview.Errors.Count - MaxErrorsShown} more")
+                                </MudText>
+                            }
+                        </MudStack>
+                    </MudPaper>
+                }
+
+                @if (_included.Count == 0)
+                {
+                    <MudAlert Severity="Severity.Info" Dense="true">
+                        <span class="import-wrap">@(_duplicates.Count > 0 && !_includeDuplicates
+                            ? Pick("Todas las filas ya están en piRadar. Si de verdad quieres repetirlas, activa Incluir posibles duplicados.",
+                                "All the rows are already in piRadar. If you really want them again, turn on Include possible duplicates.")
+                            : Pick("No hay movimientos para importar. Vuelve atrás y revisa las columnas.", "There are no transactions to import. Go back and check the columns."))</span>
+                    </MudAlert>
+                }
+            </MudStack>
+        </div>
+    };
+
+    // ---- Paso 5: resultado ----
+
+    private RenderFragment Step5() => __builder =>
+    {
+        var result = _result!;
+        <div id="import-step-5">
+            <MudStack Spacing="3">
+                <MudPaper Class="pa-4" Elevation="0" Outlined="true">
+                    <MudStack Spacing="2" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="@Icons.Material.Rounded.CheckCircle" Color="Color.Success" Size="Size.Large" />
+                        <MudText Typo="Typo.h6" id="import-result-count" Align="Align.Center">
+                            @(result.Imported == 1
+                                ? Pick("Se importó 1 movimiento", "1 transaction imported")
+                                : Pick($"Se importaron {result.Imported} movimientos", $"{result.Imported} transactions imported"))
+                        </MudText>
+                        @if (result.CategoriesCreated + result.SubcategoriesCreated + result.PaymentMethodsCreated > 0)
+                        {
+                            <MudText Typo="Typo.body2" Class="mud-text-secondary import-wrap" Align="Align.Center" id="import-result-created">
+                                @Pick("Se crearon: ", "Created: ")@CreatedText(result)
+                            </MudText>
+                        }
+                    </MudStack>
+                </MudPaper>
+                <MudButton id="import-view" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                           StartIcon="@Icons.Material.Rounded.ReceiptLong" OnClick="ViewTransactions">@Pick("Ver movimientos", "View transactions")</MudButton>
+                <MudButton id="import-again" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                           StartIcon="@Icons.Material.Rounded.UploadFile" OnClick="ImportAnother">@Pick("Importar otro archivo", "Import another file")</MudButton>
+            </MudStack>
+        </div>
+    };
+
+    // ---- Estado ----
+
+    private sealed class MapRow(ImportName name, IReadOnlyList<ImportSubName> subs, int selected)
+    {
+        public ImportName Name { get; } = name;
+        public IReadOnlyList<ImportSubName> Subs { get; } = subs;
+        public int Selected { get; set; } = selected;
+    }
+
+    private sealed record Option(int Id, string Label);
+
+    private const int MaxErrorsShown = 50;
+    private static readonly ImportField[] AllFields = Enum.GetValues<ImportField>();
+
+    private int _step = 1;
+    private bool _busy;
+    private string? _error;
+
+    private string? _fileName;
+    private byte[]? _bytes;
+    private bool _isXlsx;
+    private IReadOnlyList<string> _sheetNames = [];
+    private string? _sheetName;
+    private SheetData? _sheet;
+
+    private ImportMapping? _mapping;
+    private SavedImportMapping? _saved;
+    private DateOrder _dateOrder;
+    private Currency _currency;
+    private bool _negativeIsExpense = true;
+
+    private ImportPreview? _preview;
+    private IReadOnlyList<Category> _categories = [];
+    private IReadOnlyList<PaymentMethod> _paymentMethods = [];
+    private List<MapRow> _categoryRows = [];
+    private List<MapRow> _paymentRows = [];
+    private bool _needFallbackExpense;
+    private bool _needFallbackIncome;
+    private int _fallbackExpense;
+    private int _fallbackIncome;
+
+    private IReadOnlySet<int> _duplicates = new HashSet<int>();
+    private bool _includeDuplicates;
+    private IReadOnlyList<ImportRow> _included = [];
+    private IReadOnlyList<CurrencySummary> _summary = [];
+
+    private ImportResult? _result;
+    private DateTime _latestDate = DateTime.Today;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _currency = await Settings.GetBaseCurrencyAsync();
+        _saved = ImportMappingSetting.Parse(await Settings.GetAsync(ImportMappingSetting.Key));
+    }
+
+    private string StepTitle() => _step switch
+    {
+        1 => Pick("Archivo", "File"),
+        2 => Pick("Columnas", "Columns"),
+        3 => Pick("Categorías y medios de pago", "Categories and payment methods"),
+        _ => Pick("Vista previa", "Preview"),
+    };
+
+    // ---- Archivo ----
+
+    private static string? DebugFilePath()
+    {
+        foreach (var name in new[] { "import-in.xlsx", "import-in.csv" })
+        {
+            var path = Path.Combine(FileSystem.AppDataDirectory, name);
+            if (File.Exists(path))
+            {
+                return path;
+            }
+        }
+        return null;
+    }
+
+    private async Task PickFileAsync()
+    {
+        FileResult? picked;
+        try
+        {
+            picked = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                PickerTitle = Pick("Elige el archivo (.xlsx o .csv)", "Choose the file (.xlsx or .csv)"),
+                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    [DevicePlatform.iOS] = ["org.openxmlformats.spreadsheetml.sheet", "public.comma-separated-values-text", "public.plain-text"],
+                    [DevicePlatform.Android] = ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "text/*", "text/comma-separated-values"],
+                }),
+            });
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Falló el selector de archivos");
+            Snackbar.Add(Pick("No se pudo abrir el selector de archivos.", "The file picker could not be opened."), Severity.Error);
+            return;
+        }
+
+        if (picked is null)
+        {
+            return;
+        }
+
+        _busy = true;
+        _error = null;
+        await InvokeAsync(StateHasChanged);
+        try
+        {
+            byte[] bytes;
+            await using (var stream = await picked.OpenReadAsync())
+            {
+                bytes = await Task.Run(() => ReadLimited(stream));
+            }
+            await LoadBytesAsync(picked.FileName, bytes);
+        }
+        catch (ImportFormatException ex)
+        {
+            ResetFile();
+            _error = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            // Solo el tipo: el mensaje puede traer la ruta o el nombre del archivo.
+            Logger.LogError("No se pudo leer el archivo ({Type})", ex.GetType().Name);
+            ResetFile();
+            _error = Pick("No se pudo leer el archivo. Revisa que sea un .xlsx o un .csv válido.", "The file could not be read. Check that it is a valid .xlsx or .csv.");
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task LoadDebugFileAsync()
+    {
+        if (DebugFilePath() is not { } path)
+        {
+            return;
+        }
+
+        _busy = true;
+        _error = null;
+        await InvokeAsync(StateHasChanged);
+        try
+        {
+            await LoadBytesAsync(Path.GetFileName(path), await File.ReadAllBytesAsync(path));
+        }
+        catch (ImportFormatException ex)
+        {
+            ResetFile();
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private static byte[] ReadLimited(Stream stream)
+    {
+        if (stream.CanSeek && stream.Length > ImportLimits.MaxFileBytes)
+        {
+            throw TooBig();
+        }
+
+        using var memory = new MemoryStream();
+        var buffer = new byte[81920];
+        int n;
+        while ((n = stream.Read(buffer, 0, buffer.Length)) > 0)
+        {
+            if (memory.Length + n > ImportLimits.MaxFileBytes)
+            {
+                throw TooBig();
+            }
+            memory.Write(buffer, 0, n);
+        }
+        return memory.ToArray();
+    }
+
+    private static ImportFormatException TooBig() =>
+        new(Pick("El archivo es demasiado grande para importarlo.", "This file is too large to import."));
+
+    private async Task LoadBytesAsync(string fileName, byte[] bytes)
+    {
+        var zip = bytes.Length > 1 && bytes[0] == (byte)'P' && bytes[1] == (byte)'K';
+        var legacyXls = bytes.Length > 3 && bytes[0] == 0xD0 && bytes[1] == 0xCF && bytes[2] == 0x11 && bytes[3] == 0xE0;
+        var ext = Path.GetExtension(fileName).ToLowerInvariant();
+        if (legacyXls || ext == ".xls")
+        {
+            throw new ImportFormatException(Pick(
+                "Este es un archivo .xls antiguo. Ábrelo en Excel y guárdalo como .xlsx, o como CSV.",
+                "This is an old .xls file. Open it in Excel and save it as .xlsx or as CSV."));
+        }
+        if (!zip && ext is ".xlsx" or ".xlsm")
+        {
+            throw new ImportFormatException(Pick("El archivo no es un .xlsx válido.", "The file is not a valid .xlsx."));
+        }
+
+        var (names, sheet) = await Task.Run(() =>
+        {
+            if (zip)
+            {
+                var sheetNames = XlsxReader.GetSheetNames(new MemoryStream(bytes));
+                return (sheetNames, XlsxReader.Read(new MemoryStream(bytes), sheetNames.Count > 0 ? sheetNames[0] : null));
+            }
+            return ((IReadOnlyList<string>)[], CsvReader.Read(new MemoryStream(bytes)));
+        });
+
+        _bytes = bytes;
+        _isXlsx = zip;
+        _fileName = fileName;
+        _sheetNames = names;
+        _sheetName = names.Count > 0 ? names[0] : null;
+        _sheet = sheet;
+        _preview = null;
+        _mapping = null;
+        if (sheet.Rows.Count == 0)
+        {
+            ResetFile();
+            throw new ImportFormatException(Pick("El archivo está vacío.", "The file is empty."));
+        }
+    }
+
+    private async Task SelectSheetAsync(string name)
+    {
+        if (_bytes is null || !_isXlsx || name == _sheetName)
+        {
+            return;
+        }
+
+        _busy = true;
+        _error = null;
+        await InvokeAsync(StateHasChanged);
+        try
+        {
+            var bytes = _bytes;
+            var sheet = await Task.Run(() => XlsxReader.Read(new MemoryStream(bytes), name));
+            if (sheet.Rows.Count == 0)
+            {
+                throw new ImportFormatException(Pick("Esa hoja está vacía.", "That sheet is empty."));
+            }
+            _sheetName = name;
+            _sheet = sheet;
+            _mapping = null;
+            _preview = null;
+        }
+        catch (ImportFormatException ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private void ResetFile()
+    {
+        _bytes = null;
+        _sheet = null;
+        _sheetNames = [];
+        _sheetName = null;
+        _fileName = null;
+        _mapping = null;
+        _preview = null;
+    }
+
+    // ---- Navegación ----
+
+    private bool CanGoNext() => _step switch
+    {
+        1 => _sheet is not null,
+        2 => _mapping?.IsComplete == true,
+        3 => !FallbackMissing(),
+        _ => false,
+    };
+
+    private async Task NextAsync()
+    {
+        _error = null;
+        switch (_step)
+        {
+            case 1:
+                await GuessColumnsAsync();
+                break;
+            case 2:
+                await ParseAsync();
+                break;
+            case 3:
+                await EnterPreviewAsync();
+                break;
+        }
+    }
+
+    private async Task BackAsync()
+    {
+        _error = null;
+        _step = _step switch
+        {
+            4 => NeedsStep3() ? 3 : 2,
+            _ => Math.Max(1, _step - 1),
+        };
+        await Task.CompletedTask;
+    }
+
+    // ---- Paso 2 ----
+
+    private async Task GuessColumnsAsync()
+    {
+        if (_sheet is not { } sheet)
+        {
+            return;
+        }
+
+        if (_mapping is null)
+        {
+            _busy = true;
+            await InvokeAsync(StateHasChanged);
+            try
+            {
+                var saved = _saved;
+                var (mapping, order) = await Task.Run(() =>
+                {
+                    var header = HeaderDetector.Find(sheet);
+                    var guessed = ImportColumnGuesser.Guess(sheet, header);
+                    var applied = ImportMappingSetting.Apply(saved, guessed, sheet);
+                    return applied is not null
+                        ? (applied, saved!.DateOrder)
+                        : (guessed, ImportRowParser.SuggestDateOrder(sheet, guessed));
+                });
+                _mapping = mapping;
+                _dateOrder = order;
+            }
+            finally
+            {
+                _busy = false;
+            }
+        }
+        _step = 2;
+    }
+
+    private void SetField(int column, ImportField field) => _mapping = _mapping!.With(column, field);
+
+    private string? MappingHint()
+    {
+        var mapping = _mapping!;
+        if (mapping.ColumnOf(ImportField.Date) is null)
+        {
+            return Pick("Falta elegir la columna de la Fecha.", "Choose the Date column.");
+        }
+        if (mapping.AmountMode == AmountMode.None)
+        {
+            return Pick("Falta el monto: elige una columna de Monto, o las de Ingreso y Gasto, o Monto y Tipo.",
+                "The amount is missing: choose an Amount column, or Income and Expense columns, or Amount and Type.");
+        }
+        return null;
+    }
+
+    private static string FieldLabel(ImportField field) => field switch
+    {
+        ImportField.Date => Pick("Fecha", "Date"),
+        ImportField.Time => Pick("Hora", "Time"),
+        ImportField.Amount => Pick("Monto", "Amount"),
+        ImportField.Income => Pick("Ingreso", "Income"),
+        ImportField.Expense => Pick("Gasto", "Expense"),
+        ImportField.Type => Pick("Tipo", "Type"),
+        ImportField.Category => Pick("Categoría", "Category"),
+        ImportField.Subcategory => Pick("Subcategoría", "Subcategory"),
+        ImportField.PaymentMethod => Pick("Medio de pago", "Payment method"),
+        ImportField.Currency => Pick("Moneda", "Currency"),
+        ImportField.Description => Pick("Descripción", "Description"),
+        ImportField.Merchant => Pick("Comercio", "Merchant"),
+        ImportField.Notes => Pick("Notas", "Notes"),
+        _ => Pick("Ignorar", "Ignore"),
+    };
+
+    private async Task ParseAsync()
+    {
+        if (_sheet is not { } sheet || _mapping is not { IsComplete: true } mapping)
+        {
+            return;
+        }
+
+        _busy = true;
+        await InvokeAsync(StateHasChanged);
+        try
+        {
+            if (mapping.Fingerprint(sheet) is { } fingerprint)
+            {
+                _saved = new SavedImportMapping(fingerprint, mapping.Columns, _dateOrder);
+                try
+                {
+                    await Settings.SetAsync(ImportMappingSetting.Key, ImportMappingSetting.Serialize(_saved));
+                }
+                catch (Exception ex)
+                {
+                    // Recordar la asignación es opcional.
+                    Logger.LogWarning("No se pudo recordar la asignación de columnas ({Type})", ex.GetType().Name);
+                }
+            }
+
+            var options = new ImportOptions(mapping, _dateOrder, _currency, _negativeIsExpense);
+            var preview = await Task.Run(() => ImportRowParser.Parse(sheet, options));
+            _preview = preview;
+
+            _categories = await CategoryRepository.GetAllAsync();
+            _paymentMethods = await PaymentMethodRepository.GetAllAsync();
+
+            var categoryProposal = ImportCategoryMatcher.Propose(preview.Categories, _categories);
+            _categoryRows = preview.Categories
+                .Select(n => new MapRow(n, ImportWizard.SubcategoriesOf(preview, n), categoryProposal.GetValueOrDefault(n) ?? 0)).ToList();
+            var paymentProposal = ImportCategoryMatcher.ProposePaymentMethods(preview.PaymentMethods, _paymentMethods);
+            _paymentRows = preview.PaymentMethods
+                .Select(n => new MapRow(n, [], paymentProposal.GetValueOrDefault(n) ?? 0)).ToList();
+
+            (_needFallbackExpense, _needFallbackIncome) = ImportWizard.FallbacksNeeded(preview.Rows);
+            _fallbackExpense = ImportCategoryMatcher.SuggestFallback(_categories, TransactionType.Expense) ?? 0;
+            _fallbackIncome = ImportCategoryMatcher.SuggestFallback(_categories, TransactionType.Income) ?? 0;
+            _includeDuplicates = false;
+
+            if (NeedsStep3())
+            {
+                _step = 3;
+            }
+            else
+            {
+                await EnterPreviewAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("No se pudo convertir el archivo ({Type})", ex.GetType().Name);
+            _error = Pick("No se pudo leer el contenido del archivo con esas columnas.", "The file contents could not be read with those columns.");
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    // ---- Paso 3 ----
+
+    private bool NeedsStep3() => _categoryRows.Count > 0 || _paymentRows.Count > 0 || _needFallbackExpense || _needFallbackIncome;
+
+    private bool FallbackMissing() =>
+        (_needFallbackExpense && _fallbackExpense == 0) || (_needFallbackIncome && _fallbackIncome == 0);
+
+    private IEnumerable<Option> CategoryOptions(TransactionType kind)
+    {
+        var all = _categories.Where(c => c.Kind == kind).ToList();
+        var parents = all.ToDictionary(c => c.Id);
+        return all.OrderBy(c => c.ParentId is null ? c.SortOrder : parents.GetValueOrDefault(c.ParentId.Value)?.SortOrder ?? c.SortOrder)
+            .ThenBy(c => c.ParentId is null ? 0 : 1).ThenBy(c => c.SortOrder)
+            .Select(c => new Option(c.Id, c.ParentId is { } p && parents.TryGetValue(p, out var parent) ? $"{parent.Name} › {c.Name}" : c.Name));
+    }
+
+    private IEnumerable<Option> FallbackOptions(TransactionType kind) =>
+        _categories.Where(c => c.Kind == kind && c.ParentId is null).OrderBy(c => c.SortOrder).Select(c => new Option(c.Id, c.Name));
+
+    private static string CountLabel(int count) =>
+        count == 1 ? Pick("1 movimiento", "1 transaction") : Pick($"{count} movimientos", $"{count} transactions");
+
+    // ---- Paso 4 ----
+
+    private async Task EnterPreviewAsync()
+    {
+        var preview = _preview!;
+        _busy = true;
+        await InvokeAsync(StateHasChanged);
+        try
+        {
+            var duplicates = new HashSet<int>();
+            if (ImportWizard.DateRange(preview.Rows) is { } range)
+            {
+                var saved = await TransactionRepository.QueryAsync(TransactionFilter.Between(range.From, range.To));
+                if (saved.Count > 0)
+                {
+                    var rows = preview.Rows;
+                    duplicates = (await Task.Run(() => ImportDuplicates.Find(rows, saved))).ToHashSet();
+                }
+            }
+            _duplicates = duplicates;
+            Recompute();
+            _step = 4;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("No se pudo revisar si hay movimientos repetidos ({Type})", ex.GetType().Name);
+            _error = Pick("No se pudo preparar la vista previa.", "The preview could not be prepared.");
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private void SetIncludeDuplicates(bool include)
+    {
+        _includeDuplicates = include;
+        Recompute();
+    }
+
+    private void Recompute()
+    {
+        _included = ImportWizard.IncludedRows(_preview!, _duplicates, _includeDuplicates);
+        _summary = ImportWizard.Summarize(_included);
+    }
+
+    private string SkippedText(ImportPreview preview)
+    {
+        var parts = new List<string>();
+        if (preview.SkippedEmpty > 0) parts.Add(Pick($"{preview.SkippedEmpty} vacías", $"{preview.SkippedEmpty} empty"));
+        if (preview.SkippedTotals > 0) parts.Add(Pick($"{preview.SkippedTotals} de totales", $"{preview.SkippedTotals} total rows"));
+        if (preview.SkippedZero > 0) parts.Add(Pick($"{preview.SkippedZero} con monto cero", $"{preview.SkippedZero} with a zero amount"));
+        return string.Join(", ", parts);
+    }
+
+    private static string RowNumbers(IReadOnlyList<int> rows)
+    {
+        const int max = 10;
+        var text = string.Join(", ", rows.Take(max));
+        return rows.Count > max ? text + Pick($" y {rows.Count - max} más", $" and {rows.Count - max} more") : text;
+    }
+
+    // ---- Paso 5 ----
+
+    private async Task RunImportAsync()
+    {
+        if (_included.Count == 0 || _busy)
+        {
+            return;
+        }
+
+        _busy = true;
+        _error = null;
+        await InvokeAsync(StateHasChanged);
+        try
+        {
+            var plan = ImportWizard.BuildPlan(
+                _fileName,
+                _included,
+                _categoryRows.Select(r => new CategoryChoice(r.Name.Name, r.Name.Type, r.Selected == 0 ? null : r.Selected)),
+                _paymentRows.Select(r => new PaymentMethodChoice(r.Name.Name, r.Selected == 0 ? null : r.Selected)),
+                _fallbackExpense == 0 ? null : _fallbackExpense,
+                _fallbackIncome == 0 ? null : _fallbackIncome);
+            _latestDate = _included.Max(r => r.OccurredAt);
+            _result = await Importer.ImportAsync(plan);
+            _step = 5;
+            // El archivo ya no hace falta.
+            _bytes = null;
+            _sheet = null;
+        }
+        catch (DomainValidationException ex)
+        {
+            _error = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("Falló la importación ({Type})", ex.GetType().Name);
+            _error = Pick("No se pudo importar. Tus datos no cambiaron.", "The import failed. Your data did not change.");
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private static string CreatedText(ImportResult result)
+    {
+        var parts = new List<string>();
+        if (result.CategoriesCreated > 0)
+            parts.Add(result.CategoriesCreated == 1 ? Pick("1 categoría", "1 category") : Pick($"{result.CategoriesCreated} categorías", $"{result.CategoriesCreated} categories"));
+        if (result.SubcategoriesCreated > 0)
+            parts.Add(result.SubcategoriesCreated == 1 ? Pick("1 subcategoría", "1 subcategory") : Pick($"{result.SubcategoriesCreated} subcategorías", $"{result.SubcategoriesCreated} subcategories"));
+        if (result.PaymentMethodsCreated > 0)
+            parts.Add(result.PaymentMethodsCreated == 1 ? Pick("1 medio de pago", "1 payment method") : Pick($"{result.PaymentMethodsCreated} medios de pago", $"{result.PaymentMethodsCreated} payment methods"));
+        return string.Join(", ", parts);
+    }
+
+    private void ViewTransactions()
+    {
+        TransactionsState.ResetSearch(open: false);
+        TransactionsState.Type = null;
+        TransactionsState.Period = Period.Containing(_latestDate, PeriodGranularity.Month);
+        Navigation.NavigateTo("transactions");
+    }
+
+    private void ImportAnother()
+    {
+        ResetFile();
+        _result = null;
+        _error = null;
+        _duplicates = new HashSet<int>();
+        _included = [];
+        _summary = [];
+        _categoryRows = [];
+        _paymentRows = [];
+        _step = 1;
+    }
+}

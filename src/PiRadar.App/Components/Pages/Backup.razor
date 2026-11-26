@@ -1,7 +1,11 @@
 @page "/backup"
 @using Microsoft.Extensions.Logging
 @using PiRadar.Core.Backup
+@using PiRadar.Core.Import
 @inject IBackupService BackupService
+@inject ITransactionImporter Importer
+@inject ITransactionRepository TransactionRepository
+@inject CsvExportService CsvExport
 @inject ISettingsRepository SettingsRepository
 @inject IDialogService Dialogs
 @inject ISnackbar Snackbar
@@ -69,12 +73,52 @@
                 <text>Restaurar reemplaza <b>todos</b> los datos de este teléfono por los del respaldo.</text>
             }
         </MudAlert>
+
+        <MudText Typo="Typo.subtitle1" Class="ml-1 mt-2">@Pick("Importar y exportar", "Import and export")</MudText>
+        <MudPaper Class="pa-4" Elevation="0" Outlined="true" id="import-export-section">
+            <MudStack Spacing="3">
+                <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                    @Pick("Trae movimientos desde un archivo de Excel (.xlsx) o CSV, o saca todos los tuyos a un CSV para abrirlos en una hoja de cálculo.",
+                          "Bring in transactions from an Excel (.xlsx) or CSV file, or export all of yours to a CSV you can open in a spreadsheet.")
+                </MudText>
+                <MudButton id="backup-open-import" Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true" Href="import"
+                           StartIcon="@Icons.Material.Rounded.UploadFile">@Pick("Importar movimientos", "Import transactions")</MudButton>
+
+                @if (_lastImport is { } batch)
+                {
+                    <div id="last-import" style="min-width: 0">
+                        <MudText Typo="Typo.body2" Style="overflow-wrap: anywhere">
+                            @Pick("Última importación: ", "Last import: ")@DateLabels.Short(batch.ImportedAt.ToLocalTime()) @DateLabels.Time(batch.ImportedAt.ToLocalTime())
+                        </MudText>
+                        @if (!string.IsNullOrWhiteSpace(batch.FileName))
+                        {
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary d-block"
+                                     Style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap">@batch.FileName</MudText>
+                        }
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                            @(batch.RowCount == 1
+                                ? Pick("1 movimiento", "1 transaction")
+                                : Pick($"{batch.RowCount} movimientos", $"{batch.RowCount} transactions"))
+                        </MudText>
+                    </div>
+                    <MudButton id="undo-import" Variant="Variant.Outlined" Color="Color.Error" FullWidth="true" Disabled="_busy"
+                               StartIcon="@Icons.Material.Rounded.Undo" OnClick="UndoImportAsync">@Pick("Deshacer última importación", "Undo last import")</MudButton>
+                }
+
+                <MudButton id="export-csv-all" Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true" Disabled="_busy"
+                           StartIcon="@Icons.Material.Rounded.IosShare" OnClick="ExportCsvAsync">@Pick("Exportar todo a CSV", "Export all to CSV")</MudButton>
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                    @Pick("El CSV no va cifrado: cualquiera que lo reciba puede leerlo.", "The CSV is not encrypted: anyone who gets it can read it.")
+                </MudText>
+            </MudStack>
+        </MudPaper>
     </MudStack>
 </MudContainer>
 
 @code {
     private DateTime? _lastBackup;
     private bool _busy;
+    private ImportBatchInfo? _lastImport;
 
     /// <summary>Solo Debug: respaldo copiado con adb/simctl para probar la restauración sin el selector de archivos.</summary>
     private static string DebugBackupPath => Path.Combine(FileSystem.AppDataDirectory, "backup-in" + BackupCrypto.FileExtension);
@@ -82,7 +126,64 @@
     protected override async Task OnInitializedAsync()
     {
         DeleteExportedFiles();
+        CsvExportService.DeleteOldFiles();
         _lastBackup = await SettingsRepository.GetLastBackupAtAsync();
+        _lastImport = await Importer.GetLastImportAsync();
+    }
+
+    private async Task UndoImportAsync()
+    {
+        if (_lastImport is not { } batch)
+        {
+            return;
+        }
+
+        var count = batch.RemainingCount;
+        var message = Pick(
+            $"Se borrarán {count} movimientos de esa importación, incluidos los que editaste después de importar. Las categorías y los medios de pago que se crearon se conservan.",
+            $"{count} transactions from that import will be deleted, including any you edited after importing. Categories and payment methods that were created are kept.");
+        if (!await Dialogs.ConfirmAsync(Pick("¿Deshacer la última importación?", "Undo the last import?"), message, Pick("Deshacer", "Undo")))
+        {
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            var deleted = await Importer.UndoLastImportAsync();
+            _lastImport = await Importer.GetLastImportAsync();
+            Snackbar.Add(deleted == 1
+                ? Pick("Se borró 1 movimiento.", "1 transaction deleted.")
+                : Pick($"Se borraron {deleted} movimientos.", $"{deleted} transactions deleted."), Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "No se pudo deshacer la importación");
+            Snackbar.Add(Pick("No se pudo deshacer la importación. Tus datos no cambiaron.", "The import could not be undone. Your data did not change."), Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task ExportCsvAsync()
+    {
+        _busy = true;
+        try
+        {
+            var all = await TransactionRepository.QueryAsync(TransactionFilter.All);
+            await CsvExport.ExportAsync(all);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "No se pudo exportar el CSV");
+            Snackbar.Add(Pick("No se pudo exportar el CSV. Intenta de nuevo.", "The CSV could not be exported. Try again."), Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
     }
 
     private async Task ExportAsync()

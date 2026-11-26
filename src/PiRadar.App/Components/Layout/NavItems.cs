@@ -28,6 +28,7 @@ public static class NavItems
         new(AppLocale.Pick("Categorías", "Categories"), Icons.Material.Rounded.Category, "categories"),
         new(AppLocale.Pick("Medios de pago", "Payment methods"), Icons.Material.Rounded.CreditCard, "payment-methods"),
         new(AppLocale.Pick("Tasas de cambio", "Exchange rates"), Icons.Material.Rounded.CurrencyExchange, "exchange-rates"),
+        new(AppLocale.Pick("Importar movimientos", "Import transactions"), Icons.Material.Rounded.UploadFile, "import"),
         new(AppLocale.Pick("Respaldo", "Backup"), Icons.Material.Rounded.CloudUpload, "backup"),
         new(AppLocale.Pick("Ajustes", "Settings"), Icons.Material.Rounded.Settings, "settings"),
         new(AppLocale.Pick("Ayuda", "Help"), Icons.Material.Rounded.HelpOutline, "help"),

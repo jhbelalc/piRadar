@@ -1,13 +1,20 @@
 @page "/transactions"
+@using Microsoft.Extensions.Logging
 @using PiRadar.Core.Analytics
 @inject ITransactionRepository TransactionRepository
 @inject ICategoryRepository CategoryRepository
 @inject IPaymentMethodRepository PaymentMethodRepository
 @inject TransactionsViewState State
+@inject CsvExportService CsvExport
+@inject ISnackbar Snackbar
+@inject ILogger<Transactions> Logger
 
 <PageBar Title="@Pick("Movimientos", "Transactions")" HelpTopics="HelpTopics.Transactions"
          BackHref="@(State.FromAnalytics ? "analytics" : null)">
     <Actions>
+        <MudIconButton Icon="@Icons.Material.Rounded.IosShare" Color="Color.Inherit" id="export-csv"
+                       aria-label="@Pick("Exportar CSV", "Export CSV")"
+                       Disabled="@(_transactions is not { Count: > 0 } || _exporting)" OnClick="ExportCsvAsync" />
         <MudIconButton Icon="@Icons.Material.Rounded.Search" Color="Color.Inherit" id="search-button"
                        aria-label="@Pick("Buscar", "Search")" OnClick="ToggleSearchAsync" />
     </Actions>
@@ -241,6 +248,34 @@
         _transactions = all.Where(t => TransactionSearch.Matches(t,
             _categories.GetValueOrDefault(t.CategoryId)?.Name, PaymentMethodOf(t)?.Name, tokens, categoryIds, State.SearchPaymentMethodId)).ToList();
         _totals = CurrencyTotals.ByCurrency(_transactions);
+    }
+
+    private bool _exporting;
+
+    /// <summary>Exporta exactamente lo que muestra la lista (periodo y tipo, o los resultados de la búsqueda).</summary>
+    private async Task ExportCsvAsync()
+    {
+        if (_transactions is not { Count: > 0 } list || _exporting)
+        {
+            return;
+        }
+
+        _exporting = true;
+        try
+        {
+            Snackbar.Add(Pick("El CSV no va cifrado: cualquiera que lo reciba puede leerlo.",
+                "The CSV is not encrypted: anyone who gets it can read it."), Severity.Info);
+            await CsvExport.ExportAsync(list);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "No se pudo exportar el CSV");
+            Snackbar.Add(Pick("No se pudo exportar el CSV. Intenta de nuevo.", "The CSV could not be exported. Try again."), Severity.Error);
+        }
+        finally
+        {
+            _exporting = false;
+        }
     }
 
     private Task ToggleSearchAsync()
